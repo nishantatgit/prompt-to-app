@@ -52,7 +52,9 @@ Following is the list of apps with increasing level of difficulty to score the c
 24	| A chat room where messages appear live	| Messages show up without refreshing
 25	| A dashboard where I upload a CSV and see charts	| Charts and summary match the uploaded data
 
-Have an app request that AI builders always get wrong? Open an issue and suggest it.
+> [!TIP]
+> **Have an app request that AI builders always get wrong?**
+> [Open an issue](https://github.com/nishantatgit/prompt-to-app/issues/new) and suggest it. Good ones get added to the benchmark.
 
 ### Scoreboard
 
