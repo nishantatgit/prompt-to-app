@@ -17,7 +17,7 @@ Following is the list of apps with increasing level of difficulty to score the c
 5 |	A converter for km/miles, kg/lb and Celsius/Fahrenheit	| All conversions correct in both directions
 
 ### Level 2: Interactive apps (data in the browser)
-#  |   Prompt  |	Pass check
+| #  |   Prompt  |	Pass check
 |---|---|---|
 6	    |   A to-do list where I can add, complete, delete and filter tasks | All four actions work
 7	    | An expense tracker with categories and a running total |	Total is correct, data survives refresh
@@ -26,7 +26,7 @@ Following is the list of apps with increasing level of difficulty to score the c
 10	| A recipe finder with a vegetarian filter	| Filter shows only matching recipes
 
 ### Level 3: Database apps (Supabase)
-#	| Prompt	| Pass check
+| #	| Prompt	| Pass check
 |---|---|---|
 11	| A guestbook where visitors leave a name and message	| Messages visible to everyone and persist
 12	| A habit tracker with daily check-offs and streaks	| Streak counts correctly, data persists
@@ -36,7 +36,7 @@ Following is the list of apps with increasing level of difficulty to score the c
 16	| An event RSVP page with a guest limit	| RSVPs stop once the limit is reached
 
 ### Level 4: Login and user accounts
-# | Prompt	| Pass check
+| # | Prompt	| Pass check
 |---|---|---|
 17	| A notes app with signup and login	| Each user sees only their own notes
 18	| A blog where logged-in users write posts and anyone can read	| Only the author can edit or delete a post
@@ -45,7 +45,7 @@ Following is the list of apps with increasing level of difficulty to score the c
 21	| A clinic appointment system with doctor availability	| The same slot cannot be booked twice
 
 ### Level 5: Hard
-#	| Prompt	| Pass check
+| #	| Prompt	| Pass check
 |---|---|---|
 22	| A team task manager with invites, roles and task assignment	| Admins and members have different permissions
 23	| A mini marketplace where sellers list items with photos	| Image upload works, buyers can search items
@@ -55,13 +55,15 @@ Following is the list of apps with increasing level of difficulty to score the c
 Have an app request that AI builders always get wrong? Open an issue and suggest it.
 
 ### Scoreboard
+
+| Week| 	Score	| Notes
 |---|---|---|
-Week| 	Score	| Notes
 0	| 0/25| Builder not started yet
 
 ## How do I make sure that the generated app works as intended?
+
+| Check	| Example
 |---|---|
-Check	| Example
 Builds and deploys | 	No build errors, page opens
 Main feature works	| Add a task, it appears; refresh, it’s still there
 Edge cases	| Empty input rejected, 11th RSVP blocked when limit is 10
