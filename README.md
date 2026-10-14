@@ -8,7 +8,7 @@ I am building a prompt-to-app, mini version of Lovable  which reads prompts from
 Following is the list of apps with increasing level of difficulty to score the capability of prompt-to-app.
 
 ### Level 1: Simple pages (no data saved)
-# |	Prompt | Pass check
+| # |	Prompt | Pass check
 |---|---|---| 
 1 |	A personal portfolio with my name, about section, projects and contact links|	All sections render, links work, looks fine on mobile
 2 | A landing page for my bakery with a menu and a contact form	| Form submit shows a success message
