@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from agents.graph import AgentModels, build_graph
+from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.llm import create_llm
 from config import Settings, get_settings
 
@@ -10,6 +10,14 @@ router = APIRouter(prefix="/api")
 
 class BuildRequest(BaseModel):
     prompt: str
+
+
+def get_agent_limits(settings: Settings = Depends(get_settings)) -> AgentLimits:
+    return AgentLimits(
+        planner_max_attempts=settings.planner_max_attempts,
+        builder_max_attempts=settings.builder_max_attempts,
+        validator_max_attempts=settings.validator_max_attempts,
+    )
 
 
 def get_agent_models(settings: Settings = Depends(get_settings)) -> AgentModels:
@@ -30,7 +38,13 @@ def health():
 
 
 @router.post("/build")
-def build(req: BuildRequest, models: AgentModels = Depends(get_agent_models)):
-    graph = build_graph(models)
-    result = graph.invoke({"prompt": req.prompt})
+def build(req: BuildRequest, models: AgentModels = Depends(get_agent_models), limits: AgentLimits = Depends(get_agent_limits), settings: Settings = Depends(get_settings)):
+    print()
+    print("request arrived ", req)
+    print()
+    graph = build_graph(models, limits)
+    result = result = graph.invoke(
+        {"prompt": req.prompt},
+        {"recursion_limit": settings.graph_recursion_limit},
+    )
     return result

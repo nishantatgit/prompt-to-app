@@ -27,6 +27,11 @@ class Settings(BaseSettings):
 
     workspaces_dir: Path
 
+    planner_max_attempts: int
+    builder_max_attempts: int
+    validator_max_attempts: int
+    graph_recursion_limit: int
+
     @model_validator(mode="after")
     def keys_present_for_used_providers(self):
         used = {
