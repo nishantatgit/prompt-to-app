@@ -1,0 +1,14 @@
+{
+  "name": "prompt-to-app-benchmark",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:common": "playwright test tests/common",
+    "test:apps": "playwright test tests/apps",
+    "report": "playwright show-report results/latest/report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0"
+  }
+}

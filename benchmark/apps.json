@@ -1,0 +1,31 @@
+[
+  { "id": 1, "slug": "portfolio", "level": 1, "prompt": "A personal portfolio with my name, about section, projects and contact links" },
+  { "id": 2, "slug": "bakery-landing", "level": 1, "prompt": "A landing page for my bakery with a menu and a contact form" },
+  { "id": 3, "slug": "tip-calculator", "level": 1, "prompt": "A tip calculator: bill amount, tip percent, number of people" },
+  { "id": 4, "slug": "pomodoro-timer", "level": 1, "prompt": "A Pomodoro timer with start, pause and reset" },
+  { "id": 5, "slug": "unit-converter", "level": 1, "prompt": "A converter for km/miles, kg/lb and Celsius/Fahrenheit" },
+
+  { "id": 6, "slug": "todo-list", "level": 2, "prompt": "A to-do list where I can add, complete, delete and filter tasks" },
+  { "id": 7, "slug": "expense-tracker", "level": 2, "prompt": "An expense tracker with categories and a running total" },
+  { "id": 8, "slug": "quiz", "level": 2, "prompt": "A 5 question quiz that shows my score at the end" },
+  { "id": 9, "slug": "kanban-board", "level": 2, "prompt": "A Kanban board with To Do, Doing and Done columns" },
+  { "id": 10, "slug": "recipe-finder", "level": 2, "prompt": "A recipe finder with a vegetarian filter" },
+
+  { "id": 11, "slug": "guestbook", "level": 3, "prompt": "A guestbook where visitors leave a name and message" },
+  { "id": 12, "slug": "habit-tracker", "level": 3, "prompt": "A habit tracker with daily check-offs and streaks" },
+  { "id": 13, "slug": "waitlist", "level": 3, "prompt": "A waitlist signup page with an admin list of emails" },
+  { "id": 14, "slug": "shop-inventory", "level": 3, "prompt": "Inventory for my small shop with low stock warnings" },
+  { "id": 15, "slug": "feature-board", "level": 3, "prompt": "A feature request board with upvotes" },
+  { "id": 16, "slug": "event-rsvp", "level": 3, "prompt": "An event RSVP page with a guest limit" },
+
+  { "id": 17, "slug": "notes-app", "level": 4, "prompt": "A notes app with signup and login" },
+  { "id": 18, "slug": "blog", "level": 4, "prompt": "A blog where logged-in users write posts and anyone can read" },
+  { "id": 19, "slug": "yoga-booking", "level": 4, "prompt": "A yoga class booking page with slot limits" },
+  { "id": 20, "slug": "veg-box-subscription", "level": 4, "prompt": "A weekly organic vegetable box subscription with an admin order view" },
+  { "id": 21, "slug": "clinic-appointments", "level": 4, "prompt": "A clinic appointment system with doctor availability" },
+
+  { "id": 22, "slug": "team-task-manager", "level": 5, "prompt": "A team task manager with invites, roles and task assignment" },
+  { "id": 23, "slug": "marketplace", "level": 5, "prompt": "A mini marketplace where sellers list items with photos" },
+  { "id": 24, "slug": "chat-room", "level": 5, "prompt": "A chat room where messages appear live" },
+  { "id": 25, "slug": "csv-dashboard", "level": 5, "prompt": "A dashboard where I upload a CSV and see charts" }
+]
