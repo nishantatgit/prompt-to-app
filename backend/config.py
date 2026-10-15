@@ -35,8 +35,10 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def keys_present_for_used_providers(self):
         used = {
-            self.guard_provider, self.planner_provider,
-            self.builder_provider, self.validator_provider,
+            self.guard_provider,
+            self.planner_provider,
+            self.builder_provider,
+            self.validator_provider,
         }
         keys = {"anthropic": self.anthropic_api_key, "openai": self.openai_api_key}
         missing = [p for p in used if not keys[p] or not keys[p].get_secret_value()]

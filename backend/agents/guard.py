@@ -8,16 +8,22 @@ from pydantic import BaseModel, model_validator
 
 GUARD_PROMPT = (Path(__file__).parent / "prompts" / "guard.md").read_text()
 
-PROMPT = ChatPromptTemplate.from_messages([
-    SystemMessage(content=GUARD_PROMPT),
-    ("human", "<user_request>{prompt}</user_request>"),
-])
+PROMPT = ChatPromptTemplate.from_messages(
+    [
+        SystemMessage(content=GUARD_PROMPT),
+        ("human", "<user_request>{prompt}</user_request>"),
+    ]
+)
 
 
 class GuardResult(BaseModel):
     category: Literal[
-        "allowed", "malicious", "prompt_injection",
-        "irrelevant", "unsupported", "unclear",
+        "allowed",
+        "malicious",
+        "prompt_injection",
+        "irrelevant",
+        "unsupported",
+        "unclear",
     ]
     reason: str
 

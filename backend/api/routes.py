@@ -38,7 +38,12 @@ def health():
 
 
 @router.post("/build")
-def build(req: BuildRequest, models: AgentModels = Depends(get_agent_models), limits: AgentLimits = Depends(get_agent_limits), settings: Settings = Depends(get_settings)):
+def build(
+    req: BuildRequest,
+    models: AgentModels = Depends(get_agent_models),
+    limits: AgentLimits = Depends(get_agent_limits),
+    settings: Settings = Depends(get_settings),
+):
     print()
     print("request arrived ", req)
     print()

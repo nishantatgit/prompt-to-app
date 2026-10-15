@@ -8,10 +8,12 @@ from pydantic import BaseModel, model_validator
 
 PLANNER_PROMPT = (Path(__file__).parent / "prompts" / "planner.md").read_text()
 
-PROMPT = ChatPromptTemplate.from_messages([
-    SystemMessage(content=PLANNER_PROMPT),
-    ("human", "<user_request>{prompt}</user_request>"),
-])
+PROMPT = ChatPromptTemplate.from_messages(
+    [
+        SystemMessage(content=PLANNER_PROMPT),
+        ("human", "<user_request>{prompt}</user_request>"),
+    ]
+)
 
 
 class Feature(BaseModel):
@@ -120,7 +122,7 @@ class Plan(BaseModel):
                     raise ValueError(f"unexpected file in project root: {f.path}")
                 if f.owner != expected_owner:
                     raise ValueError(f"{f.path} must have owner {expected_owner}")
-        
+
         return self
 
 
