@@ -12,23 +12,27 @@ class BuildRequest(BaseModel):
     prompt: str
 
 
-def get_agent_limits(settings: Settings = Depends(get_settings)) -> AgentLimits:
-    return AgentLimits(
-        planner_max_attempts=settings.planner_max_attempts,
-        builder_max_attempts=settings.builder_max_attempts,
-        validator_max_attempts=settings.validator_max_attempts,
-    )
-
-
 def get_agent_models(settings: Settings = Depends(get_settings)) -> AgentModels:
     def llm(provider, model):
         return create_llm(provider, model, settings.api_key_for(provider))
 
     return AgentModels(
         guard=llm(settings.guard_provider, settings.guard_model),
-        planner=llm(settings.planner_provider, settings.planner_model),
+        analyst=llm(settings.guard_provider, settings.guard_model),
+        architect=llm(settings.architect_provider, settings.architect_model),
+        test_planner=llm(settings.test_planner_provider, settings.test_planner_model),
         builder=llm(settings.builder_provider, settings.builder_model),
         validator=llm(settings.validator_provider, settings.validator_model),
+    )
+
+
+def get_agent_limits(settings: Settings = Depends(get_settings)) -> AgentLimits:
+    return AgentLimits(
+        analyst_max_attempts=settings.analyst_max_attempts,
+        architect_max_attempts=settings.architect_max_attempts,
+        test_planner_max_attempts=settings.test_planner_max_attempts,
+        builder_max_attempts=settings.builder_max_attempts,
+        validator_max_attempts=settings.validator_max_attempts,
     )
 
 
@@ -44,11 +48,8 @@ def build(
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
-    print()
-    print("request arrived ", req)
-    print()
     graph = build_graph(models, limits)
-    result = result = graph.invoke(
+    result = graph.invoke(
         {"prompt": req.prompt},
         {"recursion_limit": settings.graph_recursion_limit},
     )
