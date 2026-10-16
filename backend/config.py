@@ -2,12 +2,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ENV_FILE = Path(__file__).parent / ".env"
 
 Provider = Literal["anthropic", "openai"]
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
@@ -41,6 +43,13 @@ class Settings(BaseSettings):
         if key is None or not key.get_secret_value().strip():
             raise ValueError(f"No API key set for provider '{provider}'")
         return key.get_secret_value()
+
+    @field_validator("workspaces_dir")
+    @classmethod
+    def resolve_workspaces_dir(cls, value: Path) -> Path:
+        if value.is_absolute():
+            return value
+        return (PROJECT_ROOT / value).resolve()
 
 
 @lru_cache

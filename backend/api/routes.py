@@ -1,9 +1,13 @@
+import uuid
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.llm import create_llm
 from config import Settings, get_settings
+
+from tools.workspace import new_job_id
 
 router = APIRouter(prefix="/api")
 
@@ -48,9 +52,9 @@ def build(
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
-    graph = build_graph(models, limits)
+    graph = build_graph(models, limits, settings.workspaces_dir)
     result = graph.invoke(
-        {"prompt": req.prompt},
+        {"prompt": req.prompt, "job_id": new_job_id()},
         {"recursion_limit": settings.graph_recursion_limit},
     )
     return result
