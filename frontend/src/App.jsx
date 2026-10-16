@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import JsonTree from './components/JsonTree.jsx'
 export default function App() {
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
@@ -63,7 +63,7 @@ export default function App() {
           <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
             <p className="text-sm font-medium text-gray-500">Server response</p>
             <pre className="mt-2 whitespace-pre-wrap text-sm text-gray-800">
-              {JSON.stringify(result, null, 2)}
+              <JsonTree value={result} />
             </pre>
           </div>
         )}
