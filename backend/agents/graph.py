@@ -5,38 +5,15 @@ from typing import Literal, TypedDict
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph import END, START, StateGraph
 
+from agents.state import JobState
 from agents.analyst import make_analyst
 from agents.architect import make_architect
 from agents.guard import make_guard
 from agents.test_planner import make_test_planner
 from agents.setup_workspace import make_setup_workspace
 from agents.builder import make_builder
-
-
-class JobState(TypedDict, total=False):
-    prompt: str
-
-    job_id: str
-    workspace_dir: str | None
-    allowed: bool
-    guard_category: str
-    guard_reason: str
-
-    requirements: dict | None
-    analyst_attempts: int
-    analyst_feedback: str
-
-    architecture: dict | None
-    architect_attempts: int
-    architect_feedback: str
-
-    test_plan: dict | None
-    test_planner_attempts: int
-    test_planner_feedback: str
-    files_written: list[str]
-
-    errors: list[str]
-
+from agents.build_check import build_check
+from agents.after_build_check import make_after_build_check
 
 @dataclass
 class AgentModels:
@@ -110,6 +87,7 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
     graph.add_node("test_planner", make_test_planner(models.test_planner))
     graph.add_node("setup_workspace", make_setup_workspace(workspaces_dir))
     graph.add_node("builder", make_builder(models.builder))
+    graph.add_node("build_check", build_check)
 
     graph.add_edge(START, "guard")
     graph.add_conditional_edges("guard", after_guard)
@@ -119,5 +97,6 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
         "test_planner", make_after_test_planner(limits.test_planner_max_attempts)
     )
     graph.add_edge("setup_workspace", "builder")  # replaces setup_workspace -> END
-    graph.add_edge("builder", END)
+    graph.add_edge("builder", "build_check")
+    graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
     return graph.compile()

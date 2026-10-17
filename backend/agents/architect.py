@@ -1,4 +1,5 @@
 import re
+import json
 from pathlib import Path, PurePosixPath
 from typing import Literal
 
@@ -31,6 +32,7 @@ class AcceptanceCriterion(BaseModel):
 class Feature(BaseModel):
     id: str = Field(pattern=r"^F\d+$")
     name: str
+    requirement_ids: list[str] = Field(min_length=1)
     description: str
     acceptance_criteria: list[AcceptanceCriterion] = Field(min_length=1)
 
@@ -287,6 +289,28 @@ class Architecture(BaseModel):
         return patterns
 
 
+def validate_features_requirements_mapping(
+    architecture: dict, requirement_ids: set[str]
+) -> list[str]:
+    errors = []
+    covered = set()
+
+    for feature in architecture["features"]:
+        if not feature["requirement_ids"]:
+            errors.append(f"feature {feature['id']} lists no requirement_ids")
+        for requirement_id in feature["requirement_ids"]:
+            if requirement_id not in requirement_ids:
+                errors.append(
+                    f"feature {feature['id']} refers to unknown requirement {requirement_id}"
+                )
+            covered.add(requirement_id)
+
+    for requirement_id in sorted(requirement_ids - covered):
+        errors.append(f"requirement {requirement_id} is not fulfilled by any feature")
+
+    return errors
+
+
 def make_architect(llm: BaseChatModel):
     chain = PROMPT | llm.with_structured_output(Architecture, include_raw=True)
 
@@ -302,19 +326,33 @@ def make_architect(llm: BaseChatModel):
                 "Return a corrected architecture that fixes it."
             )
 
-        out = chain.invoke({"prompt": state["prompt"], "feedback": feedback})
+        requirements = state["requirements"]
+        out = chain.invoke(
+            {
+                "prompt": state["prompt"],
+                "requirements": json.dumps(requirements, indent=2),
+                "feedback": feedback,
+            }
+        )
 
         if out["parsing_error"] is not None:
+            problems = [str(out["parsing_error"])]
+        else:
+            requirement_ids = {r["id"] for r in requirements["requirements"]}
+            problems = validate_features_requirements_mapping(
+                out["parsed"].model_dump(), requirement_ids
+            )
+
+        if problems:
             return {
                 "architecture": None,
                 "architect_attempts": attempts,
-                "architect_feedback": str(out["parsing_error"]),
-                "errors": [f"Architecture failed: {out['parsing_error']}"],
+                "architect_feedback": "\n".join(f"- {p}" for p in problems),
+                "errors": [f"Architecture failed: {p}" for p in problems],
             }
 
-        architecture: Architecture = out["parsed"]
         return {
-            "architecture": architecture.model_dump(),
+            "architecture": out["parsed"].model_dump(),
             "architect_attempts": attempts,
             "architect_feedback": "",
             "errors": [],

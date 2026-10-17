@@ -28,15 +28,28 @@ def message_text(content) -> str:
 
 def make_builder(llm):
     def builder(state: dict) -> dict:
+        attempts = state.get("builder_attempts", 0) + 1
+        app_file = Path(state["workspace_dir"]) / "src" / "App.jsx"
+
         architecture = json.dumps(state["architecture"], indent=2)
+        content = f"<architecture>\n{architecture}\n</architecture>"
+
+        if attempts > 1:
+            content += (
+                f"\n\n<current_file>\n{app_file.read_text()}\n</current_file>"
+                f"\n\n<build_log>\n{state['build_log']}\n</build_log>"
+                "\n\nThe build failed. Find the cause in the build log, fix it with the "
+                "smallest change, and return the complete corrected src/App.jsx."
+            )
+
         messages = [
             SystemMessage(PROMPT),
-            HumanMessage(f"<architecture>\n{architecture}\n</architecture>"),
+            HumanMessage(content),
         ]
         response = llm.invoke(messages)
 
         app_file = Path(state["workspace_dir"]) / "src" / "App.jsx"
         app_file.write_text(strip_fences(message_text(response.content)))
-        return {"files_written": ["src/App.jsx"]}
+        return {"files_written": ["src/App.jsx"], "builder_attempts": attempts}
 
     return builder
