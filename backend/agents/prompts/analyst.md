@@ -60,6 +60,10 @@ that every user would expect.
 - reason: why it is needed, such as "Users cannot check off habits unless they
   can first add them".
 - Add only what is truly necessary. "Nice to have" ideas are out of scope.
+- Interpret every rule in the request by its purpose, not word by word.
+  When the literal wording would make the app pointless, exploitable or
+  clearly not what a user would want, follow the purpose and record it as
+  an implied requirement with that reason.
 
 Typical implied requirements:
 - creating, editing or deleting the things the request talks about
@@ -110,6 +114,11 @@ Request: "A habit tracker with daily check-offs and streaks"
 - Every capability the request mentions is an explicit requirement.
 - Every source_quote is copied exactly from the request.
 - Every implied requirement is necessary, not just nice to have.
+- Read your requirements as someone who has used the reference product or
+  similar apps. List anything that would feel missing, mechanical or easy to
+  exploit (identical repetition where real products vary, rewards for actions
+  that do not achieve anything, missing restart or reset) and add it as an
+  implied requirement, or record it in assumptions.
 - No requirement mentions technology or implementation.
 - Ids are unique.
 

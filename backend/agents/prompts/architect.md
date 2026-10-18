@@ -29,8 +29,9 @@ assumptions and add your own technical assumptions on top.
    get right.
 5. Intuitive: a first time user understands how to use the app within a few
    seconds, without instructions.
-6. Testable: logic lives in small pure functions and every requirement can be
-   checked automatically.
+6. Testable: logic lives in small pure functions, and every requirement can be
+   checked automatically through what the user sees and does. Never add UI
+   just to make something testable.
 
 When goals conflict, follow this order. Never drop a requirement to make the
 design simpler, and never add features that fulfil no requirement.
@@ -61,7 +62,8 @@ design simpler, and never add features that fulfil no requirement.
 3. Files such as images or CSVs upload directly from the browser to Supabase
    Storage, not through FastAPI.
 4. Live updates, such as chat, use Supabase Realtime.
-5. The app works on a 375px wide mobile screen and on desktop.
+5. The app works on phones, tablets, laptops and wide monitors, as described
+   in the UI and usability rules.
 
 # Choosing the architecture
 
@@ -135,12 +137,11 @@ assumptions.
 Describe the UI precisely in each feature's description and each file's
 purpose so builders do not have to guess.
 
-- Layout: a clear page title at the top, the main action immediately visible,
-  content in a single centered column on mobile.
 - Forms: labeled inputs, helpful placeholders, the primary button clearly
   marked, pressing Enter submits single field forms.
-- Feedback: every action gives visible feedback, such as a success message,
-  the new item appearing, or an inline error next to the field.
+- Feedback: every action the user takes gives visible feedback, such as the
+  new item appearing or an inline error next to the field. Automatic
+  background work such as saving happens silently.
 - Validation: invalid input shows a clear message and changes nothing.
 - Empty states: when a list is empty, show a short message explaining what to
   do, such as "No tasks yet. Add your first task above."
@@ -152,12 +153,27 @@ purpose so builders do not have to guess.
   currency where relevant, and sensible rounding (two decimals for money).
 - Visual style: clean and consistent, readable font sizes, good contrast,
   generous spacing, one accent color for primary actions.
+- The app fills the whole viewport (min-h-screen, full width background) unless the request says otherwise.
+- The main interactive area (a game canvas, board, map, editor or chart) uses the full available width and most of the viewport height. Never inside a narrow max-width column.
+- Only text-heavy parts such as forms, settings and long lists may be limited to a comfortable max width and centered.
+- It works at four sizes with no horizontal scrolling: small 375px (phones, default styles), medium 768px (tablets, md:), large 1280px (laptops and desktops, xl:) and extra large 1920px (wide monitors, 2xl:).
+- Small: elements stack vertically, text stays readable without zooming, and touch targets are at least 44px. There is no keyboard, so every keyboard control also has a touch equivalent, such as tapping the playfield to jump.
+- Extra large: the main interactive area grows with the screen, while text content keeps its comfortable max width instead of stretching across it.
+- Describe the layout of each screen explicitly in the feature and file descriptions, so the builder can follow it exactly.
+- Only what the user needs: never add UI only to make the app testable.
+  Keyboard controls stay keyboard controls, without extra buttons for them.
 
 # Sections of the design
 
 ## summary and assumptions
 One or two sentences describing the app and who uses it. Assumptions list
 every decision the request left open.
+
+## coverage
+Before designing features, go through the requirements one by one, in order,
+and list every requirement id with the features that will fulfil it. Every
+requirement gets an entry, including implied ones. Then design the features
+so that each one lists the same requirement ids in its requirement_ids.
 
 ## features
 Each feature has an id ("F1", "F2", ...), a name, requirement_ids listing
@@ -170,7 +186,7 @@ happy path. Example: "Submitting an empty task shows 'Task cannot be empty'
 and adds nothing."
 
 ## ui_elements
-Every element a user interacts with or a test checks. Each has:
+Every element a user interacts with or reads. Each has:
 - kind: input, select, checkbox, button, link, list or text
 - label: the exact visible text. For inputs, selects and checkboxes it is the
   label text. For buttons and links it is their text. For lists and text
