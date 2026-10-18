@@ -56,22 +56,24 @@ def make_after_analyst(max_attempts: int):
 
 
 def make_after_architect(max_attempts: int):
-    def after_architect(state: JobState) -> Literal["test_planner", "architect", "__end__"]:
+    def after_architect(state: JobState) -> Literal["setup_workspace", "architect", "__end__"]:
         if state.get("architecture"):
-            return "test_planner"
+            return "setup_workspace"
         if state.get("architect_attempts", 0) < max_attempts:
             return "architect"
         return END
 
     return after_architect
 
+def build_done(state: JobState) -> dict:
+    return {}
 
 def make_after_test_planner(max_attempts: int):
     def after_test_planner(
         state: JobState,
-    ) -> Literal["setup_workspace", "test_planner", "__end__"]:
+    ) -> Literal["write_test", "test_planner", "__end__"]:
         if state.get("test_plan"):
-            return "setup_workspace"
+            return "write_test"
         if state.get("test_planner_attempts", 0) < max_attempts:
             return "test_planner"
         return END
@@ -88,6 +90,7 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
     graph.add_node("test_planner", make_test_planner(models.test_planner))
     graph.add_node("setup_workspace", make_setup_workspace(workspaces_dir))
     graph.add_node("builder", make_builder(models.builder))
+    graph.add_node("build_done", build_done)
     graph.add_node("build_check", build_check)
     graph.add_node("write_test", test_writer)
 
@@ -99,7 +102,10 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
         "test_planner", make_after_test_planner(limits.test_planner_max_attempts)
     )
     graph.add_edge("setup_workspace", "builder")  # replaces setup_workspace -> END
+    graph.add_edge("setup_workspace", "test_planner")
+
     graph.add_edge("builder", "build_check")
     graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
-    graph.add_edge("write_test", END)
+    graph.add_edge(["build_done", "write_test"], "test_executor")
+    graph.add_edge("test_executor", END)
     return graph.compile()
