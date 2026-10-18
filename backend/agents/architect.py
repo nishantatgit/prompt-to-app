@@ -7,6 +7,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field, model_validator
+from schemas.architect import ApiRoute, EnvVar, Feature, LogicFunction, PlannedFile, Risk, Table, UIElement
 
 ARCHITECT_PROMPT = (Path(__file__).parent / "prompts" / "architect.md").read_text()
 
@@ -16,80 +17,6 @@ PROMPT = ChatPromptTemplate.from_messages(
         ("human", "<user_request>{prompt}</user_request>\n\n{feedback}"),
     ]
 )
-
-
-class UIElement(BaseModel):
-    kind: Literal["input", "select", "checkbox", "button", "link", "list", "text"]
-    label: str = Field(min_length=1)
-    purpose: str
-
-
-class AcceptanceCriterion(BaseModel):
-    id: str = Field(pattern=r"^F\d+-AC\d+$")
-    statement: str
-
-
-class Feature(BaseModel):
-    id: str = Field(pattern=r"^F\d+$")
-    name: str
-    requirement_ids: list[str] = Field(min_length=1)
-    description: str
-    acceptance_criteria: list[AcceptanceCriterion] = Field(min_length=1)
-
-
-class LogicFunction(BaseModel):
-    name: str = Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
-    file: str
-    language: Literal["javascript", "python"]
-    signature: str
-    description: str
-    error_conditions: list[str]
-
-
-class EnvVar(BaseModel):
-    name: str = Field(pattern=r"^[A-Z][A-Z0-9_]*$")
-    used_by: Literal["frontend", "backend"]
-    secret: bool
-    purpose: str
-
-
-class Column(BaseModel):
-    name: str
-    type: str
-    nullable: bool
-    notes: str = ""
-
-
-class Table(BaseModel):
-    name: str
-    columns: list[Column]
-    access_rules: list[str] = Field(min_length=1)
-
-
-class ErrorResponse(BaseModel):
-    status: int = Field(ge=400, le=599)
-    meaning: str
-
-
-class ApiRoute(BaseModel):
-    method: Literal["GET", "POST", "PUT", "PATCH", "DELETE"]
-    path: str
-    purpose: str
-    request_body: str
-    response_body: str
-    auth_required: bool
-    error_responses: list[ErrorResponse] = Field(min_length=1)
-
-
-class Risk(BaseModel):
-    risk: str
-    mitigation: str
-
-
-class PlannedFile(BaseModel):
-    path: str
-    owner: Literal["frontend", "backend", "database"]
-    purpose: str
 
 
 PREFIX_OWNERS = {

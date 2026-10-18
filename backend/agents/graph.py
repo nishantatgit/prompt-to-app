@@ -14,6 +14,7 @@ from agents.setup_workspace import make_setup_workspace
 from agents.builder import make_builder
 from agents.build_check import build_check
 from agents.after_build_check import make_after_build_check
+from agents.qa.test_writer import test_writer
 
 @dataclass
 class AgentModels:
@@ -88,6 +89,7 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
     graph.add_node("setup_workspace", make_setup_workspace(workspaces_dir))
     graph.add_node("builder", make_builder(models.builder))
     graph.add_node("build_check", build_check)
+    graph.add_node("write_test", test_writer)
 
     graph.add_edge(START, "guard")
     graph.add_conditional_edges("guard", after_guard)
@@ -99,4 +101,5 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
     graph.add_edge("setup_workspace", "builder")  # replaces setup_workspace -> END
     graph.add_edge("builder", "build_check")
     graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
+    graph.add_edge("write_test", END)
     return graph.compile()
