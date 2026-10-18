@@ -11,6 +11,9 @@ class AcceptanceCriterion(BaseModel):
     id: str = Field(pattern=r"^F\d+-AC\d+$")
     statement: str
 
+class Coverage(BaseModel):
+    requirement_id: str
+    feature_ids: list[str] = Field(min_length=1)
 
 class Feature(BaseModel):
     id: str = Field(pattern=r"^F\d+$")

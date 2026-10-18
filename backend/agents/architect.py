@@ -7,7 +7,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field, model_validator
-from schemas.architect import ApiRoute, EnvVar, Feature, LogicFunction, PlannedFile, Risk, Table, UIElement
+from schemas.architect import ApiRoute, Coverage, EnvVar, Feature, LogicFunction, PlannedFile, Risk, Table, UIElement
 
 ARCHITECT_PROMPT = (Path(__file__).parent / "prompts" / "architect.md").read_text()
 
@@ -50,6 +50,10 @@ SUPABASE_FRONTEND_VARS = {"VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"}
 class Architecture(BaseModel):
     summary: str
     assumptions: list[str]
+    coverage: list[Coverage] = Field(
+        description="One entry for every requirement, in order, naming the "
+                    "features that fulfil it. Write this before the features."
+    )
     storage: Literal["none", "local_storage", "supabase"]
     needs_backend: bool
     needs_database: bool
@@ -237,6 +241,17 @@ def validate_features_requirements_mapping(
 
     return errors
 
+def validate_coverage_matches_features(architecture: dict) -> list[str]:
+    errors = []
+    by_feature = {f["id"]: set(f["requirement_ids"]) for f in architecture["features"]}
+    for entry in architecture["coverage"]:
+        for feature_id in entry["feature_ids"]:
+            if entry["requirement_id"] not in by_feature.get(feature_id, set()):
+                errors.append(
+                    f"coverage says {feature_id} fulfils {entry['requirement_id']}, "
+                    f"but {feature_id}'s requirement_ids does not include it"
+                )
+    return errors
 
 def make_architect(llm: BaseChatModel):
     chain = PROMPT | llm.with_structured_output(Architecture, include_raw=True)
@@ -265,9 +280,11 @@ def make_architect(llm: BaseChatModel):
         if out["parsing_error"] is not None:
             problems = [str(out["parsing_error"])]
         else:
+            architecture = out["parsed"].model_dump()
             requirement_ids = {r["id"] for r in requirements["requirements"]}
-            problems = validate_features_requirements_mapping(
-                out["parsed"].model_dump(), requirement_ids
+            problems = (
+                validate_features_requirements_mapping(architecture, requirement_ids)
+                + validate_coverage_matches_features(architecture)
             )
 
         if problems:
