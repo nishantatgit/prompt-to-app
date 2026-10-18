@@ -106,6 +106,5 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
 
     graph.add_edge("builder", "build_check")
     graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
-    graph.add_edge(["build_done", "write_test"], "test_executor")
-    graph.add_edge("test_executor", END)
+    graph.add_edge(["build_done", "write_test"], END)
     return graph.compile()
