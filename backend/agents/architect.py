@@ -11,12 +11,15 @@ from schemas.architect import ApiRoute, Coverage, EnvVar, Feature, LogicFunction
 
 ARCHITECT_PROMPT = (Path(__file__).parent / "prompts" / "architect.md").read_text()
 
-PROMPT = ChatPromptTemplate.from_messages(
-    [
-        SystemMessage(content=ARCHITECT_PROMPT),
-        ("human", "<user_request>{prompt}</user_request>\n\n{feedback}"),
-    ]
-)
+PROMPT = ChatPromptTemplate.from_messages([
+    SystemMessage(content=ARCHITECT_PROMPT),
+    (
+        "human",
+        "<user_request>{prompt}</user_request>\n\n"
+        "<requirements>{requirements}</requirements>\n\n"
+        "{feedback}",
+    ),
+])
 
 
 PREFIX_OWNERS = {
