@@ -25,5 +25,9 @@ class JobState(TypedDict, total=False):
     builder_attempts: int
     build_ok: bool
     build_log: str
+
+    tests_ok: bool
+    test_summary: str
+    test_report_path: str
     
     errors: list[str]

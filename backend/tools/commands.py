@@ -1,4 +1,5 @@
 import subprocess
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,9 +12,16 @@ class CommandResult:
     log: str
 
 
-def run_command(cwd: Path, args: list[str], timeout: int = 300) -> CommandResult:
+def run_command(cwd: Path, args: list[str], timeout: int = 300, env: dict | None = None) -> CommandResult:
     try:
-        result = subprocess.run(args, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+        result = subprocess.run(
+            args,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env={**os.environ, **(env or {})},
+        )
     except subprocess.TimeoutExpired:
         return CommandResult(ok=False, log=f"{' '.join(args)} timed out after {timeout}s")
 

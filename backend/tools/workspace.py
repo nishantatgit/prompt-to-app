@@ -6,9 +6,13 @@ from pathlib import Path
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates" / "react-vite"
 
 
+IGNORE = shutil.ignore_patterns(
+    "node_modules", "dist", "test-results", "playwright-report", "playwright-results.json"
+)
+
 def create_workspace(workspaces_dir: Path, job_id: str) -> Path:
     job_dir = (Path(workspaces_dir) / job_id).resolve()
-    shutil.copytree(TEMPLATE_DIR, job_dir)
+    shutil.copytree(TEMPLATE_DIR, job_dir, ignore=IGNORE)
     return job_dir
 
 
