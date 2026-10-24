@@ -35,8 +35,10 @@ Rules:
   expect_error case.
 - Include boundaries: zero, negative numbers, empty strings, empty lists,
   very large values and decimals where they make sense.
-- Compute expected values yourself, step by step, and match the function's
-  description exactly, including rounding and types.
+- Prefer inputs whose correct output is exact and easy to verify, such as 0,
+  1, 10 or 100. Compute any other expected value step by step, writing out
+  every digit, and match the function's description exactly, including
+  rounding and types.
 
 ## 2. API tests (api_cases)
 
@@ -104,9 +106,9 @@ Allowed steps:
 | select | label, option | select |
 | check | label | checkbox |
 | click | label | button, link, checkbox |
-| press | label, key ("Enter", "Escape", "Tab") | input |
+| press | key ("Enter", "Escape", "Tab"), optional label | input; without a label the key goes to the focused element |
 | reload | | only when storage is not "none" |
-| set_viewport | width, height | |
+| set_viewport | size ("small", "medium", "large", "extra_large") | |
 | login_as | user ("user_a", "user_b", "admin") | only when needs_auth |
 | expect_text | text | text that must appear on the page |
 | expect_no_text | text | text that must not appear |
@@ -126,8 +128,16 @@ Rules:
   there. Only when storage is not "none".
 - Privacy: login_as user_a and create data, then login_as user_b and
   expect_no_text for that data.
-- Include at least one test with set_viewport 375 by 812 for the main flow, to
-  check the mobile layout.
+- Include at least one test with set_viewport size "small" for the main
+  flow, to check the mobile layout.
+- For numeric results, choose inputs whose correct output is exact and well
+  known, such as 0 km = 0 mi or 100 °C = 212 °F. Never assert a multi digit
+  result you computed mentally.
+- Assert a number's exact formatting only when the architecture states it,
+  such as "2 decimal places". Otherwise assert a value that is the same under
+  any reasonable formatting.
+- An empty list renders nothing visible. Never expect_visible on a list that
+  may be empty; use expect_count 0 instead.
 
 # Strategy
 
@@ -144,7 +154,9 @@ frontend only app.
   is tested, and protected routes have an anonymous 401 case.
 - Every table has allowed and denied cases.
 - Every acceptance criterion has an e2e test.
-- Every expected value is computed correctly.
+- Every expected value is exact, or was computed digit by digit and checked
+  again.
+- Every repeated label is scoped with within_item.
 - All ids are unique.
 
 # Output
