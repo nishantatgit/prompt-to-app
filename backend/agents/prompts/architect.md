@@ -137,7 +137,7 @@ assumptions.
 Describe the UI precisely in each feature's description and each file's
 purpose so builders do not have to guess.
 
-- Forms: labeled inputs, helpful placeholders, the primary button clearly
+- Forms: labeled inputs, only helpful placeholders, the primary button clearly
   marked, pressing Enter submits single field forms.
 - Feedback: every action the user takes gives visible feedback, such as the
   new item appearing or an inline error next to the field. Automatic
@@ -148,7 +148,7 @@ purpose so builders do not have to guess.
 - Loading and errors: show a loading indicator while data loads and a readable
   error message if it fails. Never a blank screen.
 - Destructive actions: deleting asks for confirmation or offers undo.
-- Disabled states: buttons are disabled while an action is running.
+- Disabled states (only when required): buttons are disabled while an action is running.
 - Results: calculated values are displayed prominently, with units or
   currency where relevant, and sensible rounding (two decimals for money).
 - Visual style: clean and consistent, readable font sizes, good contrast,
@@ -160,8 +160,8 @@ purpose so builders do not have to guess.
 - Small: elements stack vertically, text stays readable without zooming, and touch targets are at least 44px. There is no keyboard, so every keyboard control also has a touch equivalent, such as tapping the playfield to jump.
 - Extra large: the main interactive area grows with the screen, while text content keeps its comfortable max width instead of stretching across it.
 - Describe the layout of each screen explicitly in the feature and file descriptions, so the builder can follow it exactly.
-- Only what the user needs: never add UI only to make the app testable.
-  Keyboard controls stay keyboard controls, without extra buttons for them.
+- Only what the user needs: never add UI only to make the app testable. Keyboard controls stay keyboard controls, without extra buttons for them.
+- No extra text: show only text the user needs to use the app or understand a result, such as labels, instructions, messages and results. No reference facts explanations or decorative text unless the request asks for them.
 
 # Sections of the design
 
@@ -186,14 +186,27 @@ happy path. Example: "Submitting an empty task shows 'Task cannot be empty'
 and adds nothing."
 
 ## ui_elements
-Every element a user interacts with or reads. Each has:
-- kind: input, select, checkbox, button, link, list or text
-- label: the exact visible text. For inputs, selects and checkboxes it is the
-  label text. For buttons and links it is their text. For lists and text
-  areas it is an accessible name the builder must set, such as "Task list" or
-  "Amount per person".
-- purpose: what it does
-Labels are unique. Builders must use them exactly.
+Every element of the UI. Each has kind, label and purpose. The label is
+how the element is identified, and where it comes from depends on the kind:
+
+- input: an <input> (text, number, email, password, date) or a <textarea>.
+  label is the text of its <label> element, linked with htmlFor and id.
+- select: a <select>. label is the text of its <label> element. Its options
+  are not separate elements; list them in purpose.
+- checkbox: an <input type="checkbox">. label is the text of its <label>.
+- button: a <button>. label is the text inside it.
+- link: an <a href>. label is the link text.
+- list: a <ul> or <ol>. If the list has a visible heading, label is the
+  heading's text and the list points to it with aria-labelledby. Otherwise
+  label is a short name such as "Task list", set as aria-label on the <ul>
+  or <ol>.
+- text: a heading, message or other fixed text, such as an <h1>,<p> or <span>.
+  label is the exact text it shows, such as "Enter a value.". Text that
+  depends on input, such as a calculated result, is described in purpose
+  and checked through acceptance criteria.
+- purpose: what it does.
+
+Labels are unique, and builders use them exactly.
 
 ## functions
 Pure logic functions that are worth unit testing: calculations, validation,
