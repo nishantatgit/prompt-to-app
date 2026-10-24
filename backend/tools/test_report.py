@@ -1,5 +1,6 @@
 import re
 import socket
+from pathlib import Path
 
 ANSI_CODES = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 
@@ -15,7 +16,6 @@ def collect_specs(suites: list[dict]):
         yield from suite.get("specs", [])
         yield from collect_specs(suite.get("suites", []))
 
-
 def parse_results(raw: dict) -> list[dict]:
     cases = []
     for spec in collect_specs(raw.get("suites", [])):
@@ -25,15 +25,15 @@ def parse_results(raw: dict) -> list[dict]:
         if not spec["ok"]:
             message = (last.get("error") or {}).get("message", "")
             error = ANSI_CODES.sub("", message)[:500]
+        file_stem = Path(spec["file"]).name.removesuffix(".spec.js")  # "F1-AC1-E1"
         cases.append({
-            "criterion_id": spec["title"].split(":", 1)[0].strip(),
+            "criterion_id": file_stem.rsplit("-", 1)[0],                # "F1-AC1"
             "title": spec["title"],
             "ok": spec["ok"],
             "error": error,
             "trace": trace_path(last),
         })
     return cases
-
 
 def short_error(error: str) -> str:
     lines = [l.strip() for l in error.splitlines() if l.strip()]
