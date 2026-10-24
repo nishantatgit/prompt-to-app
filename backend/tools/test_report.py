@@ -19,17 +19,18 @@ def collect_specs(suites: list[dict]):
 def parse_results(raw: dict) -> list[dict]:
     cases = []
     for spec in collect_specs(raw.get("suites", [])):
+        results = spec["tests"][0]["results"] if spec["tests"] else []
+        last = results[-1] if results else {}
         error = ""
         if not spec["ok"]:
-            results = spec["tests"][0]["results"] if spec["tests"] else []
-            if results:
-                message = (results[-1].get("error") or {}).get("message", "")
-                error = ANSI_CODES.sub("", message)[:500]
+            message = (last.get("error") or {}).get("message", "")
+            error = ANSI_CODES.sub("", message)[:500]
         cases.append({
             "criterion_id": spec["title"].split(":", 1)[0].strip(),
             "title": spec["title"],
             "ok": spec["ok"],
             "error": error,
+            "trace": trace_path(last),
         })
     return cases
 
@@ -51,3 +52,11 @@ def summarize(cases: list[dict], run_errors: list[str]) -> str:
     for e in run_errors:
         lines.append(f"Run error: {e.splitlines()[0] if e else 'unknown'}")
     return "\n".join(lines)
+
+def trace_path(result):
+    for a in result.get("attachments", []):
+        attachment_name = a.get("name")
+        print("attachment_name : ", attachment_name)
+        if attachment_name == "trace" and a.get("path"):
+            return a["path"]
+    return None
