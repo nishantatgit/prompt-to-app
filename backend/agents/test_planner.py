@@ -4,7 +4,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from agents.architect import Architecture
-from schemas.test_planner import Goto, LoginAs, Reload, TestPlan
+from schemas.test_planner import TestPlan
 
 TEST_PLANNER_PROMPT = (Path(__file__).parent / "prompts" / "test_planner.md").read_text()
 
@@ -19,22 +19,6 @@ PROMPT = ChatPromptTemplate.from_messages(
         ),
     ]
 )
-
-
-TARGET_KINDS = {
-    "fill": {"input"},
-    "select": {"select"},
-    "check": {"checkbox"},
-    "click": {"button", "link", "checkbox"},
-    "press": {"input"},
-    "expect_visible": {"input", "select", "checkbox", "button", "link", "list", "text"},
-    "expect_disabled": {"input", "select", "checkbox", "button"},
-    "expect_value": {"input", "select"},
-    "expect_count": {"list"},
-}
-
-
-
 
 
 def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
@@ -122,7 +106,6 @@ def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
             errors.append(f"table {table}: needs at least one 'denied' data access case")
 
     # End to end tests
-    elements = {e.label: e for e in arch.ui_elements}
     criterion_ids = arch.criterion_ids()
     covered_criteria = set()
 
@@ -131,26 +114,8 @@ def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
             errors.append(f"e2e test {test.id}: criterion '{test.criterion_id}' does not exist")
         else:
             covered_criteria.add(test.criterion_id)
-
-        for step in test.steps:
-            where = f"e2e test {test.id}"
-            if isinstance(step, Goto) and not step.path.startswith("/"):
-                errors.append(f"{where}: goto path must start with '/'")
-            if isinstance(step, LoginAs) and not arch.needs_auth:
-                errors.append(f"{where}: login_as used but needs_auth is false")
-            if isinstance(step, Reload) and arch.storage == "none":
-                errors.append(f"{where}: reload used but storage is 'none', so nothing persists")
-
-            allowed_kinds = TARGET_KINDS.get(step.action)
-            label = getattr(step, "label", None)
-            if allowed_kinds and label:
-                element = elements.get(step.label)
-                if element is None:
-                    errors.append(f"{where}: '{step.label}' is not declared in ui_elements")
-                elif element.kind not in allowed_kinds:
-                    errors.append(
-                        f"{where}: {step.action} cannot target a {element.kind} ('{step.label}')"
-                    )
+        if "expect(" not in test.code:
+            errors.append(f"e2e test {test.id}: has no expect assertion")
 
     for missing in sorted(criterion_ids - covered_criteria):
         errors.append(f"criterion {missing}: has no e2e test")

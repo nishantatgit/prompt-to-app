@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Union
+from typing import Literal
 from pydantic import BaseModel, field_validator, model_validator, Field
 import json
 
@@ -77,97 +77,11 @@ class DataAccessCase(BaseModel):
     operation: Literal["select", "insert", "update", "delete"]
     expect: Literal["allowed", "denied"]
 
-
-class Goto(BaseModel):
-    action: Literal["goto"]
-    path: str
-
-
-class Fill(BaseModel):
-    action: Literal["fill"]
-    label: str
-    value: str
-
-
-class Click(BaseModel):
-    action: Literal["click"]
-    label: str
-
-
-class SelectOption(BaseModel):
-    action: Literal["select"]
-    label: str
-    option: str
-
-
-class Check(BaseModel):
-    action: Literal["check"]
-    label: str
-
-
-class Press(BaseModel):
-    action: Literal["press"]
-    label: str
-    key: Literal["Enter", "Escape", "Tab"]
-
-
-class Reload(BaseModel):
-    action: Literal["reload"]
-
-
-class SetViewport(BaseModel):
-    action: Literal["set_viewport"]
-    size: Literal["small", "medium", "large", "extra_large"]
-
-
-class LoginAs(BaseModel):
-    action: Literal["login_as"]
-    user: Literal["user_a", "user_b", "admin"]
-
-
-class ExpectText(BaseModel):
-    action: Literal["expect_text"]
-    text: str = Field(min_length=1)
-
-
-class ExpectNoText(BaseModel):
-    action: Literal["expect_no_text"]
-    text: str = Field(min_length=1)
-
-
-class ExpectVisible(BaseModel):
-    action: Literal["expect_visible"]
-    label: str
-
-
-class ExpectDisabled(BaseModel):
-    action: Literal["expect_disabled"]
-    label: str
-
-
-class ExpectValue(BaseModel):
-    action: Literal["expect_value"]
-    label: str
-    value: str
-
-
-class ExpectCount(BaseModel):
-    action: Literal["expect_count"]
-    label: str
-    count: int = Field(ge=0)
-
-
 class E2ETest(BaseModel):
     id: str = Field(pattern=r"^E\d+$")
     criterion_id: str
     description: str
     code: str = Field(description="The complete Playwright spec file content.")
-
-    @model_validator(mode="after")
-    def has_assertion(self):
-        if not any(isinstance(s, ASSERTIONS) for s in self.steps):
-            raise ValueError(f"e2e test {self.id} has no expect step")
-        return self
 
 
 class TestPlan(BaseModel):
@@ -189,26 +103,3 @@ class TestPlan(BaseModel):
         if duplicates:
             raise ValueError(f"test ids must be unique, duplicated: {sorted(duplicates)}")
         return self
-
-Step = Annotated[
-    Union[
-        Goto,
-        Fill,
-        Click,
-        SelectOption,
-        Check,
-        Press,
-        Reload,
-        SetViewport,
-        LoginAs,
-        ExpectText,
-        ExpectNoText,
-        ExpectVisible,
-        ExpectDisabled,
-        ExpectValue,
-        ExpectCount,
-    ],
-    Field(discriminator="action"),
-]
-
-ASSERTIONS = (ExpectText, ExpectNoText, ExpectVisible, ExpectDisabled, ExpectValue, ExpectCount)
