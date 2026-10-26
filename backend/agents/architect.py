@@ -69,6 +69,10 @@ class Architecture(BaseModel):
     api_routes: list[ApiRoute]
     risks: list[Risk]
     files: list[PlannedFile] = Field(min_length=1)
+    visual_design: str = Field(
+        description="The look of the app: visual direction, colors, typography, "
+                    "and how each section and component looks."
+    )
 
     @model_validator(mode="after")
     def check_architecture(self):

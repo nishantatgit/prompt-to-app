@@ -36,4 +36,16 @@ Accessibility:
   pointing to their title, and keep focus inside until closed.
 - Everything works with the keyboard, and focus is always visible.
 
+Design:
+- Build a polished, modern UI, the quality of a professional product.
+- Clear hierarchy: one large headline, smaller section headings, muted
+  secondary text. Use a consistent spacing scale and generous whitespace.
+- Group related content in cards with rounded corners, a subtle border or
+  shadow, and comfortable padding.
+- Interactive elements have hover and focus states and smooth transitions.
+- Use simple inline SVG icons where they help people scan, such as next to
+  section headings or contact links.
+- Content-heavy pages use distinct sections with alternating rhythm, not one
+  plain column.
+
 Return only the file content. No markdown fences, no explanations.

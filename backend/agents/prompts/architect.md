@@ -151,8 +151,12 @@ purpose so builders do not have to guess.
 - Disabled states (only when required): buttons are disabled while an action is running.
 - Results: calculated values are displayed prominently, with units or
   currency where relevant, and sensible rounding (two decimals for money).
-- Visual style: clean and consistent, readable font sizes, good contrast,
-  generous spacing, one accent color for primary actions.
+- Visual design: choose a visual direction that fits the app and its users,
+  such as dark and technical for an engineer's portfolio or warm and
+  inviting for a bakery. State it in assumptions: background, one accent
+  color, and the overall feel. Describe how each section looks in the
+  feature descriptions, such as a full-height hero with a large headline,
+  cards with icons, or a timeline for experience.
 - The app fills the whole viewport (min-h-screen, full width background) unless the request says otherwise.
 - The main interactive area (a game canvas, board, map, editor or chart) uses the full available width and most of the viewport height. Never inside a narrow max-width column.
 - Only text-heavy parts such as forms, settings and long lists may be limited to a comfortable max width and centered.
@@ -162,6 +166,7 @@ purpose so builders do not have to guess.
 - Describe the layout of each screen explicitly in the feature and file descriptions, so the builder can follow it exactly.
 - Only what the user needs: never add UI only to make the app testable. Keyboard controls stay keyboard controls, without extra buttons for them.
 - No extra text: show only text the user needs to use the app or understand a result, such as labels, instructions, messages and results. No reference facts explanations or decorative text unless the request asks for them.
+- Placeholders: content the request does not provide is a clearly marked placeholder the user will replace, such as "Project name" or "your@email.com". Never invent facts about the user, such as employers, dates, locations, team sizes or metrics.
 
 # Sections of the design
 
@@ -207,6 +212,20 @@ how the element is identified, and where it comes from depends on the kind:
 - purpose: what it does.
 
 Labels are unique, and builders use them exactly.
+
+## visual_design
+Design a polished, modern UI with the quality of a professional product,
+in a visual direction that fits the app and its users, such as dark and
+technical for an engineer's portfolio or warm for a bakery. Describe:
+- background, one accent color, and text colors
+- type hierarchy: one large headline, smaller section headings, muted
+  secondary text
+- how each section and component looks, such as a full-height hero, cards
+  with rounded corners, subtle borders and comfortable padding, a timeline
+  for experience, and icons next to section headings
+- hover and focus states with smooth transitions on interactive elements
+- generous, consistent spacing, with distinct sections rather than one plain
+  column
 
 ## functions
 Pure logic functions that are worth unit testing: calculations, validation,

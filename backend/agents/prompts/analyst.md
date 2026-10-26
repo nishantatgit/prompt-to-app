@@ -29,7 +29,7 @@ Requests vary a lot in length:
   requirements every user of that kind of app would expect, plus clear
   assumptions. Stay with the most common, simplest version of that app. A one
   line request is not permission to add extra features.
-  
+
 - A detailed request spells out many capabilities. Expect many explicit
   requirements and few implied ones. Do not skip any detail the user wrote,
   even small ones such as a specific label, limit or wording.
@@ -75,6 +75,8 @@ Typical implied requirements:
   back to it
 - each user seeing only their own data, when the request mentions accounts or
   login
+- the standard sections every user expects from that kind of site or app,
+  with clearly marked placeholders for details the request does not give
 
 # out_of_scope
 
