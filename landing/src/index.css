@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #12112a;
+  --color-ink-2: #161535;
+  --color-card: #1a1938;
+  --color-line: #26244a;
+  --color-line-2: #23214a;
+  --color-wall: #3a3768;
+  --color-pending: #4a4780;
+  --color-fg: #f1effa;
+  --color-muted: #b4b1d6;
+  --color-dim: #9e9bc4;
+  --color-saffron: #ffb627;
+  --color-saffron-deep: #e09a10;
+  --color-on-saffron: #1b1405;
+
+  --font-display: "Unbounded", sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+a:hover {
+  color: var(--color-saffron);
+}
+
+@keyframes vy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vy-spin {
+  animation: vy-spin 0.8s linear infinite;
+}
+
+@keyframes vy-lift {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 182, 39, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
+    transform: scale(1);
+  }
+  15%,
+  60% {
+    box-shadow: 0 0 22px 2px rgba(255, 182, 39, 0.28), 0 0 60px 6px rgba(0, 0, 0, 0.7),
+      0 0 18px 2px rgba(0, 0, 0, 0.5);
+    transform: scale(1.035);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 182, 39, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
+    transform: scale(1);
+  }
+}
+
+.vy-lift {
+  animation: vy-lift 1.8s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .vy-spin,
+  .vy-lift {
+    animation: none;
+  }
+}
