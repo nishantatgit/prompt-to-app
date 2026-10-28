@@ -71,3 +71,12 @@ def build(
         key = settings.api_key_for(req.provider)
     else:
         raise HTTPException(status_code=400, detail="An API key is required.")
+
+    models = make_models(req.provider, key, settings)
+    graph = build_graph(
+        models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
+    )
+    job_id = new_job_id()
+    create_job(job_id, req.prompt)
+    submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
+    return {"job_id": job_id}
