@@ -29,5 +29,8 @@ class JobState(TypedDict, total=False):
     tests_ok: bool
     test_summary: str
     test_report_path: str
+
+    gate_ok: bool
+    gate_reason: str
     
     errors: list[str]

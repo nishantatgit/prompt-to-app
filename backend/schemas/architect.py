@@ -10,6 +10,9 @@ class UIElement(BaseModel):
 class AcceptanceCriterion(BaseModel):
     id: str = Field(pattern=r"^F\d+-AC\d+$")
     statement: str
+    priority: Literal["P1", "P2", "P3", "P4"] = Field(
+        description="P1 core, P2 main flows, P3 edge cases, P4 polish"
+    )
 
 class Coverage(BaseModel):
     requirement_id: str

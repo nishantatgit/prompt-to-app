@@ -190,6 +190,16 @@ Cover the main flow, invalid input, empty states and edge cases, not only the
 happy path. Example: "Submitting an empty task shows 'Task cannot be empty'
 and adds nothing."
 
+Each criterion has a priority:
+- P1: core behavior. The app is pointless without it, such as a converter
+  converting correctly.
+- P2: main flows a typical user hits, such as switching direction or the
+  message for empty input.
+- P3: edge cases and secondary behavior, such as negative values or invalid
+  text.
+- P4: polish, such as layout at extra large screens or focus styles.
+Every feature has at least one P1 or P2 criterion.
+
 ## ui_elements
 Every element of the UI. Each has kind, label and purpose. The label is
 how the element is identified, and where it comes from depends on the kind:

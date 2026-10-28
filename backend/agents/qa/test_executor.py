@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from backend.tools import gate
 from tools.commands import run_command
 from tools.test_report import ANSI_CODES, free_port, parse_results, summarize
 
@@ -37,11 +38,13 @@ def test_executor(state: dict) -> dict:
         "cases": cases,
         "run_errors": run_errors,
     }, indent=2))
-
+    gate_ok, gate_reason = gate(cases)
     return {
         "tests_ok": bool(cases) and all(c["ok"] for c in cases) and not run_errors,
         "test_summary": summarize(cases, run_errors),
         "test_report_path": str(report_path),
+        "gate_ok": gate_ok,
+        "gate_reason": gate_reason     
     }
 
 def requirement_context(architecture: dict, requirements: dict) -> dict:
@@ -51,6 +54,7 @@ def requirement_context(architecture: dict, requirements: dict) -> dict:
         for c in feature["acceptance_criteria"]:
             index[c["id"]] = {
                 "criterion": c.get("statement") or c.get("description"),
+                "priority": c.get("priority"),
                 "requirements": [
                     {"id": rid, "statement": statements.get(rid)}
                     for rid in feature["requirement_ids"]
