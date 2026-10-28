@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from backend.tools import gate
+from tools import gate
 from tools.commands import run_command
 from tools.test_report import ANSI_CODES, free_port, parse_results, summarize
 
