@@ -16,6 +16,7 @@ from agents.build_check import build_check
 from agents.after_build_check import make_after_build_check
 from agents.qa.test_writer import test_writer
 from agents.qa.test_executor import test_executor
+from agents.deploy import make_deploy
 
 
 @dataclass
@@ -85,7 +86,18 @@ def make_after_test_planner(max_attempts: int):
     return after_test_planner
 
 
-def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
+def make_after_test_executor(can_deploy: bool):
+    def after_test_executor(state: JobState) -> Literal["deploy", "__end__"]:
+        if can_deploy and state.get("gate_ok"):
+            return "deploy"
+        return END
+
+    return after_test_executor
+
+
+def build_graph(
+    models: AgentModels, limits: AgentLimits, workspaces_dir: Path, vercel_token: str | None = None
+):
     graph = StateGraph(JobState)
 
     graph.add_node("guard", make_guard(models.guard))
@@ -98,7 +110,7 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
     graph.add_node("build_check", build_check)
     graph.add_node("write_test", test_writer)
     graph.add_node("test_executor", test_executor)
-
+    graph.add_node("deploy", make_deploy(vercel_token))
     graph.add_edge(START, "guard")
     graph.add_conditional_edges("guard", after_guard)
     graph.add_conditional_edges("analyst", make_after_analyst(limits.analyst_max_attempts))
@@ -112,5 +124,6 @@ def build_graph(models: AgentModels, limits: AgentLimits, workspaces_dir: Path):
     graph.add_edge("builder", "build_check")
     graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
     graph.add_edge(["build_done", "write_test"], "test_executor")
-    graph.add_edge("test_executor", END)
+    graph.add_conditional_edges("test_executor", make_after_test_executor(bool(vercel_token)))
+    graph.add_edge("deploy", END)
     return graph.compile()

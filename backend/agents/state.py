@@ -34,4 +34,7 @@ class JobState(TypedDict, total=False):
     gate_ok: bool
     gate_reason: str
 
+    deploy_url: str
+    deploy_error: str
+
     errors: list[str]

@@ -1,5 +1,5 @@
 import uuid
-
+import os
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
@@ -52,7 +52,9 @@ def build(
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
-    graph = build_graph(models, limits, settings.workspaces_dir)
+    graph = build_graph(
+        models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
+    )
     result = graph.invoke(
         {"prompt": req.prompt, "job_id": new_job_id()},
         {"recursion_limit": settings.graph_recursion_limit},
