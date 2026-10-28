@@ -1,42 +1,71 @@
-import { useState } from 'react'
-import JsonTree from './components/JsonTree.jsx'
+import { useCallback, useState } from 'react'
+import JobView from './components/JobView.jsx'
+import SettingsPanel from './components/SettingsPanel.jsx'
+import { startBuild } from './lib/api.js'
+import { PROVIDERS, loadSettings } from './lib/settings.js'
+  import Modal from './components/SettingsModal.jsx'
+
 export default function App() {
+  const [settings, setSettings] = useState(loadSettings)
+  const [showSettings, setShowSettings] = useState(() => !loadSettings().apiKey)
   const [prompt, setPrompt] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(null)
+  const [jobId, setJobId] = useState(null)
+  const [running, setRunning] = useState(false)
   const [error, setError] = useState('')
 
-  async function handleBuild() {
-    if (!prompt.trim()) return
-    setLoading(true)
-    setError('')
-    setResult(null)
+  const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
+  const canBuild = prompt.trim() && !running
 
+  async function handleBuild() {
+    if (!canBuild) return
+    if (!settings.apiKey) {
+      setShowSettings(true)
+      return
+    }
+    setError('')
+    setRunning(true)
     try {
-      const res = await fetch('/api/build', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      })
-      if (!res.ok) throw new Error(`Server returned ${res.status}`)
-      setResult(await res.json())
+      const { job_id } = await startBuild({ prompt: prompt.trim(), ...settings })
+      setJobId(job_id)
     } catch (err) {
       setError(err.message)
-    } finally {
-      setLoading(false)
+      setRunning(false)
     }
   }
 
-  return (
-    <main className="min-h-screen bg-gray-50 flex items-start justify-center p-6">
-      <div className="w-full max-w-2xl mt-16">
-        <h1 className="text-3xl font-bold text-gray-900">prompt-to-app</h1>
-        <p className="mt-2 text-gray-600">
-          Describe the app you want. The agent will build and deploy it.
-        </p>
+  const handleDone = useCallback(() => setRunning(false), [])
 
+  return (
+    <div className="min-h-screen bg-ink text-fg">
+      <header className="border-b border-line">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-5">
+          <span className="font-display text-xl font-bold tracking-[0.1em]">VYSKAR</span>
+          <button
+            type="button"
+            onClick={() => setShowSettings((v) => !v)}
+            className="min-h-11 rounded-full border border-wall px-4 text-sm text-muted"
+          >
+            {settings.apiKey ? `${providerLabel} key saved` : 'Add your AI key'}
+          </button>
+        </div>
+      </header>
+
+      <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
+        {showSettings && (<SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />)}
+
+        <div>
+          <h1 className="font-display text-[clamp(26px,4vw,38px)] font-bold leading-tight">
+            What should your senior engineer build?
+          </h1>
+          <p className="mt-3 text-muted">
+            Describe the app in plain English. Vyskar writes the requirements, builds it, tests it and puts it online.
+          </p>
+        </div>
+
+        <label htmlFor="prompt" className="sr-only">Describe your app</label>
         <textarea
-          className="mt-6 w-full h-36 rounded-lg border border-gray-300 bg-white p-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          id="prompt"
+          className="h-36 w-full rounded-2xl border border-wall bg-card p-4 text-fg placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-saffron"
           placeholder="e.g. A to-do list where I can add, complete, delete and filter tasks"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -45,29 +74,25 @@ export default function App() {
           }}
         />
 
-        <button
-          className="mt-4 rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-          onClick={handleBuild}
-          disabled={loading || !prompt.trim()}
-        >
-          {loading ? 'Building...' : 'Build'}
-        </button>
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            onClick={handleBuild}
+            disabled={!canBuild}
+            className="min-h-11 rounded-full bg-saffron px-7 font-semibold text-on-saffron disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {running ? 'Building...' : 'Build my app'}
+          </button>
+          <span className="text-sm text-dim">Takes a few minutes. Ctrl or Cmd + Enter also works.</span>
+        </div>
 
-        {error && (
-          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <p className="rounded-lg border border-line bg-card p-4 text-saffron">{error}</p>}
 
-        {result && (
-          <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-sm font-medium text-gray-500">Server response</p>
-            <pre className="mt-2 whitespace-pre-wrap text-sm text-gray-800">
-              <JsonTree value={result} />
-            </pre>
-          </div>
-        )}
-      </div>
-    </main>
+        {jobId && <JobView key={jobId} jobId={jobId} onDone={handleDone} />}
+      </main>
+      <Modal open={showSettings} onClose={() => setShowSettings(false)} labelledBy="settings-title">
+          <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />
+      </Modal>
+    </div>
   )
 }
