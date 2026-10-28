@@ -43,7 +43,7 @@ def test_executor(state: dict) -> dict:
             indent=2,
         )
     )
-    gate_ok, gate_reason = gate(cases)
+    gate_ok, gate_reason = gate.gate(cases)
     return {
         "tests_ok": bool(cases) and all(c["ok"] for c in cases) and not run_errors,
         "test_summary": summarize(cases, run_errors),
