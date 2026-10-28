@@ -1,12 +1,12 @@
-import uuid
 import os
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.llm import create_llm
+from api.jobs import create_job, get_job, public_view, submit
 from config import Settings, get_settings
-
 from tools.workspace import new_job_id
 
 router = APIRouter(prefix="/api")
@@ -45,7 +45,7 @@ def health():
     return {"status": "ok"}
 
 
-@router.post("/build")
+@router.post("/build", status_code=202)
 def build(
     req: BuildRequest,
     models: AgentModels = Depends(get_agent_models),
@@ -55,8 +55,15 @@ def build(
     graph = build_graph(
         models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
     )
-    result = graph.invoke(
-        {"prompt": req.prompt, "job_id": new_job_id()},
-        {"recursion_limit": settings.graph_recursion_limit},
-    )
-    return result
+    job_id = new_job_id()
+    create_job(job_id, req.prompt)
+    submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
+    return {"job_id": job_id}
+
+
+@router.get("/jobs/{job_id}")
+def get_job_status(job_id: str):
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return public_view(job)
