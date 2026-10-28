@@ -13,6 +13,12 @@ const STAGES = [
 const POLL_MS = 2000
 const FINISHED = new Set(['succeeded', 'failed', 'rejected'])
 
+function failureHeading(job) {
+  if (job.status === 'rejected') return 'Vyskar could not build this request.'
+  if (job.reason?.startsWith('internal error')) return 'Something went wrong on our side.'
+  return 'The app did not pass its checks.'
+}
+
 export default function JobView({ jobId, onDone }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
@@ -33,9 +39,15 @@ export default function JobView({ jobId, onDone }) {
           return
         }
       } catch (err) {
-        if (!stopped) setError(err.message)
+        if (stopped) return
+        if (err.message === 'job not found') {
+          setError('This build was lost because the server restarted. Please start it again.')
+          onDone?.(null)
+          return
+        }
+        setError(err.message)
       }
-      timer = setTimeout(poll, POLL_MS)
+      if (!stopped) timer = setTimeout(poll, POLL_MS)
     }
 
     poll()
@@ -59,7 +71,7 @@ export default function JobView({ jobId, onDone }) {
         <span className={job?.status === 'succeeded' ? 'text-saffron' : ''}>{job?.status || 'starting'}</span>
       </div>
 
-      {!finished && (
+      {!finished && !error && (
         <ol className="mt-5 flex flex-col gap-1 font-mono text-sm">
           {STAGES.map((stage, i) => {
             const done = i < reached
@@ -91,9 +103,7 @@ export default function JobView({ jobId, onDone }) {
 
       {(job?.status === 'failed' || job?.status === 'rejected') && (
         <div className="mt-5 flex flex-col gap-3">
-          <p className="font-display text-xl font-bold">
-            {job.status === 'rejected' ? 'Vyskar could not build this request.' : 'The app did not pass its checks.'}
-          </p>
+          <p className="font-display text-xl font-bold">{failureHeading(job)}</p>
           <p className="text-sm leading-relaxed text-muted">{job.reason}</p>
           {job.test_summary && (
             <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 font-mono text-xs text-dim">{job.test_summary}</pre>
@@ -101,7 +111,7 @@ export default function JobView({ jobId, onDone }) {
         </div>
       )}
 
-      {error && <p className="mt-4 text-sm text-saffron">Lost contact with the server: {error}. Retrying...</p>}
+      {error && <p className="mt-4 text-sm text-saffron">{error}</p>}
     </section>
   )
 }
