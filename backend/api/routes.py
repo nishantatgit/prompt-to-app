@@ -1,10 +1,12 @@
 import os
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.llm import create_llm
+from agents.model_choices import MODEL_CHOICES
 from api.jobs import create_job, get_job, public_view, submit
 from config import Settings, get_settings
 from tools.workspace import new_job_id
@@ -14,19 +16,23 @@ router = APIRouter(prefix="/api")
 
 class BuildRequest(BaseModel):
     prompt: str
+    provider: Literal["anthropic", "openai"]
+    api_key: SecretStr | None = None
 
 
-def get_agent_models(settings: Settings = Depends(get_settings)) -> AgentModels:
-    def llm(provider, model):
-        return create_llm(provider, model, settings.api_key_for(provider))
+def make_models(provider: str, api_key: str) -> AgentModels:
+    choice = MODEL_CHOICES[provider]
+
+    def llm(agent: str):
+        return create_llm(provider, choice[agent], api_key)
 
     return AgentModels(
-        guard=llm(settings.guard_provider, settings.guard_model),
-        analyst=llm(settings.guard_provider, settings.guard_model),
-        architect=llm(settings.architect_provider, settings.architect_model),
-        test_planner=llm(settings.test_planner_provider, settings.test_planner_model),
-        builder=llm(settings.builder_provider, settings.builder_model),
-        validator=llm(settings.validator_provider, settings.validator_model),
+        guard=llm("guard"),
+        analyst=llm("analyst"),
+        architect=llm("architect"),
+        test_planner=llm("test_planner"),
+        builder=llm("builder"),
+        validator=llm("validator"),
     )
 
 
@@ -48,10 +54,17 @@ def health():
 @router.post("/build", status_code=202)
 def build(
     req: BuildRequest,
-    models: AgentModels = Depends(get_agent_models),
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
+    if req.api_key:
+        key = req.api_key.get_secret_value()
+    elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
+        key = settings.api_key_for(req.provider)
+    else:
+        raise HTTPException(status_code=400, detail="An API key is required.")
+
+    models = make_models(req.provider, key)
     graph = build_graph(
         models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
     )
