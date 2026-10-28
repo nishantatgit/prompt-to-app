@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
+
 class UIElement(BaseModel):
     kind: Literal["input", "select", "checkbox", "button", "link", "list", "text"]
     label: str = Field(min_length=1)
@@ -14,9 +15,11 @@ class AcceptanceCriterion(BaseModel):
         description="P1 core, P2 main flows, P3 edge cases, P4 polish"
     )
 
+
 class Coverage(BaseModel):
     requirement_id: str
     feature_ids: list[str] = Field(min_length=1)
+
 
 class Feature(BaseModel):
     id: str = Field(pattern=r"^F\d+$")

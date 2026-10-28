@@ -77,6 +77,7 @@ class DataAccessCase(BaseModel):
     operation: Literal["select", "insert", "update", "delete"]
     expect: Literal["allowed", "denied"]
 
+
 class E2ETest(BaseModel):
     id: str = Field(pattern=r"^E\d+$")
     criterion_id: str

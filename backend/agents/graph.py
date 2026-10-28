@@ -17,6 +17,7 @@ from agents.after_build_check import make_after_build_check
 from agents.qa.test_writer import test_writer
 from agents.qa.test_executor import test_executor
 
+
 @dataclass
 class AgentModels:
     guard: BaseChatModel
@@ -66,8 +67,10 @@ def make_after_architect(max_attempts: int):
 
     return after_architect
 
+
 def build_done(state: JobState) -> dict:
     return {}
+
 
 def make_after_test_planner(max_attempts: int):
     def after_test_planner(

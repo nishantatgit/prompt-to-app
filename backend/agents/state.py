@@ -1,5 +1,6 @@
 from typing import TypedDict
 
+
 class JobState(TypedDict, total=False):
     prompt: str
 
@@ -32,5 +33,5 @@ class JobState(TypedDict, total=False):
 
     gate_ok: bool
     gate_reason: str
-    
+
     errors: list[str]

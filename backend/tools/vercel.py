@@ -11,6 +11,7 @@ DONE_STATES = {"READY", "ERROR", "CANCELED"}
 
 import os
 
+
 def _params(extra: dict | None = None) -> dict:
     params = dict(extra or {})
     team_id = os.environ.get("VERCEL_TEAM_ID")
@@ -18,12 +19,15 @@ def _params(extra: dict | None = None) -> dict:
         params["teamId"] = team_id
     return params
 
+
 def _headers(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
+
 
 def _check(response: httpx.Response) -> None:
     if response.is_error:
         raise RuntimeError(f"Vercel {response.status_code}: {response.text}")
+
 
 def build_log(token: str, deployment_id: str, max_chars: int = 4000) -> str:
     response = httpx.get(
@@ -40,6 +44,7 @@ def build_log(token: str, deployment_id: str, max_chars: int = 4000) -> str:
             lines.append(text)
     return "\n".join(lines)[-max_chars:]
 
+
 def collect_files(job_dir: Path) -> list[dict]:
     """Every source file in the job folder, base64 encoded, without build or test output."""
     files = []
@@ -49,11 +54,13 @@ def collect_files(job_dir: Path) -> list[dict]:
         rel = path.relative_to(job_dir)
         if SKIP_DIRS & set(rel.parts) or rel.name in SKIP_FILES:
             continue
-        files.append({
-            "file": rel.as_posix(),
-            "data": base64.b64encode(path.read_bytes()).decode(),
-            "encoding": "base64",
-        })
+        files.append(
+            {
+                "file": rel.as_posix(),
+                "data": base64.b64encode(path.read_bytes()).decode(),
+                "encoding": "base64",
+            }
+        )
     return files
 
 

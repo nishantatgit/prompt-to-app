@@ -10,6 +10,7 @@ IGNORE = shutil.ignore_patterns(
     "node_modules", "dist", "test-results", "playwright-report", "playwright-results.json"
 )
 
+
 def create_workspace(workspaces_dir: Path, job_id: str) -> Path:
     job_dir = (Path(workspaces_dir) / job_id).resolve()
     shutil.copytree(TEMPLATE_DIR, job_dir, ignore=IGNORE)

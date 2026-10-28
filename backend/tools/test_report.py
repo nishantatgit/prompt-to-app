@@ -16,6 +16,7 @@ def collect_specs(suites: list[dict]):
         yield from suite.get("specs", [])
         yield from collect_specs(suite.get("suites", []))
 
+
 def parse_results(raw: dict) -> list[dict]:
     cases = []
     for spec in collect_specs(raw.get("suites", [])):
@@ -26,14 +27,17 @@ def parse_results(raw: dict) -> list[dict]:
             message = (last.get("error") or {}).get("message", "")
             error = ANSI_CODES.sub("", message)[:500]
         file_stem = Path(spec["file"]).name.removesuffix(".spec.js")  # "F1-AC1-E1"
-        cases.append({
-            "criterion_id": file_stem.rsplit("-", 1)[0],                # "F1-AC1"
-            "title": spec["title"],
-            "ok": spec["ok"],
-            "error": error,
-            "trace": trace_path(last),
-        })
+        cases.append(
+            {
+                "criterion_id": file_stem.rsplit("-", 1)[0],  # "F1-AC1"
+                "title": spec["title"],
+                "ok": spec["ok"],
+                "error": error,
+                "trace": trace_path(last),
+            }
+        )
     return cases
+
 
 def short_error(error: str) -> str:
     lines = [l.strip() for l in error.splitlines() if l.strip()]
@@ -52,6 +56,7 @@ def summarize(cases: list[dict], run_errors: list[str]) -> str:
     for e in run_errors:
         lines.append(f"Run error: {e.splitlines()[0] if e else 'unknown'}")
     return "\n".join(lines)
+
 
 def trace_path(result):
     for a in result.get("attachments", []):

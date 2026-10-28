@@ -12,7 +12,9 @@ class CommandResult:
     log: str
 
 
-def run_command(cwd: Path, args: list[str], timeout: int = 300, env: dict | None = None) -> CommandResult:
+def run_command(
+    cwd: Path, args: list[str], timeout: int = 300, env: dict | None = None
+) -> CommandResult:
     try:
         result = subprocess.run(
             args,

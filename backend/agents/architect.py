@@ -7,19 +7,31 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field, model_validator
-from schemas.architect import ApiRoute, Coverage, EnvVar, Feature, LogicFunction, PlannedFile, Risk, Table, UIElement
+from schemas.architect import (
+    ApiRoute,
+    Coverage,
+    EnvVar,
+    Feature,
+    LogicFunction,
+    PlannedFile,
+    Risk,
+    Table,
+    UIElement,
+)
 
 ARCHITECT_PROMPT = (Path(__file__).parent / "prompts" / "architect.md").read_text()
 
-PROMPT = ChatPromptTemplate.from_messages([
-    SystemMessage(content=ARCHITECT_PROMPT),
-    (
-        "human",
-        "<user_request>{prompt}</user_request>\n\n"
-        "<requirements>{requirements}</requirements>\n\n"
-        "{feedback}",
-    ),
-])
+PROMPT = ChatPromptTemplate.from_messages(
+    [
+        SystemMessage(content=ARCHITECT_PROMPT),
+        (
+            "human",
+            "<user_request>{prompt}</user_request>\n\n"
+            "<requirements>{requirements}</requirements>\n\n"
+            "{feedback}",
+        ),
+    ]
+)
 
 
 PREFIX_OWNERS = {
@@ -55,7 +67,7 @@ class Architecture(BaseModel):
     assumptions: list[str]
     coverage: list[Coverage] = Field(
         description="One entry for every requirement, in order, naming the "
-                    "features that fulfil it. Write this before the features."
+        "features that fulfil it. Write this before the features."
     )
     storage: Literal["none", "local_storage", "supabase"]
     needs_backend: bool
@@ -71,7 +83,7 @@ class Architecture(BaseModel):
     files: list[PlannedFile] = Field(min_length=1)
     visual_design: str = Field(
         description="The look of the app: visual direction, colors, typography, "
-                    "and how each section and component looks."
+        "and how each section and component looks."
     )
 
     @model_validator(mode="after")
@@ -248,6 +260,7 @@ def validate_features_requirements_mapping(
 
     return errors
 
+
 def validate_coverage_matches_features(architecture: dict) -> list[str]:
     errors = []
     by_feature = {f["id"]: set(f["requirement_ids"]) for f in architecture["features"]}
@@ -259,6 +272,7 @@ def validate_coverage_matches_features(architecture: dict) -> list[str]:
                     f"but {feature_id}'s requirement_ids does not include it"
                 )
     return errors
+
 
 def make_architect(llm: BaseChatModel):
     chain = PROMPT | llm.with_structured_output(Architecture, include_raw=True)
@@ -289,10 +303,9 @@ def make_architect(llm: BaseChatModel):
         else:
             architecture = out["parsed"].model_dump()
             requirement_ids = {r["id"] for r in requirements["requirements"]}
-            problems = (
-                validate_features_requirements_mapping(architecture, requirement_ids)
-                + validate_coverage_matches_features(architecture)
-            )
+            problems = validate_features_requirements_mapping(
+                architecture, requirement_ids
+            ) + validate_coverage_matches_features(architecture)
 
         if problems:
             return {

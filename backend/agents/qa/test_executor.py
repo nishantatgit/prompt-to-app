@@ -32,20 +32,26 @@ def test_executor(state: dict) -> dict:
     run_errors = [ANSI_CODES.sub("", e.get("message", "")) for e in raw.get("errors", [])]
 
     report_path = job_dir / REPORT_FILE
-    report_path.write_text(json.dumps({
-        "passed": sum(c["ok"] for c in cases),
-        "total": len(cases),
-        "cases": cases,
-        "run_errors": run_errors,
-    }, indent=2))
+    report_path.write_text(
+        json.dumps(
+            {
+                "passed": sum(c["ok"] for c in cases),
+                "total": len(cases),
+                "cases": cases,
+                "run_errors": run_errors,
+            },
+            indent=2,
+        )
+    )
     gate_ok, gate_reason = gate(cases)
     return {
         "tests_ok": bool(cases) and all(c["ok"] for c in cases) and not run_errors,
         "test_summary": summarize(cases, run_errors),
         "test_report_path": str(report_path),
         "gate_ok": gate_ok,
-        "gate_reason": gate_reason     
+        "gate_reason": gate_reason,
     }
+
 
 def requirement_context(architecture: dict, requirements: dict) -> dict:
     statements = {r["id"]: r["statement"] for r in requirements["requirements"]}
