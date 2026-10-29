@@ -80,3 +80,10 @@ def build(
     create_job(job_id, req.prompt)
     submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
     return {"job_id": job_id}
+
+@router.get("/jobs/{job_id}")
+def get_job_status(job_id: str):
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return public_view(job)
