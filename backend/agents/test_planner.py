@@ -132,8 +132,10 @@ def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
         found = forbidden_locators(test.code)
         if found:
             errors.append(
-                f"{test.id} uses {', '.join(found)}. Find elements only by role and "
-                f"their ui_elements label, and search inside them."
+                f"{test.id} uses {', '.join(found)}. Find elements by role and their "
+                f"ui_elements label. To pick one item from a list, filter by its "
+                f"content: list.getByRole('listitem').filter({{ hasText: '<item text>' }})"
+                f".getByRole('button', {{ name: '<label>' }})."
             )
 
     for missing in sorted(criterion_ids - covered_criteria):

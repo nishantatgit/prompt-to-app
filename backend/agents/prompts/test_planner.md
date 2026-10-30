@@ -143,6 +143,10 @@ Rules:
   `getByRole('list', { name: 'To Do cards' }).getByRole('listitem')`.
   Anything else about the page, such as its HTML structure, is the builder's
   private choice and can change.
+- When the same button or text appears once per item, such as Delete on every
+  card, pick the item by its content and search inside it:
+  `list.getByRole('listitem').filter({ hasText: 'Buy milk' }).getByRole('button', { name: 'Delete' })`.
+  Never pick by position with .first(), .last() or .nth().
 - Check a value with `getByRole('status', { name: '<label>' })` and
   `toHaveText`. An <output> element has the role status.
 
