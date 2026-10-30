@@ -97,6 +97,11 @@ export default function JobView({ jobId, onDone }) {
           <a href={job.deploy_url} target="_blank" rel="noreferrer" className="break-all font-mono text-saffron">
             {job.deploy_url}
           </a>
+          {job.confidence != null && (
+            <p className={`font-mono text-sm ${job.confidence >= 95 ? 'text-green-400' : 'text-amber-400'}`}>
+                Confidence {job.confidence}% ({job.test_summary?.split('\n')[0]})
+            </p>
+        )}
           <p className="text-sm text-muted">{job.test_summary}</p>
         </div>
       )}

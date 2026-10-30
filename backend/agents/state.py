@@ -31,8 +31,7 @@ class JobState(TypedDict, total=False):
     test_summary: str
     test_report_path: str
 
-    gate_ok: bool
-    gate_reason: str
+    confidence: float
 
     deploy_url: str
     deploy_error: str

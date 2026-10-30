@@ -86,13 +86,10 @@ def make_after_test_planner(max_attempts: int):
     return after_test_planner
 
 
-def make_after_test_executor(can_deploy: bool):
-    def after_test_executor(state: JobState) -> Literal["deploy", "__end__"]:
-        if can_deploy and state.get("gate_ok"):
-            return "deploy"
-        return END
-
-    return after_test_executor
+def make_after_test_executor(can_deploy):
+    def after(state):
+        return "deploy" if can_deploy else END
+    return after
 
 
 def build_graph(

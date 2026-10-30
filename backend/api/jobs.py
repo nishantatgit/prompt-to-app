@@ -1,5 +1,6 @@
 import threading
 import time
+import os
 from concurrent.futures import ThreadPoolExecutor
 
 MAX_CONCURRENT_JOBS = 2
@@ -21,6 +22,17 @@ STAGES = {
     "test_executor": "testing",
     "deploy": "deploying",
 }
+
+MAX_ACTIVE_JOBS = int(os.getenv("MAX_ACTIVE_JOBS", "6"))
+FINISHED_STATUSES = {"succeeded", "failed", "rejected"}
+
+def active_job_count() -> int:
+    with _lock:
+        return sum(1 for job in _jobs.values() if job["status"] not in FINISHED_STATUSES)
+
+
+def has_capacity() -> bool:
+    return active_job_count() < MAX_ACTIVE_JOBS
 
 
 def create_job(job_id: str, prompt: str) -> None:
@@ -54,7 +66,6 @@ def _outcome(state: dict) -> tuple[str, str]:
         return "succeeded", ""
     reason = (
         state.get("deploy_error")
-        or state.get("gate_reason")
         or "; ".join(state.get("errors") or [])
         or ("build failed" if state.get("build_ok") is False else "stopped early")
     )
@@ -89,6 +100,6 @@ def public_view(job: dict) -> dict:
         "stage": job["stage"],
         "reason": job["reason"],
         "deploy_url": state.get("deploy_url", ""),
-        "gate_reason": state.get("gate_reason", ""),
+        "confidence": job.get("confidence"),
         "test_summary": state.get("test_summary", ""),
     }
