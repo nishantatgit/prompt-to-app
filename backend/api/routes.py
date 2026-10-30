@@ -1,12 +1,13 @@
 import os
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, SecretStr
 
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.llm import create_llm
 from api.jobs import create_job, get_job, public_view, submit
+from api.limits import check_rate_limit
 from config import Settings, get_settings
 from tools.workspace import new_job_id
 
@@ -62,6 +63,7 @@ def health():
 @router.post("/build", status_code=202)
 def build(
     req: BuildRequest,
+    request: Request,
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
@@ -71,6 +73,9 @@ def build(
         key = settings.api_key_for(req.provider)
     else:
         raise HTTPException(status_code=400, detail="An API key is required.")
+
+    # After the key check, so a request without a key does not use up an attempt.
+    check_rate_limit(request)
 
     models = make_models(req.provider, key, settings)
     graph = build_graph(
