@@ -24,4 +24,4 @@ RUN mkdir -p /data/workspaces
 EXPOSE 8000
 
 # Railway sets PORT; 8000 is the local default
-CMD ["sh", "-c", "uv run --no-dev uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", ".venv/bin/uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
