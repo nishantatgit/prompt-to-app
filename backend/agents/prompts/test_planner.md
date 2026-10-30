@@ -138,6 +138,9 @@ Rules:
   any reasonable formatting.
 - An empty list renders nothing visible. Never expect_visible on a list that
   may be empty; use expect_count 0 instead.
+- To check how many items a list has, count its `listitem` children inside the list:
+  `list.getByRole('listitem')`. Never call `toHaveCount` on the list itself, because the
+  list element stays on the page even when it is empty.
 
 # Strategy
 
