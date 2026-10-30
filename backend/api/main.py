@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-
+from fastapi.middleware.cors import CORSMiddleware
 from config import ENV_FILE
 
 loaded = load_dotenv(ENV_FILE)
@@ -17,3 +17,10 @@ from api.routes import router  # noqa: E402
 
 app = FastAPI()
 app.include_router(router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(","),
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)

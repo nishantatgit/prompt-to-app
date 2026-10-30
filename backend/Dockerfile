@@ -6,6 +6,7 @@ RUN corepack enable
 
 # uv for the Python backend; it installs the Python version from pyproject.toml
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+ENV UV_PYTHON=3.14
 
 WORKDIR /app
 
