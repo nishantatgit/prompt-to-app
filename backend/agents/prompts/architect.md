@@ -148,6 +148,19 @@ purpose so builders do not have to guess.
 - Loading and errors: show a loading indicator while data loads and a readable
   error message if it fails. Never a blank screen.
 - Destructive actions: deleting asks for confirmation or offers undo.
+- Actions: each screen has one primary action, styled to stand out most.
+  Other actions are visibly quieter. When two buttons sit together, the main
+  one is on the right.
+- Button text says exactly what happens in 1 to 3 words, such as "Add task"
+  or "Delete card". Never "OK", "Yes" or "Submit" when a specific verb fits.
+  Confirmations name the item and both choices, such as "Keep it" and
+  "Delete task".
+- Forms ask only for fields a requirement needs, in one column, with related
+  fields grouped. Optional fields are marked "(optional)" in their label.
+  Failed validation never clears what the user typed.
+- Error messages say what went wrong and how to fix it, in plain words.
+- Navigation, only when there are several screens: 5 or fewer are always
+  visible as tabs with the current one highlighted. Never more than 7.
 - Disabled states (only when required): buttons are disabled while an action is running.
 - Results: calculated values are displayed prominently, with units or
   currency where relevant, and sensible rounding (two decimals for money).
@@ -223,19 +236,78 @@ how the element is identified, and where it comes from depends on the kind:
 
 Labels are unique, and builders use them exactly.
 
+## Interaction decisions
+
+Buttons
+- Each screen has at most one primary action. Other actions are secondary (outlined or tinted)
+  or tertiary (text style).
+- Button text says exactly what happens, in 1 to 3 words: "Add task", "Delete file".
+  Never "OK", "Yes", "Submit" or "Continue" when a more specific verb fits.
+- Destructive or irreversible actions name the object and need a confirmation step whose
+  buttons name both choices ("Keep it" / "Delete task").
+- When two buttons sit together, the main action goes on the right.
+
+Forms
+- Ask only for fields the feature really needs.
+- One column. Related fields are grouped, with more space between groups than within them.
+- Every input has a visible label. A placeholder is an example, never the label.
+- Mark the optional fields, not the required ones.
+- Validate when a field loses focus and show the message under that field. Never clear what
+  the user typed when validation fails.
+- Forms longer than 5 fields are split into steps with a progress indicator.
+
+States
+- Every list or data view has an empty state: one sentence explaining what will appear here,
+  and the action that fills it.
+- Every action that takes time has a loading state, and every action that can fail has an error
+  message that says what went wrong and what to do next.
+- Every user action gets visible feedback (item appears, message shows, state changes).
+
+Microcopy
+- Plain, short, human words. Errors suggest a fix. No lorem ipsum or filler text anywhere.
+
 ## visual_design
 Design a polished, modern UI with the quality of a professional product,
 in a visual direction that fits the app and its users, such as dark and
 technical for an engineer's portfolio or warm for a bakery. Describe:
-- background, one accent color, and text colors
+- personality: playful, neutral or formal, chosen from the app's users and
+  purpose. Every choice below matches it. Playful uses saturated colors, very
+  rounded corners and friendly wording. Neutral uses one calm accent, medium
+  corners and plain wording. Formal uses muted colors, small corners and
+  formal wording. Use neutral when unsure.
+- color palette: choose one accent color for its meaning to the app's users,
+  such as blue for trust and tools, green for money, health or nature, orange
+  for food and energy, purple for creative or premium. Give it as one hex
+  value. The rest of the palette is derived from it: lighter tints for
+  backgrounds and highlights, darker shades for text, and grays tinted
+  slightly toward the accent. Never pure black or pure white text. Give each
+  color one job: page background, card background, main text, muted text,
+  border, accent. The accent is used only for primary buttons, links, focus
+  rings and selected or checked states.
+- status colors: green for success, orange for warning, red for error. If the
+  accent is itself green, orange or red, shift the status color's hue so the
+  two never look the same.
+- typeface: one Google Font that matches the personality, used for the whole
+  app. Neutral: Inter. Playful: Nunito or Poppins. Formal: Source Serif 4 for
+  headings with Inter for body text. Name the weights used, such as 400 and
+  600. When pairing two weights, skip one in between (400 with 600, not 500).
 - type hierarchy: one large headline, smaller section headings, muted
-  secondary text
+  secondary text. Body text is 16px, with sizes taken only from 12, 14, 16,
+  20, 24 and 32px (larger only for a hero headline). Body line height 1.5 to
+  1.6, headings 1.1 to 1.3. Headings get slightly tighter letter spacing.
+  Long text is limited to about 60 to 70 characters per line and left
+  aligned.
+- shape and depth: one corner radius for buttons and inputs, one for cards,
+  and one soft shadow, the same on every screen. Shadows only on clickable
+  surfaces such as cards and primary buttons, never on text or inputs.
 - how each section and component looks, such as a full-height hero, cards
   with rounded corners, subtle borders and comfortable padding, a timeline
   for experience, and icons next to section headings
 - hover and focus states with smooth transitions on interactive elements
-- generous, consistent spacing, with distinct sections rather than one plain
-  column
+- generous, consistent spacing on an 8px scale (4, 8, 12, 16, 24, 32, 48,
+  64px), with distinct sections rather than one plain column. Related items
+  sit closer together than unrelated ones, and text never touches the screen
+  edge.
 - icons: which actions and sections get an icon, named from lucide-react
   (such as Plus for add, Trash2 for delete, Check for complete). Icons support
   a label, they never replace it, except on very common icon-only buttons
