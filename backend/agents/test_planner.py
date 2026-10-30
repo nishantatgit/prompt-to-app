@@ -5,6 +5,16 @@ from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from agents.architect import Architecture
 from schemas.test_planner import TestPlan
+import re
+
+FORBIDDEN_LOCATORS = {
+    "locator('..')": r"locator\(\s*['\"]\.\.['\"]\s*\)",
+    "XPath": r"xpath=|locator\(\s*['\"]//",
+    "CSS selectors": r"locator\(\s*['\"][.#\[a-zA-Z]",
+    ".nth()": r"\.nth\(",
+    ".first() or .last()": r"\.(first|last)\(\)",
+    "toHaveCount on a list itself": r"getByRole\(\s*['\"]list['\"][^)]*\)\s*\)\.toHaveCount",
+}
 
 TEST_PLANNER_PROMPT = (Path(__file__).parent / "prompts" / "test_planner.md").read_text()
 
@@ -20,6 +30,8 @@ PROMPT = ChatPromptTemplate.from_messages(
     ]
 )
 
+def forbidden_locators(code: str) -> list[str]:
+    return [name for name, pattern in FORBIDDEN_LOCATORS.items() if re.search(pattern, code)]
 
 def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
     """Return every problem found. An empty list means the test plan is accepted."""
@@ -110,12 +122,19 @@ def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
     covered_criteria = set()
 
     for test in plan.e2e_tests:
+        
         if test.criterion_id not in criterion_ids:
             errors.append(f"e2e test {test.id}: criterion '{test.criterion_id}' does not exist")
         else:
             covered_criteria.add(test.criterion_id)
         if "expect(" not in test.code:
             errors.append(f"e2e test {test.id}: has no expect assertion")
+        found = forbidden_locators(test.code)
+        if found:
+            errors.append(
+                f"{test.id} uses {', '.join(found)}. Find elements only by role and "
+                f"their ui_elements label, and search inside them."
+            )
 
     for missing in sorted(criterion_ids - covered_criteria):
         errors.append(f"criterion {missing}: has no e2e test")
