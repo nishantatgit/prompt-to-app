@@ -103,9 +103,9 @@ assumptions.
 - Use fetch for API calls and @supabase/supabase-js for Supabase. No other
   data libraries.
 - Allowed frontend dependencies: react, react-dom, vite, @vitejs/plugin-react,
-  tailwindcss, @tailwindcss/vite, @supabase/supabase-js. Add react-router-dom
-  only for multiple pages and recharts only when charts are requested. Nothing
-  else.
+  tailwindcss, @tailwindcss/vite, @supabase/supabase-js, lucide-react (icons)
+  and motion (animation). Add react-router-dom only for multiple pages and
+  recharts only when charts are requested. Nothing else.
 - Allowed backend dependencies: fastapi, pydantic, supabase.
 - Keep each file small and focused, ideally under 200 lines. Split a large
   screen into a few components rather than one huge file.
@@ -236,6 +236,14 @@ technical for an engineer's portfolio or warm for a bakery. Describe:
 - hover and focus states with smooth transitions on interactive elements
 - generous, consistent spacing, with distinct sections rather than one plain
   column
+- icons: which actions and sections get an icon, named from lucide-react
+  (such as Plus for add, Trash2 for delete, Check for complete). Icons support
+  a label, they never replace it, except on very common icon-only buttons
+  such as close.
+- motion: which state changes animate and how, such as new items fading and
+  sliding in, deleted items fading out, cards moving smoothly between columns,
+  and results updating with a short fade. Motion is subtle and quick; nothing
+  animates just for decoration.
 
 ## functions
 Pure logic functions that are worth unit testing: calculations, validation,
