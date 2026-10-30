@@ -3,7 +3,7 @@ from typing import Literal
 
 
 class UIElement(BaseModel):
-    kind: Literal["input", "select", "checkbox", "button", "link", "list", "text"]
+    kind: Literal["input", "select", "checkbox", "button", "link", "list", "text", "value"]
     label: str = Field(min_length=1)
     purpose: str
 

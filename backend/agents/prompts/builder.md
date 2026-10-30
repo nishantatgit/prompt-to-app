@@ -24,6 +24,8 @@ Labels:
 - Buttons and links: their visible text is the element's label exactly.
 - Lists: if the list has a visible heading, aria-labelledby pointing to that
   heading. Otherwise aria-label set to the element's label exactly.
+- value: render an <output> with aria-label exactly equal to the label, and
+  put only the changing text inside it, such as <output aria-label="To Do count">{count}</output>.
 
 Accessibility:
 - Use semantic HTML: <button> for actions, <a> for navigation, <ul> or <ol>

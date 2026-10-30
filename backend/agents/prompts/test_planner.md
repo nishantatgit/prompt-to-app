@@ -143,6 +143,8 @@ Rules:
   `getByRole('list', { name: 'To Do cards' }).getByRole('listitem')`.
   Anything else about the page, such as its HTML structure, is the builder's
   private choice and can change.
+- Check a value with `getByRole('status', { name: '<label>' })` and
+  `toHaveText`. An <output> element has the role status.
 
 # Strategy
 

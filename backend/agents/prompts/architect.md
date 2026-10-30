@@ -153,23 +153,20 @@ purpose so builders do not have to guess.
   one is on the right.
 - Button text says exactly what happens in 1 to 3 words, such as "Add task"
   or "Delete card". Never "OK", "Yes" or "Submit" when a specific verb fits.
+  Name destinations, not directions, such as "Move to Doing" instead of
+  "Move right", because the layout changes between screen sizes.
   Confirmations name the item and both choices, such as "Keep it" and
   "Delete task".
 - Forms ask only for fields a requirement needs, in one column, with related
   fields grouped. Optional fields are marked "(optional)" in their label.
-  Failed validation never clears what the user typed.
+  Failed validation never clears what the user typed. Forms with more than 5
+  fields are split into steps with a progress indicator.
 - Error messages say what went wrong and how to fix it, in plain words.
 - Navigation, only when there are several screens: 5 or fewer are always
   visible as tabs with the current one highlighted. Never more than 7.
 - Disabled states (only when required): buttons are disabled while an action is running.
 - Results: calculated values are displayed prominently, with units or
   currency where relevant, and sensible rounding (two decimals for money).
-- Visual design: choose a visual direction that fits the app and its users,
-  such as dark and technical for an engineer's portfolio or warm and
-  inviting for a bakery. State it in assumptions: background, one accent
-  color, and the overall feel. Describe how each section looks in the
-  feature descriptions, such as a full-height hero with a large headline,
-  cards with icons, or a timeline for experience.
 - The app fills the whole viewport (min-h-screen, full width background) unless the request says otherwise.
 - The main interactive area (a game canvas, board, map, editor or chart) uses the full available width and most of the viewport height. Never inside a narrow max-width column.
 - Only text-heavy parts such as forms, settings and long lists may be limited to a comfortable max width and centered.
@@ -228,43 +225,16 @@ how the element is identified, and where it comes from depends on the kind:
   heading's text and the list points to it with aria-labelledby. Otherwise
   label is a short name such as "Task list", set as aria-label on the <ul>
   or <ol>.
-- text: a heading, message or other fixed text, such as an <h1>,<p> or <span>.
-  label is the exact text it shows, such as "Enter a value.". Text that
-  depends on input, such as a calculated result, is described in purpose
-  and checked through acceptance criteria.
+- text: a heading, message or other fixed text, such as an <h1>, <p> or
+  <span>. label is the exact text it shows, such as "Enter a value.".
+- value: text that changes with what the user does and that a criterion
+  checks, such as a calculated result, a total or a card count. It is an
+  <output> element with aria-label set to label, such as
+  <output aria-label="To Do count">1</output>. label is a short fixed name;
+  the shown text is described in purpose.
 - purpose: what it does.
 
 Labels are unique, and builders use them exactly.
-
-## Interaction decisions
-
-Buttons
-- Each screen has at most one primary action. Other actions are secondary (outlined or tinted)
-  or tertiary (text style).
-- Button text says exactly what happens, in 1 to 3 words: "Add task", "Delete file".
-  Never "OK", "Yes", "Submit" or "Continue" when a more specific verb fits.
-- Destructive or irreversible actions name the object and need a confirmation step whose
-  buttons name both choices ("Keep it" / "Delete task").
-- When two buttons sit together, the main action goes on the right.
-
-Forms
-- Ask only for fields the feature really needs.
-- One column. Related fields are grouped, with more space between groups than within them.
-- Every input has a visible label. A placeholder is an example, never the label.
-- Mark the optional fields, not the required ones.
-- Validate when a field loses focus and show the message under that field. Never clear what
-  the user typed when validation fails.
-- Forms longer than 5 fields are split into steps with a progress indicator.
-
-States
-- Every list or data view has an empty state: one sentence explaining what will appear here,
-  and the action that fills it.
-- Every action that takes time has a loading state, and every action that can fail has an error
-  message that says what went wrong and what to do next.
-- Every user action gets visible feedback (item appears, message shows, state changes).
-
-Microcopy
-- Plain, short, human words. Errors suggest a fix. No lorem ipsum or filler text anywhere.
 
 ## visual_design
 Design a polished, modern UI with the quality of a professional product,
@@ -382,7 +352,9 @@ Confirm all of these. If any fails, fix the design before returning it.
 - Nothing from out_of_scope is built.
 - Acceptance criteria cover invalid input, empty states and edge cases, not
   only the happy path.
-- Every element mentioned in a criterion exists in ui_elements.
+- Every element mentioned in a criterion exists in ui_elements, and every
+  changing value a criterion checks, such as a result or a count, is a value
+  element.
 - Logic worth testing is in functions, in a planned file.
 - Every feature is mapped to at least one file, every function to at least one
   feature, and each function's features are also on its file.
