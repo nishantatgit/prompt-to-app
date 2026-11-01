@@ -57,10 +57,10 @@ const LEVELS = [
 ];
 
 // Replace with the measured weekly score.
-const SCORE = "[SCORE]";
+const SCORE = "10";
 
 const primaryButton =
-  "inline-flex min-h-11 items-center rounded-full bg-accent font-semibold text-on-accent no-underline hover:text-on-accent hover:brightness-105";
+  "inline-flex min-h-11 items-center rounded-full bg-accent font-semibold text-on-accent no-underline transition hover:bg-accent-hover hover:text-on-accent";
 
 function Eyebrow({ children }) {
   return <p className="font-mono text-[13px] tracking-[0.08em] text-accent uppercase">{children}</p>;
@@ -69,7 +69,7 @@ function Eyebrow({ children }) {
 function LogoMark({ size = 28 }) {
   return (
     <svg aria-hidden="true" width={size} height={size} viewBox="0 0 512 512" fill="none">
-      <rect width="512" height="512" rx="112" fill="#4a0e5c" />
+      <rect width="512" height="512" rx="112" fill="#2a0835" />
       <polyline points="132,170 222,372 386,124" stroke="#50eaf2" strokeWidth="68"
         strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
@@ -132,9 +132,9 @@ export default function App() {
             VYSKAR
           </a>
           <nav aria-label="Main" className="flex flex-wrap items-center gap-7 text-[15px]">
-            <a href="#how" className="text-muted no-underline">How it works</a>
-            <a href="#proof" className="text-muted no-underline">Why Vyskar</a>
-            <a href="#benchmark" className="text-muted no-underline">Benchmark</a>
+            <a href="#how" className="text-muted no-underline hover:text-accent-hover">How it works</a>
+            <a href="#proof" className="text-muted no-underline hover:text-accent-hover">Why Vyskar</a>
+            <a href="#benchmark" className="text-muted no-underline hover:text-accent-hover">Benchmark</a>
             <a href="#start" className={`${primaryButton} px-5 py-3`}>Hire your senior engineer</a>
           </nav>
         </div>
@@ -154,7 +154,7 @@ export default function App() {
             <div className="flex flex-wrap gap-3.5 pt-1">
               <a href="#start" className={`${primaryButton} px-[26px] py-[15px] text-base`}>Hire your senior engineer</a>
               <a href="#benchmark"
-                className="inline-flex min-h-11 items-center rounded-full border border-wall px-[26px] py-[15px] text-base font-medium text-fg no-underline">
+                className="inline-flex min-h-11 items-center rounded-full border border-accent px-[26px] py-[15px] text-base font-medium text-fg no-underline transition-colors hover:bg-accent hover:text-on-accent">
                 See the benchmark
               </a>
             </div>
@@ -163,8 +163,8 @@ export default function App() {
           <RunCard />
         </section>
 
-        <section id="how" className="border-t border-line bg-ink-2 lg:flex lg:min-h-svh lg:items-center">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-12 px-6 py-24">
+        <section id="how" className="border-t border-line bg-ink-2">
+          <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
             <div className="flex max-w-[760px] flex-col gap-3.5">
               <Eyebrow>How it works</Eyebrow>
               <SectionTitle>Let the senior engineer work for you.</SectionTitle>
@@ -176,29 +176,35 @@ export default function App() {
           </div>
         </section>
 
-        <section id="proof" className="border-t border-line lg:flex lg:min-h-svh lg:items-center">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-12 px-6 py-24">
-            <div className="flex max-w-[760px] flex-col gap-3.5">
+        <section id="proof" className="border-t border-line">
+          <div className="mx-auto grid max-w-[1200px] gap-12 px-6 py-24 lg:grid-cols-[5fr_7fr] lg:gap-20">
+            <div className="flex flex-col gap-3.5 lg:sticky lg:top-12 lg:self-start">
               <Eyebrow>Why Vyskar</Eyebrow>
               <SectionTitle>Exactly what you asked for. Nothing you didn't.</SectionTitle>
+              <p className="text-lg leading-relaxed text-muted">
+                Every step leaves evidence you can check, from your words to the final test.
+              </p>
             </div>
-            <div className="flex flex-wrap gap-5">
-              {REASONS.map((r) => (
-                <div key={r.title} className="flex min-w-0 flex-[1_1_300px] flex-col gap-4 py-1">
-                  <svg aria-hidden="true" className="text-accent" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <ul className="flex flex-col">
+              {REASONS.map((r, i) => (
+                <li key={r.title}
+                  className={`flex gap-5 py-7 ${i > 0 ? "border-t border-line" : "pt-0"}`}>
+                  <svg aria-hidden="true" className="mt-0.5 shrink-0 text-accent" width="32" height="32" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     {r.icon}
                   </svg>
-                  <h3 className="font-display text-[19px] font-medium">{r.title}</h3>
-                  <p className="text-base leading-relaxed text-muted">{r.body}</p>
-                </div>
+                  <div className="flex flex-col gap-2">
+                    <h3 className="font-display text-[19px] font-medium">{r.title}</h3>
+                    <p className="text-base leading-relaxed text-muted">{r.body}</p>
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
-        <section id="benchmark" className="border-t border-line bg-ink-2 lg:flex lg:min-h-svh lg:items-center">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center gap-14 px-6 py-24">
+        <section id="benchmark" className="border-t border-line bg-ink-2">
+          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-14 px-6 py-24">
             <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-[18px]">
               <Eyebrow>Built in public</Eyebrow>
               <SectionTitle>Measured, not promised.</SectionTitle>
@@ -206,7 +212,7 @@ export default function App() {
                 Vyskar is scored every week against a fixed benchmark of 25 apps, from a tip calculator to a live chat
                 room. The prompts never change, so the score means something.
               </p>
-              <a href={REPO_URL} className="text-base font-medium text-fg">Follow the build on GitHub</a>
+              <a href={REPO_URL} className="text-base font-medium text-fg hover:text-accent-hover">Follow the build on GitHub</a>
             </div>
             <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-1.5 rounded-2xl border border-line bg-card p-7">
               <div className="flex items-baseline justify-between gap-4 border-b border-line pb-[18px]">
@@ -226,8 +232,8 @@ export default function App() {
           </div>
         </section>
 
-        <section id="start" className="border-t border-line bg-plum lg:flex lg:min-h-svh lg:items-center">
-          <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-6 px-6 py-28 text-center">
+        <section id="start" className="border-t border-line bg-plum">
+          <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 px-6 py-28 text-center">
             <h2 className="max-w-[16em] font-display text-[clamp(30px,4.4vw,50px)] leading-[1.12] font-bold tracking-[-0.02em]">
               From prompt to app. Tested before you see it.
             </h2>
@@ -246,8 +252,8 @@ export default function App() {
             VYSKAR
           </span>
           <div className="flex flex-wrap gap-6">
-            <a href={X_URL} className="text-muted no-underline">Follow on X</a>
-            <a href={REPO_URL} className="text-muted no-underline">GitHub</a>
+            <a href={X_URL} className="text-muted no-underline hover:text-accent-hover">Follow on X</a>
+            <a href={REPO_URL} className="text-muted no-underline hover:text-accent-hover">GitHub</a>
           </div>
         </div>
       </footer>

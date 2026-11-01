@@ -100,12 +100,12 @@ export default function RunCard() {
         className="pointer-events-none absolute -top-px -left-px overflow-visible"
         style={{ width: "calc(100% + 2px)", height: "calc(100% + 2px)" }}
       >
-        <rect x="0.5" y="0.5" rx="16" ry="16" fill="none" stroke="#3a3768" strokeWidth="1"
+        <rect x="0.5" y="0.5" rx="16" ry="16" fill="none" stroke="#2bbcc4" strokeWidth="1"
           style={{ width: "calc(100% - 1px)", height: "calc(100% - 1px)" }} />
-        <rect x="8.5" y="8.5" rx="8" ry="8" fill="none" stroke="#3a3768" strokeWidth="1"
+        <rect x="8.5" y="8.5" rx="8" ry="8" fill="none" stroke="#2bbcc4" strokeWidth="1"
           style={{ width: "calc(100% - 17px)", height: "calc(100% - 17px)" }} />
         <rect ref={fillRef} x="4.5" y="4.5" rx="12" ry="12" pathLength="100" fill="none"
-          stroke="#2bbcc4" strokeWidth="6" strokeDasharray="100" strokeDashoffset="100"
+          stroke="#2bbcc4" strokeWidth="7" strokeDasharray="100" strokeDashoffset="100"
           style={{ width: "calc(100% - 9px)", height: "calc(100% - 9px)" }} />
       </svg>
 
@@ -163,7 +163,7 @@ function Spinner() {
 
 function Pending() {
   return (
-    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a4780" strokeWidth="2">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7d4d92" strokeWidth="2">
       <circle cx="12" cy="12" r="8" />
     </svg>
   );

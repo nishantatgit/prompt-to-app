@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #12112a;
-  --color-ink-2: #161535;
-  --color-card: #1a1938;
-  --color-line: #26244a;
-  --color-line-2: #23214a;
-  --color-wall: #3a3768;
-  --color-pending: #4a4780;
+  /* Plum theme. Every text color passes AA on every surface below. */
+  --color-ink: #3a0b49; /* page background */
+  --color-ink-2: #4a0e5c; /* alternate sections */
+  --color-card: #2a0835; /* cards sit darker than the page */
+  --color-line: #5b2470;
+  --color-line-2: #50205f;
+  --color-wall: #6e3a84;
+  --color-pending: #7d4d92;
   --color-fg: #f1effa;
   --color-muted: #b4b1d6;
   --color-dim: #9e9bc4;
@@ -15,8 +16,8 @@
   --color-accent: #50eaf2; /* 12.63:1 on ink, 11.61:1 on card, 9.54:1 on plum */
   --color-accent-hover: #86f1f6;
   --color-accent-deep: #2bbcc4; /* progress border, 7.33:1 on card */
-  --color-on-accent: #12112a; /* dark text on cyan; white on cyan fails (1.46:1) */
-  --color-plum: #4a0e5c; /* surface only; fg 12.24:1, muted 6.76:1 on it */
+  --color-on-accent: #2a0835; /* dark purple text on cyan, 12.15:1; white on cyan fails (1.46:1) */
+  --color-plum: #5c1373; /* closing section; fg 10.28:1, cyan 8.01:1 */
 
   --font-display: "Unbounded", sans-serif;
   --font-sans: "DM Sans", system-ui, sans-serif;
@@ -24,6 +25,11 @@
 }
 
 @layer base {
+  /* In the base layer so utilities such as hover:text-on-accent can override it. */
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled),
   select,
@@ -43,9 +49,6 @@ body {
   font-family: var(--font-sans);
 }
 
-a:hover {
-  color: var(--color-accent-hover);
-}
 
 @keyframes vy-spin {
   to {
