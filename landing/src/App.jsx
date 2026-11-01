@@ -57,7 +57,7 @@ const LEVELS = [
 ];
 
 // Replace with the measured weekly score.
-const SCORE = "10";
+const SCORE = "[SCORE]";
 
 const primaryButton =
   "inline-flex min-h-11 items-center rounded-full bg-accent font-semibold text-on-accent no-underline transition hover:bg-accent-hover hover:text-on-accent";
