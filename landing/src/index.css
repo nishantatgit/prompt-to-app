@@ -12,10 +12,10 @@
   --color-fg: #f1effa;
   --color-muted: #b4b1d6;
   --color-dim: #9e9bc4;
-  /* Brand: sky accent, plum surface. Contrast checked against ink, card and plum. */
-  --color-accent: #7cc8ff; /* 8.73:1 on page, 9.76:1 on card, 6.44:1 on the closing plum */
-  --color-accent-hover: #a8dbff; /* button text on it 12.02:1 */
-  --color-accent-deep: #4aa8e8; /* run card border, 6.8:1 on card */
+  /* Brand: aqua accent, plum surface. Contrast checked against ink, card and plum. */
+  --color-accent: #50eaf2; /* 10.87:1 on page, 12.15:1 on card, 8.01:1 on the closing plum */
+  --color-accent-hover: #86f1f6; /* button text on it 13.44:1 */
+  --color-accent-deep: #2bbcc4; /* run card border, 7.33:1 on card */
   --color-on-accent: #2a0835; /* dark purple text on cyan, 12.15:1; white on cyan fails (1.46:1) */
   --color-plum: #5c1373; /* closing section; fg 10.28:1, cyan 8.01:1 */
 
