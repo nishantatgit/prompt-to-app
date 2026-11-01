@@ -70,7 +70,7 @@ function LogoMark({ size = 28 }) {
   return (
     <svg aria-hidden="true" width={size} height={size} viewBox="0 0 512 512" fill="none">
       <rect width="512" height="512" rx="112" fill="#2a0835" />
-      <polyline points="132,170 222,372 386,124" stroke="#50eaf2" strokeWidth="68"
+      <polyline points="132,170 222,372 386,124" stroke="var(--color-accent)" strokeWidth="68"
         strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );

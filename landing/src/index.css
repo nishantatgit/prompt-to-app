@@ -12,10 +12,10 @@
   --color-fg: #f1effa;
   --color-muted: #b4b1d6;
   --color-dim: #9e9bc4;
-  /* Brand: cyan accent, plum surface. Contrast checked against ink, card and plum. */
-  --color-accent: #50eaf2; /* 12.63:1 on ink, 11.61:1 on card, 9.54:1 on plum */
-  --color-accent-hover: #86f1f6;
-  --color-accent-deep: #2bbcc4; /* progress border, 7.33:1 on card */
+  /* Brand: green accent, plum surface. Contrast checked against ink, card and plum. */
+  --color-accent: #7efca6; /* 12.36:1 on ink, 13.81:1 on card, 9.11:1 on the closing plum */
+  --color-accent-hover: #aafdc5; /* button text on it 14.83:1 */
+  --color-accent-deep: #4cd98a; /* run card border */
   --color-on-accent: #2a0835; /* dark purple text on cyan, 12.15:1; white on cyan fails (1.46:1) */
   --color-plum: #5c1373; /* closing section; fg 10.28:1, cyan 8.01:1 */
 
@@ -62,17 +62,17 @@ body {
 
 @keyframes vy-lift {
   0% {
-    box-shadow: 0 0 0 0 rgba(80, 234, 242, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 0 transparent, 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
     transform: scale(1);
   }
   15%,
   60% {
-    box-shadow: 0 0 22px 2px rgba(80, 234, 242, 0.28), 0 0 60px 6px rgba(0, 0, 0, 0.7),
+    box-shadow: 0 0 22px 2px color-mix(in oklch, var(--color-accent) 28%, transparent), 0 0 60px 6px rgba(0, 0, 0, 0.7),
       0 0 18px 2px rgba(0, 0, 0, 0.5);
     transform: scale(1.035);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(80, 234, 242, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 0 transparent, 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
     transform: scale(1);
   }
 }
@@ -98,7 +98,7 @@ body {
 
 .vy-reveal.is-visible:hover {
   transform: translateY(-4px);
-  border-color: rgba(80, 234, 242, 0.4);
+  border-color: color-mix(in oklch, var(--color-accent) 40%, transparent);
   transition-delay: 0ms !important;
 }
 
