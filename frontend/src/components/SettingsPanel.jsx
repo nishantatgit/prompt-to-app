@@ -63,7 +63,7 @@ export default function SettingsPanel({ settings, onChange, onClose }) {
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <button type="submit" className="min-h-11 rounded-full bg-saffron px-6 font-semibold text-on-saffron">
+        <button type="submit" className="min-h-11 rounded-full bg-accent px-6 font-semibold text-on-accent">
           Save
         </button>
         <button type="button" onClick={onClose} className="min-h-11 rounded-full border border-wall px-6 text-fg">

@@ -68,7 +68,7 @@ export default function JobView({ jobId, onDone }) {
     <section aria-live="polite" className="rounded-2xl border border-line bg-card p-6">
       <div className="flex items-center justify-between font-mono text-xs text-dim">
         <span>job {jobId}</span>
-        <span className={job?.status === 'succeeded' ? 'text-saffron' : ''}>{job?.status || 'starting'}</span>
+        <span className={job?.status === 'succeeded' ? 'text-accent' : ''}>{job?.status || 'starting'}</span>
       </div>
 
       {!finished && !error && (
@@ -81,7 +81,7 @@ export default function JobView({ jobId, onDone }) {
                 <span
                   aria-hidden="true"
                   className={`h-2.5 w-2.5 rounded-full ${
-                    done ? 'bg-saffron' : current ? 'animate-pulse bg-saffron' : 'bg-pending'
+                    done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
                   }`}
                 />
                 <span className={done || current ? 'text-fg' : 'text-dim'}>{stage}</span>
@@ -94,7 +94,7 @@ export default function JobView({ jobId, onDone }) {
       {job?.status === 'succeeded' && (
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">Your app is live.</p>
-          <a href={job.deploy_url} target="_blank" rel="noreferrer" className="break-all font-mono text-saffron">
+          <a href={job.deploy_url} target="_blank" rel="noreferrer" className="break-all font-mono text-accent">
             {job.deploy_url}
           </a>
           {job.confidence != null && (
@@ -116,7 +116,7 @@ export default function JobView({ jobId, onDone }) {
         </div>
       )}
 
-      {error && <p className="mt-4 text-sm text-saffron">{error}</p>}
+      {error && <p className="mt-4 text-sm text-accent">{error}</p>}
     </section>
   )
 }

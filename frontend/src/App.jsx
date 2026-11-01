@@ -65,7 +65,7 @@ export default function App() {
         <label htmlFor="prompt" className="sr-only">Describe your app</label>
         <textarea
           id="prompt"
-          className="h-36 w-full rounded-2xl border border-wall bg-card p-4 text-fg placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-saffron"
+          className="h-36 w-full rounded-2xl border border-wall bg-card p-4 text-fg placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-accent"
           placeholder="e.g. A to-do list where I can add, complete, delete and filter tasks"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -79,14 +79,14 @@ export default function App() {
             type="button"
             onClick={handleBuild}
             disabled={!canBuild}
-            className="min-h-11 rounded-full bg-saffron px-7 font-semibold text-on-saffron disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-11 rounded-full bg-accent px-7 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
           >
             {running ? 'Building...' : 'Build my app'}
           </button>
           <span className="text-sm text-dim">Takes a few minutes. Ctrl or Cmd + Enter also works.</span>
         </div>
 
-        {error && <p className="rounded-lg border border-line bg-card p-4 text-saffron">{error}</p>}
+        {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}
 
         {jobId && <JobView key={jobId} jobId={jobId} onDone={handleDone} />}
       </main>
