@@ -152,6 +152,12 @@ Rules:
 - Find a canvas with `getByRole('img', { name: '<label>' })`. Interact with it
   through clicks or key presses, then check the outcome through value
   elements, such as the score. Never compare pixels.
+- Keep e2e tests fast: each one must finish within a few seconds. Rules that
+  unit tests already cover, such as limits, distances and timing, are not
+  tested again in the browser.
+- For anything that moves over time, such as games, animations or timers,
+  use Playwright's fake clock (`page.clock.install()` and
+  `page.clock.runFor(ms)`) to jump forward instead of waiting in real time.
 
 # Strategy
 
