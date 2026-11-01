@@ -105,13 +105,13 @@ export default function RunCard() {
         <rect x="8.5" y="8.5" rx="8" ry="8" fill="none" stroke="#3a3768" strokeWidth="1"
           style={{ width: "calc(100% - 17px)", height: "calc(100% - 17px)" }} />
         <rect ref={fillRef} x="4.5" y="4.5" rx="12" ry="12" pathLength="100" fill="none"
-          stroke="#e09a10" strokeWidth="6" strokeDasharray="100" strokeDashoffset="100"
+          stroke="#2bbcc4" strokeWidth="6" strokeDasharray="100" strokeDashoffset="100"
           style={{ width: "calc(100% - 9px)", height: "calc(100% - 9px)" }} />
       </svg>
 
       <div className="flex items-center justify-between border-b border-line px-[18px] py-3.5 font-mono text-xs">
         <span className="text-dim">example run</span>
-        <span className={finished ? "text-saffron" : "text-dim"} aria-live="polite">
+        <span className={finished ? "text-accent" : "text-dim"} aria-live="polite">
           {finished ? "all checks passed" : "running"}
         </span>
       </div>
@@ -132,7 +132,7 @@ export default function RunCard() {
               {running && <Spinner />}
               {!isDone && !running && <Pending />}
               <span className={`flex-auto ${isDone || running ? "text-fg" : "text-dim"}`}>{step.name}</span>
-              <span className={isDone && i === STEPS.length - 1 ? "text-saffron" : "text-dim"}>
+              <span className={isDone && i === STEPS.length - 1 ? "text-accent" : "text-dim"}>
                 {isDone ? step.detail : running ? "running..." : ""}
               </span>
             </li>
@@ -145,7 +145,7 @@ export default function RunCard() {
 
 function Check() {
   return (
-    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb627"
+    <svg aria-hidden="true" className="text-accent" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12" />
     </svg>
@@ -154,8 +154,8 @@ function Check() {
 
 function Spinner() {
   return (
-    <svg className="vy-spin" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"
-      stroke="#ffb627" strokeWidth="2.5" strokeLinecap="round">
+    <svg className="vy-spin text-accent" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
       <path d="M21 12a9 9 0 1 1-6.2-8.56" />
     </svg>
   );

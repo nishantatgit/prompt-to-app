@@ -11,13 +11,25 @@
   --color-fg: #f1effa;
   --color-muted: #b4b1d6;
   --color-dim: #9e9bc4;
-  --color-saffron: #ffb627;
-  --color-saffron-deep: #e09a10;
-  --color-on-saffron: #1b1405;
+  /* Brand: cyan accent, plum surface. Contrast checked against ink, card and plum. */
+  --color-accent: #50eaf2; /* 12.63:1 on ink, 11.61:1 on card, 9.54:1 on plum */
+  --color-accent-hover: #86f1f6;
+  --color-accent-deep: #2bbcc4; /* progress border, 7.33:1 on card */
+  --color-on-accent: #12112a; /* dark text on cyan; white on cyan fails (1.46:1) */
+  --color-plum: #4a0e5c; /* surface only; fg 12.24:1, muted 6.76:1 on it */
 
   --font-display: "Unbounded", sans-serif;
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  select,
+  summary {
+    cursor: pointer;
+  }
 }
 
 html {
@@ -32,7 +44,7 @@ body {
 }
 
 a:hover {
-  color: var(--color-saffron);
+  color: var(--color-accent-hover);
 }
 
 @keyframes vy-spin {
@@ -47,23 +59,54 @@ a:hover {
 
 @keyframes vy-lift {
   0% {
-    box-shadow: 0 0 0 0 rgba(255, 182, 39, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 0 rgba(80, 234, 242, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
     transform: scale(1);
   }
   15%,
   60% {
-    box-shadow: 0 0 22px 2px rgba(255, 182, 39, 0.28), 0 0 60px 6px rgba(0, 0, 0, 0.7),
+    box-shadow: 0 0 22px 2px rgba(80, 234, 242, 0.28), 0 0 60px 6px rgba(0, 0, 0, 0.7),
       0 0 18px 2px rgba(0, 0, 0, 0.5);
     transform: scale(1.035);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 182, 39, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 0 rgba(80, 234, 242, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);
     transform: scale(1);
   }
 }
 
 .vy-lift {
   animation: vy-lift 1.8s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
+}
+
+/* Step cards: fade up on first view, lift slightly on hover. */
+.vy-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 500ms ease-out,
+    transform 500ms ease-out,
+    border-color 200ms ease-out;
+}
+
+.vy-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vy-reveal.is-visible:hover {
+  transform: translateY(-4px);
+  border-color: rgba(80, 234, 242, 0.4);
+  transition-delay: 0ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vy-reveal,
+  .vy-reveal.is-visible,
+  .vy-reveal.is-visible:hover {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

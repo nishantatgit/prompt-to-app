@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import RunCard from "./components/RunCard.jsx";
 
 const REPO_URL = "https://github.com/nishantatgit/prompt-to-app";
@@ -56,13 +57,23 @@ const LEVELS = [
 ];
 
 // Replace with the measured weekly score.
-const SCORE = "10";
+const SCORE = "[SCORE]";
 
 const primaryButton =
-  "inline-flex min-h-11 items-center rounded-full bg-saffron font-semibold text-on-saffron no-underline hover:text-on-saffron hover:brightness-105";
+  "inline-flex min-h-11 items-center rounded-full bg-accent font-semibold text-on-accent no-underline hover:text-on-accent hover:brightness-105";
 
 function Eyebrow({ children }) {
-  return <p className="font-mono text-[13px] tracking-[0.08em] text-saffron uppercase">{children}</p>;
+  return <p className="font-mono text-[13px] tracking-[0.08em] text-accent uppercase">{children}</p>;
+}
+
+function LogoMark({ size = 28 }) {
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 512 512" fill="none">
+      <rect width="512" height="512" rx="112" fill="#4a0e5c" />
+      <polyline points="132,170 222,372 386,124" stroke="#50eaf2" strokeWidth="68"
+        strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
 }
 
 function SectionTitle({ children }) {
@@ -73,12 +84,51 @@ function SectionTitle({ children }) {
   );
 }
 
+// Cards fade up one after another the first time they scroll into view.
+function StepCards() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="flex flex-wrap gap-5">
+      {STEPS.map((s, i) => (
+        <div
+          key={s.n}
+          style={{ transitionDelay: visible ? `${i * 120}ms` : "0ms" }}
+          className={`vy-reveal ${visible ? "is-visible" : ""} flex min-w-0 flex-[1_1_240px] flex-col gap-3.5 rounded-2xl border border-line bg-card p-7`}
+        >
+          <span className="font-mono text-[13px] text-accent">{s.n}</span>
+          <h3 className="font-display text-[19px] font-medium">{s.title}</h3>
+          <p className="text-[15px] leading-relaxed text-muted">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <div className="min-h-screen bg-ink text-fg">
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <a href="#top" className="font-display text-xl font-bold tracking-[0.1em] text-fg no-underline">
+          <a href="#top" className="flex items-center gap-3 font-display text-xl font-bold tracking-[0.1em] text-fg no-underline">
+            <LogoMark />
             VYSKAR
           </a>
           <nav aria-label="Main" className="flex flex-wrap items-center gap-7 text-[15px]">
@@ -91,7 +141,7 @@ export default function App() {
       </header>
 
       <main>
-        <section id="top" className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-14 px-6 pt-24 pb-22">
+        <section id="top" className="mx-auto flex max-w-[1200px] flex-wrap content-center items-center gap-14 px-6 pt-24 pb-22 lg:min-h-[calc(100svh-88px)]">
           <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-7">
             <Eyebrow>From prompt to app</Eyebrow>
             <h1 className="font-display text-[clamp(34px,4.6vw,56px)] leading-[1.1] font-bold tracking-[-0.02em]">
@@ -113,8 +163,8 @@ export default function App() {
           <RunCard />
         </section>
 
-        <section id="how" className="border-t border-line bg-ink-2">
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+        <section id="how" className="border-t border-line bg-ink-2 lg:flex lg:min-h-svh lg:items-center">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-12 px-6 py-24">
             <div className="flex max-w-[760px] flex-col gap-3.5">
               <Eyebrow>How it works</Eyebrow>
               <SectionTitle>Let the senior engineer work for you.</SectionTitle>
@@ -122,20 +172,12 @@ export default function App() {
                 Not one giant guess. Four steps, each checked before the next one starts.
               </p>
             </div>
-            <div className="flex flex-wrap gap-5">
-              {STEPS.map((s) => (
-                <div key={s.n} className="flex min-w-0 flex-[1_1_240px] flex-col gap-3.5 rounded-2xl border border-line bg-card p-7">
-                  <span className="font-mono text-[13px] text-saffron">{s.n}</span>
-                  <h3 className="font-display text-[19px] font-medium">{s.title}</h3>
-                  <p className="text-[15px] leading-relaxed text-muted">{s.body}</p>
-                </div>
-              ))}
-            </div>
+            <StepCards />
           </div>
         </section>
 
-        <section id="proof" className="border-t border-line">
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+        <section id="proof" className="border-t border-line lg:flex lg:min-h-svh lg:items-center">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-12 px-6 py-24">
             <div className="flex max-w-[760px] flex-col gap-3.5">
               <Eyebrow>Why Vyskar</Eyebrow>
               <SectionTitle>Exactly what you asked for. Nothing you didn't.</SectionTitle>
@@ -143,7 +185,7 @@ export default function App() {
             <div className="flex flex-wrap gap-5">
               {REASONS.map((r) => (
                 <div key={r.title} className="flex min-w-0 flex-[1_1_300px] flex-col gap-4 py-1">
-                  <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffb627"
+                  <svg aria-hidden="true" className="text-accent" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     {r.icon}
                   </svg>
@@ -155,8 +197,8 @@ export default function App() {
           </div>
         </section>
 
-        <section id="benchmark" className="border-t border-line bg-ink-2">
-          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-14 px-6 py-24">
+        <section id="benchmark" className="border-t border-line bg-ink-2 lg:flex lg:min-h-svh lg:items-center">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center gap-14 px-6 py-24">
             <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-[18px]">
               <Eyebrow>Built in public</Eyebrow>
               <SectionTitle>Measured, not promised.</SectionTitle>
@@ -169,7 +211,7 @@ export default function App() {
             <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-1.5 rounded-2xl border border-line bg-card p-7">
               <div className="flex items-baseline justify-between gap-4 border-b border-line pb-[18px]">
                 <span className="text-[15px] text-muted">This week's score</span>
-                <span className="font-display text-[34px] font-bold text-saffron">{SCORE}/25</span>
+                <span className="font-display text-[34px] font-bold text-accent">{SCORE}/25</span>
               </div>
               <ol aria-label="Benchmark levels" className="flex flex-col">
                 {LEVELS.map(([label, count], i) => (
@@ -184,12 +226,12 @@ export default function App() {
           </div>
         </section>
 
-        <section id="start" className="border-t border-line">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 px-6 py-28 text-center">
+        <section id="start" className="border-t border-line bg-plum lg:flex lg:min-h-svh lg:items-center">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-6 px-6 py-28 text-center">
             <h2 className="max-w-[16em] font-display text-[clamp(30px,4.4vw,50px)] leading-[1.12] font-bold tracking-[-0.02em]">
               From prompt to app. Tested before you see it.
             </h2>
-            <p className="max-w-[32em] text-lg leading-relaxed text-muted">
+            <p className="max-w-[32em] text-lg leading-relaxed text-fg/85">
               Tell Vyskar what you need. It handles the requirements, the code and the testing.
             </p>
             <a href="#top" className={`${primaryButton} px-8 py-[17px] text-[17px]`}>Hire your senior engineer</a>
@@ -199,7 +241,10 @@ export default function App() {
 
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-7 text-sm text-dim">
-          <span className="font-display font-bold tracking-[0.1em] text-fg">VYSKAR</span>
+          <span className="flex items-center gap-2.5 font-display font-bold tracking-[0.1em] text-fg">
+            <LogoMark size={22} />
+            VYSKAR
+          </span>
           <div className="flex flex-wrap gap-6">
             <a href={X_URL} className="text-muted no-underline">Follow on X</a>
             <a href={REPO_URL} className="text-muted no-underline">GitHub</a>
