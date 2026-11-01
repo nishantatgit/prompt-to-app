@@ -149,6 +149,9 @@ Rules:
   Never pick by position with .first(), .last() or .nth().
 - Check a value with `getByRole('status', { name: '<label>' })` and
   `toHaveText`. An <output> element has the role status.
+- Find a canvas with `getByRole('img', { name: '<label>' })`. Interact with it
+  through clicks or key presses, then check the outcome through value
+  elements, such as the score. Never compare pixels.
 
 # Strategy
 

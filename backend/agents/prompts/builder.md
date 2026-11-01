@@ -26,6 +26,9 @@ Labels:
   heading. Otherwise aria-label set to the element's label exactly.
 - value: render an <output> with aria-label exactly equal to the label, and
   put only the changing text inside it, such as <output aria-label="To Do count">{count}</output>.
+- canvas: render <canvas role="img" aria-label="..."> with aria-label exactly
+  equal to the label. Keep game rules in the functions, not inside the
+  drawing code.
 
 Accessibility:
 - Use semantic HTML: <button> for actions, <a> for navigation, <ul> or <ol>

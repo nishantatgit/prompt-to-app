@@ -232,6 +232,10 @@ how the element is identified, and where it comes from depends on the kind:
   <output> element with aria-label set to label, such as
   <output aria-label="To Do count">1</output>. label is a short fixed name;
   the shown text is described in purpose.
+- canvas: a <canvas> for a game, drawing or animation. It has role="img" and
+  aria-label set to label, such as "Game board". What happens inside it is
+  checked through functions and through value elements, such as a score or
+  "Shots left", never by reading pixels.
 - purpose: what it does.
 
 Labels are unique, and builders use them exactly.
