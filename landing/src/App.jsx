@@ -3,6 +3,7 @@ import RunCard from "./components/RunCard.jsx";
 
 const REPO_URL = "https://github.com/nishantatgit/prompt-to-app";
 const X_URL = "https://x.com/NiVaCo5";
+const APP_URL = "https://app.vyskar.com";
 
 const STEPS = [
   { n: "01", title: "Understand", body: "Your words become a numbered list of requirements, each one quoting what you asked for." },
@@ -135,7 +136,7 @@ export default function App() {
             <a href="#how" className="text-muted no-underline hover:text-accent-hover">How it works</a>
             <a href="#proof" className="text-muted no-underline hover:text-accent-hover">Why Vyskar</a>
             <a href="#benchmark" className="text-muted no-underline hover:text-accent-hover">Benchmark</a>
-            <a href="#start" className={`${primaryButton} px-5 py-3`}>Hire your senior engineer</a>
+            <a href={APP_URL} className={`${primaryButton} px-5 py-3`}>Hire your senior engineer</a>
           </nav>
         </div>
       </header>
@@ -152,7 +153,7 @@ export default function App() {
               code, and tests every requirement before you see it.
             </p>
             <div className="flex flex-wrap gap-3.5 pt-1">
-              <a href="#start" className={`${primaryButton} px-[26px] py-[15px] text-base`}>Hire your senior engineer</a>
+              <a href={APP_URL} className={`${primaryButton} px-[26px] py-[15px] text-base`}>Hire your senior engineer</a>
               <a href="#benchmark"
                 className="inline-flex min-h-11 items-center rounded-full border border-accent px-[26px] py-[15px] text-base font-medium text-fg no-underline transition-colors hover:bg-accent hover:text-on-accent">
                 See the benchmark
@@ -240,7 +241,7 @@ export default function App() {
             <p className="max-w-[32em] text-lg leading-relaxed text-fg/85">
               Tell Vyskar what you need. It handles the requirements, the code and the testing.
             </p>
-            <a href="#top" className={`${primaryButton} px-8 py-[17px] text-[17px]`}>Hire your senior engineer</a>
+            <a href={APP_URL} className={`${primaryButton} px-8 py-[17px] text-[17px]`}>Hire your senior engineer</a>
           </div>
         </section>
       </main>
