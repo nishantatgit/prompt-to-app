@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #12112a;
-  --color-ink-2: #161535;
-  --color-card: #1a1938;
-  --color-line: #26244a;
-  --color-line-2: #23214a;
-  --color-wall: #3a3768;
-  --color-pending: #4a4780;
+  /* Plum theme, matching the landing page. Every text color passes AA on these surfaces. */
+  --color-ink: #3a0b49; /* page background */
+  --color-ink-2: #4a0e5c;
+  --color-card: #2a0835; /* cards, inputs and the job panel */
+  --color-line: #5b2470;
+  --color-line-2: #50205f;
+  --color-wall: #6e3a84;
+  --color-pending: #7d4d92;
   --color-fg: #f1effa;
   --color-muted: #b4b1d6;
   --color-dim: #9e9bc4;
 
-  /* Brand: aqua accent. Contrast checked against ink and card. */
-  --color-accent: #50eaf2; /* 12.63:1 on ink, 11.61:1 on card */
-  --color-accent-hover: #86f1f6; /* button text on it 13.98:1 */
-  --color-on-accent: #12112a; /* dark text on aqua, 12.63:1; white on aqua fails */
+  /* Brand: aqua accent, same as the landing page. */
+  --color-accent: #50eaf2; /* 10.87:1 on page, 12.15:1 on card */
+  --color-accent-hover: #86f1f6; /* button text on it 13.44:1 */
+  --color-on-accent: #2a0835; /* dark purple text on aqua, 12.15:1; white on aqua fails */
   --color-plum: #4a0e5c; /* surface only; white 13.92:1, aqua 9.54:1 on it */
 
   --font-display: "Unbounded", sans-serif;
