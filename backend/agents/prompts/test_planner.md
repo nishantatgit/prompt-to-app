@@ -30,7 +30,10 @@ Each case has:
   empty.
 
 Rules:
-- At least 2 cases per function.
+- 2 to 3 cases per function: the main case, the boundaries that matter, and
+  error condition. Do not add near duplicates.
+- Every case checks a return value or an error. If a function returns nothing,
+  write no unit cases for it.
 - When a function lists error_conditions, cover each one with an
   expect_error case.
 - Include boundaries: zero, negative numbers, empty strings, empty lists,

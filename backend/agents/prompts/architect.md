@@ -305,6 +305,10 @@ React components so it can be tested on its own. Each function has:
   negative". Use an empty list only when the function cannot fail.
 Simple display components do not need functions. A tip calculator has one or
 two; a static portfolio may have none.
+Every function returns a value that depends only on its arguments. Code that
+only has side effects, such as saving to localStorage, drawing on a canvas or
+starting a timer, is not listed here; persistence and drawing are checked by
+e2e tests.
 
 ## env_vars
 Every environment variable. Each has a name, used_by (frontend or backend),
