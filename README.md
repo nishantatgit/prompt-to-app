@@ -3,7 +3,7 @@ An AI agent that turns a plain English description into a working, deployed full
 
 [![Follow on X](https://img.shields.io/badge/Follow-@NiVaCo5-black?logo=x)](https://x.com/NiVaCo5)
 ![Day](https://img.shields.io/badge/Day-18%2F60-blue)
-![Score](https://img.shields.io/badge/Score-0%2F25-orange)
+![Score](https://img.shields.io/badge/Score-10%2F25-orange)
 
 
 ## What I am building
