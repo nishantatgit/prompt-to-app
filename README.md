@@ -2,7 +2,7 @@
 An AI agent that turns a plain English description into a working, deployed full stack app. Built in public.
 
 [![Follow on X](https://img.shields.io/badge/Follow-@NiVaCo5-black?logo=x)](https://x.com/NiVaCo5)
-![Day](https://img.shields.io/badge/Day-2%2F60-blue)
+![Day](https://img.shields.io/badge/Day-18%2F60-blue)
 ![Score](https://img.shields.io/badge/Score-0%2F25-orange)
 
 
