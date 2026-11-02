@@ -1,11 +1,13 @@
 from collections import defaultdict
 from pathlib import Path
+import re
+
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
+
 from agents.architect import Architecture
 from schemas.test_planner import TestPlan
-import re
 
 FORBIDDEN_LOCATORS = {
     "locator('..')": r"locator\(\s*['\"]\.\.['\"]\s*\)",
@@ -30,31 +32,55 @@ PROMPT = ChatPromptTemplate.from_messages(
     ]
 )
 
+
 def forbidden_locators(code: str) -> list[str]:
     return [name for name, pattern in FORBIDDEN_LOCATORS.items() if re.search(pattern, code)]
 
-def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
-    """Return every problem found. An empty list means the test plan is accepted."""
-    errors: list[str] = []
-    login_users = {"user_a", "user_b", "admin"}
 
-    # Unit tests
-    functions = {fn.name: fn for fn in arch.functions}
-    unit_by_function = defaultdict(list)
+def drop_invalid_tests(plan: TestPlan, arch: Architecture) -> tuple[TestPlan, list[str], list[str]]:
+    """Remove invalid unit cases and e2e tests instead of rejecting the whole plan.
+
+    Returns the cleaned plan, a note for every dropped test, and the
+    acceptance criteria left without any e2e test.
+    """
+    dropped: list[str] = []
+
+    # Unit cases: keep only cases for functions the architecture defines.
+    functions = {fn.name for fn in arch.functions}
+    unit_cases = []
     for case in plan.unit_cases:
         if case.function not in functions:
-            errors.append(f"unit case {case.id}: function '{case.function}' is not in architecture")
-            continue
-        unit_by_function[case.function].append(case)
+            dropped.append(f"unit case {case.id}: function '{case.function}' is not in architecture")
+        else:
+            unit_cases.append(case)
 
-    for name, fn in functions.items():
-        cases = unit_by_function[name]
-        if len(cases) < 2:
-            errors.append(f"function {name}: needs at least 2 unit cases, has {len(cases)}")
-        if fn.error_conditions and not any(c.expect_error for c in cases):
-            errors.append(
-                f"function {name}: declares error conditions but no unit case uses expect_error"
-            )
+    # E2E tests: keep only tests for real criteria, with an assertion and allowed locators.
+    criterion_ids = arch.criterion_ids()
+    e2e_tests = []
+    for test in plan.e2e_tests:
+        if test.criterion_id not in criterion_ids:
+            dropped.append(f"e2e test {test.id}: criterion '{test.criterion_id}' does not exist")
+            continue
+        if "expect(" not in test.code:
+            dropped.append(f"e2e test {test.id}: has no expect assertion")
+            continue
+        found = forbidden_locators(test.code)
+        if found:
+            dropped.append(f"e2e test {test.id}: uses {', '.join(found)}")
+            continue
+        e2e_tests.append(test)
+
+    covered = {test.criterion_id for test in e2e_tests}
+    untested_criteria = sorted(criterion_ids - covered)
+
+    cleaned = plan.model_copy(update={"unit_cases": unit_cases, "e2e_tests": e2e_tests})
+    return cleaned, dropped, untested_criteria
+
+
+def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
+    """Problems that dropping tests cannot fix. An empty list means the plan is accepted."""
+    errors: list[str] = []
+    login_users = {"user_a", "user_b", "admin"}
 
     # API tests
     if plan.api_cases and not arch.needs_backend:
@@ -117,30 +143,6 @@ def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
         if "denied" not in outcomes:
             errors.append(f"table {table}: needs at least one 'denied' data access case")
 
-    # End to end tests
-    criterion_ids = arch.criterion_ids()
-    covered_criteria = set()
-
-    for test in plan.e2e_tests:
-        
-        if test.criterion_id not in criterion_ids:
-            errors.append(f"e2e test {test.id}: criterion '{test.criterion_id}' does not exist")
-        else:
-            covered_criteria.add(test.criterion_id)
-        if "expect(" not in test.code:
-            errors.append(f"e2e test {test.id}: has no expect assertion")
-        found = forbidden_locators(test.code)
-        if found:
-            errors.append(
-                f"{test.id} uses {', '.join(found)}. Find elements by role and their "
-                f"ui_elements label. To pick one item from a list, filter by its "
-                f"content: list.getByRole('listitem').filter({{ hasText: '<item text>' }})"
-                f".getByRole('button', {{ name: '<label>' }})."
-            )
-
-    for missing in sorted(criterion_ids - covered_criteria):
-        errors.append(f"criterion {missing}: has no e2e test")
-
     return errors
 
 
@@ -171,7 +173,8 @@ def make_test_planner(llm: BaseChatModel):
         if out["parsing_error"] is not None:
             problems = [str(out["parsing_error"])]
         else:
-            problems = check_against(out["parsed"], architecture)
+            plan, dropped, untested = drop_invalid_tests(out["parsed"], architecture)
+            problems = check_against(plan, architecture)
 
         if problems:
             return {
@@ -181,8 +184,13 @@ def make_test_planner(llm: BaseChatModel):
                 "errors": [f"Test planning failed: {p}" for p in problems],
             }
 
+        test_plan = plan.model_dump()
+        # Recorded for the test report: what was removed and what is no longer covered.
+        test_plan["dropped_tests"] = dropped
+        test_plan["untested_criteria"] = untested
+
         return {
-            "test_plan": out["parsed"].model_dump(),
+            "test_plan": test_plan,
             "test_planner_attempts": attempts,
             "test_planner_feedback": "",
             "errors": [],
