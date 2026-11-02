@@ -1,8 +1,7 @@
 # Playwright's image already has Node, Chromium and its system libraries.
 # Match this tag to the @playwright/test version in templates/react-vite/package.json.
-FROM mcr.microsoft.com/playwright:v1.64.1-noble
-# yarn for the generated apps
-RUN corepack enable
+FROM mcr.microsoft.com/playwright:v1.64.1-noble@sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f
+RUN npm install -g corepack && corepack enable
 
 # uv for the Python backend; it installs the Python version from pyproject.toml
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
