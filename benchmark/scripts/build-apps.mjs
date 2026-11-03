@@ -33,7 +33,7 @@ function writeJson(file, data) {
   fs.writeFileSync(full, JSON.stringify(data, null, 2) + '\n')
 }
 
-function pickApps(argv) {
+export function pickApps(argv) {
   const apps = readJson('apps.json')
   const flag = (name) => {
     const i = argv.indexOf(name)
@@ -90,9 +90,9 @@ async function buildOne(app) {
   }
 }
 
-async function main() {
+// Build every app in order, then record the URLs. Returns one entry per app.
+export async function buildAll(apps) {
   if (!KEY) throw new Error('Set LLM_API_KEY to your provider key first.')
-  const apps = pickApps(process.argv.slice(2))
   console.log(`Building ${apps.length} apps with ${PROVIDER} via ${API}\n`)
 
   const builds = []
@@ -116,9 +116,12 @@ async function main() {
   console.table(
     builds.map(({ id, slug, status, confidence, seconds }) => ({ id, slug, status, confidence, seconds })),
   )
+  return builds
 }
 
-main().catch((error) => {
-  console.error(error.message)
-  process.exit(1)
-})
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  buildAll(pickApps(process.argv.slice(2))).catch((error) => {
+    console.error(error.message)
+    process.exit(1)
+  })
+}
