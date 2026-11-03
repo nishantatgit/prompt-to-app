@@ -2,8 +2,10 @@
 
 
 def _passed(case: dict) -> bool:
-    # Supports a boolean "passed" field, or a text result such as
-    # "passed" or Playwright's "expected".
+    # Supports a boolean "ok" field (what parse_results writes) or "passed",
+    # or a text result such as "passed" or Playwright's "expected".
+    if "ok" in case:
+        return bool(case["ok"])
     if "passed" in case:
         return bool(case["passed"])
     result = case.get("status") or case.get("outcome") or case.get("result")
