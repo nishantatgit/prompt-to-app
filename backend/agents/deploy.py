@@ -29,8 +29,13 @@ def app_name(state: dict) -> str:
     return "-".join((words or ["app"]) + [suffix])[:50]
 
 
+NO_TOKEN = "Deploy skipped: VERCEL_TOKEN is not set. The app was built and tested."
+
+
 def make_deploy(token: str | None):
     def deploy(state: dict) -> dict:
+        if not token:
+            return {"deploy_url": "", "deploy_error": NO_TOKEN}
         try:
             url = deploy_app(token, Path(state["workspace_dir"]), app_name(state))
             return {"deploy_url": url, "deploy_error": ""}
