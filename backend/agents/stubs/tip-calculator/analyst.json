@@ -1,0 +1,11 @@
+{
+  "app_summary": "Tip calculator that splits a bill and tip between people",
+  "requirements": [
+    { "id": "R1", "kind": "explicit", "statement": "The user enters the bill amount", "source_quote": "bill amount", "reason": "" },
+    { "id": "R2", "kind": "explicit", "statement": "The user enters the tip percent", "source_quote": "tip percent", "reason": "" },
+    { "id": "R3", "kind": "explicit", "statement": "The user enters the number of people", "source_quote": "number of people", "reason": "" },
+    { "id": "R4", "kind": "implied", "statement": "The app shows how much each person pays", "source_quote": "", "reason": "Splitting the total is the reason to enter the number of people" }
+  ],
+  "out_of_scope": ["Saving past calculations", "Multiple currencies"],
+  "assumptions": ["All amounts are in one currency"]
+}
