@@ -100,6 +100,6 @@ def public_view(job: dict) -> dict:
         "stage": job["stage"],
         "reason": job["reason"],
         "deploy_url": state.get("deploy_url", ""),
-        "confidence": job.get("confidence"),
+        "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),
     }

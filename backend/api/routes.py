@@ -84,9 +84,6 @@ def build(
     # After the key check, so a request without a key does not use up an attempt.
     check_rate_limit(request)
 
-    # After the key check, so a request without a key does not use up an attempt.
-    check_rate_limit(request)
-
     models = make_models(req.provider, key, settings)
     graph = build_graph(
         models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
