@@ -7,7 +7,8 @@
 // common or specific. Tests skipped inside a spec (for example "Form has no
 // email field") do not count against it.
 //
-// A broken green is an app Vyskar scored 95% or more that the benchmark failed.
+// A broken green is a deployed app Vyskar scored 95% or more that the
+// benchmark failed.
 //
 // Writes results/latest/score.json and prints a table.
 
@@ -73,7 +74,9 @@ export function score(results, builds, apps) {
       slug: app.slug,
       result,
       confidence,
-      broken_green: result !== 'pass' && confidence !== null && confidence >= GREEN,
+      // Only a deployed app the benchmark failed. An app that was never
+      // deployed was not judged, so it cannot be a broken green.
+      broken_green: result === 'fail' && confidence !== null && confidence >= GREEN,
       tests_passed: ran.length - failed.length,
       tests_run: ran.length,
       failed: failed.map((t) => t.title),
