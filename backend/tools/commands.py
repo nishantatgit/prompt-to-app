@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,6 +15,7 @@ SAFE_ENV_VARS = (
     "LANG",
     "LC_ALL",
     "PLAYWRIGHT_BROWSERS_PATH",
+    "SYSTEMROOT", "PATHEXT", "COMSPEC", "APPDATA", "LOCALAPPDATA", "USERPROFILE", "TEMP", "TMP",
 )
 
 
@@ -33,6 +35,11 @@ def run_command(
     cwd: Path, args: list[str], timeout: int = 300, env: dict | None = None
 ) -> CommandResult:
     try:
+        full_env = safe_env(env)
+        program = shutil.which(args[0], path=full_env.get("PATH"))
+        if program is None:
+            raise FileNotFoundError(f"{args[0]} not found on PATH")
+        args = [program, *args[1:]]
         result = subprocess.run(
             args,
             cwd=cwd,
