@@ -26,6 +26,7 @@ STAGES = {
 MAX_ACTIVE_JOBS = int(os.getenv("MAX_ACTIVE_JOBS", "6"))
 FINISHED_STATUSES = {"succeeded", "failed", "rejected"}
 
+
 def active_job_count() -> int:
     with _lock:
         return sum(1 for job in _jobs.values() if job["status"] not in FINISHED_STATUSES)

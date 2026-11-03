@@ -89,6 +89,7 @@ def make_after_test_planner(max_attempts: int):
 def make_after_test_executor(can_deploy):
     def after(state):
         return "deploy" if can_deploy else END
+
     return after
 
 

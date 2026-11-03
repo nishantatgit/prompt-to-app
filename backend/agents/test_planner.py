@@ -50,7 +50,9 @@ def drop_invalid_tests(plan: TestPlan, arch: Architecture) -> tuple[TestPlan, li
     unit_cases = []
     for case in plan.unit_cases:
         if case.function not in functions:
-            dropped.append(f"unit case {case.id}: function '{case.function}' is not in architecture")
+            dropped.append(
+                f"unit case {case.id}: function '{case.function}' is not in architecture"
+            )
         else:
             unit_cases.append(case)
 

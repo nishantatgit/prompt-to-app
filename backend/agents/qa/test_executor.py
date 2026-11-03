@@ -48,7 +48,7 @@ def test_executor(state: dict) -> dict:
         "tests_ok": bool(cases) and all(c["ok"] for c in cases) and not run_errors,
         "test_summary": summarize(cases, run_errors),
         "test_report_path": str(report_path),
-        "confidence": gate.confidence(cases)
+        "confidence": gate.confidence(cases),
     }
 
 
