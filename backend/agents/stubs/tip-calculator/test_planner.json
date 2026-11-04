@@ -1,0 +1,26 @@
+{
+  "strategy": "End to end tests check the inputs, the split result and the zero people edge case.",
+  "unit_cases": [],
+  "api_cases": [],
+  "data_access_cases": [],
+  "e2e_tests": [
+    {
+      "id": "E1",
+      "criterion_id": "F1-AC1",
+      "description": "All three inputs are visible",
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('shows the three inputs', async ({ page }) => {\n  await page.goto('/')\n  await expect(page.getByLabel('Bill amount')).toBeVisible()\n  await expect(page.getByLabel('Tip percent')).toBeVisible()\n  await expect(page.getByLabel('Number of people')).toBeVisible()\n})\n"
+    },
+    {
+      "id": "E2",
+      "criterion_id": "F2-AC1",
+      "description": "Splits 1000 plus 10% between 4 people",
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('splits the bill', async ({ page }) => {\n  await page.goto('/')\n  await page.getByLabel('Bill amount').fill('1000')\n  await page.getByLabel('Tip percent').fill('10')\n  await page.getByLabel('Number of people').fill('4')\n  await expect(page.getByLabel('Per person')).toHaveText('275.00')\n})\n"
+    },
+    {
+      "id": "E3",
+      "criterion_id": "F2-AC2",
+      "description": "Zero people does not show NaN",
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('zero people shows no NaN', async ({ page }) => {\n  await page.goto('/')\n  await page.getByLabel('Bill amount').fill('100')\n  await page.getByLabel('Tip percent').fill('10')\n  await page.getByLabel('Number of people').fill('0')\n  await expect(page.getByText(/NaN|Infinity/)).toHaveCount(0)\n})\n"
+    }
+  ]
+}

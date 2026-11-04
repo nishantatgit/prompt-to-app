@@ -6,6 +6,7 @@ from pydantic import BaseModel, SecretStr
 
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.llm import create_llm
+from agents.stub_llm import make_stub_models, stub_mode
 from api.jobs import create_job, get_job, has_capacity, public_view, submit
 from api.limits import check_rate_limit
 from config import Settings, get_settings
@@ -67,7 +68,9 @@ def build(
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
-    if req.api_key:
+    if stub_mode():
+        key = ""  # canned answers, no model is called
+    elif req.api_key:
         key = req.api_key.get_secret_value()
     elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
         key = settings.api_key_for(req.provider)
@@ -84,7 +87,10 @@ def build(
     # After the key check, so a request without a key does not use up an attempt.
     check_rate_limit(request)
 
-    models = make_models(req.provider, key, settings)
+    if stub_mode():
+        models = AgentModels(**make_stub_models(SETTINGS_PREFIX))
+    else:
+        models = make_models(req.provider, key, settings)
     graph = build_graph(
         models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
     )

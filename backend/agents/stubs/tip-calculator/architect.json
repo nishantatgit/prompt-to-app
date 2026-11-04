@@ -1,0 +1,57 @@
+{
+  "summary": "A single page tip calculator with three inputs and a per person result",
+  "assumptions": ["Amounts are shown with two decimals"],
+  "coverage": [
+    { "requirement_id": "R1", "feature_ids": ["F1"] },
+    { "requirement_id": "R2", "feature_ids": ["F1"] },
+    { "requirement_id": "R3", "feature_ids": ["F1"] },
+    { "requirement_id": "R4", "feature_ids": ["F2"] }
+  ],
+  "storage": "none",
+  "needs_backend": false,
+  "needs_database": false,
+  "needs_auth": false,
+  "env_vars": [],
+  "ui_elements": [
+    { "kind": "input", "label": "Bill amount", "purpose": "The bill before tip" },
+    { "kind": "input", "label": "Tip percent", "purpose": "Tip as a percent of the bill" },
+    { "kind": "input", "label": "Number of people", "purpose": "How many people share the bill" },
+    { "kind": "value", "label": "Per person", "purpose": "What each person pays" }
+  ],
+  "features": [
+    {
+      "id": "F1",
+      "name": "Bill inputs",
+      "requirement_ids": ["R1", "R2", "R3"],
+      "description": "Inputs for the bill amount, tip percent and number of people",
+      "acceptance_criteria": [
+        { "id": "F1-AC1", "statement": "All three inputs are visible and labelled", "priority": "P1" }
+      ]
+    },
+    {
+      "id": "F2",
+      "name": "Per person result",
+      "requirement_ids": ["R4"],
+      "description": "Shows the bill plus tip divided by the number of people",
+      "acceptance_criteria": [
+        { "id": "F2-AC1", "statement": "1000 with 10% tip split by 4 shows 275.00 per person", "priority": "P1" },
+        { "id": "F2-AC2", "statement": "Zero people never shows NaN or Infinity", "priority": "P3" }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "calculatePerPerson",
+      "file": "src/App.jsx",
+      "language": "javascript",
+      "signature": "calculatePerPerson(bill, tipPercent, people) -> number",
+      "description": "Bill plus tip, divided by people",
+      "error_conditions": ["people is zero or less returns 0"]
+    }
+  ],
+  "tables": [],
+  "api_routes": [],
+  "risks": [{ "risk": "Division by zero people", "mitigation": "Return 0 when people is below 1" }],
+  "files": [{ "path": "src/App.jsx", "owner": "frontend", "purpose": "The whole app" }],
+  "visual_design": "A single centered card on a light background, inputs stacked, result in large text."
+}
