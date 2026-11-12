@@ -24,6 +24,7 @@ class JobState(TypedDict, total=False):
     files_written: list[str]
 
     builder_attempts: int
+    loop_turns: int
     build_ok: bool
     build_log: str
 
