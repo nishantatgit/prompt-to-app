@@ -39,7 +39,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No cache: the action's cleanup step prunes it after the job and failed
+      # the run with exit code 2, after the results were already published.
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: false
 
       - uses: actions/setup-node@v4
         with:
