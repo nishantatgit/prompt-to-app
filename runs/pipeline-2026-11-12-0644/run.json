@@ -1,0 +1,7 @@
+{
+  "label": "pipeline",
+  "level": "1",
+  "model": "claude-sonnet-5-5",
+  "commit": "79530117c9483228ebed6ebae53a1f4a2a1ad8db",
+  "workflow_run": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43168537654"
+}
