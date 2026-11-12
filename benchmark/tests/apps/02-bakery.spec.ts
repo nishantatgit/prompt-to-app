@@ -1,8 +1,8 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { getApp, getAppUrl, tagsFor } from '../../helpers/apps'
 
-// Pass check: the landing page names the bakery, opens with a hero image or
-// video, shows a menu and has a contact form that rejects empty fields and a
+// Pass check: the landing page names the bakery, opens with a hero image,
+// video or gradient placeholder, shows a menu and has a contact form that rejects empty fields and a
 // badly formatted email, and confirms a valid submission.
 //
 // Placeholder names and images count. Page loads and mobile fit are covered
@@ -14,18 +14,25 @@ const url = getAppUrl(app.id)
 // Headings that are page labels, not a bakery's name.
 const GENERIC_TITLE = /^(the |our |my )?(bakery|welcome|home|menu|landing page)!?$/i
 
-// Hero media: an image, video or background image of real size, visible in
-// the first screen. Small icons do not count.
+// Hero media in the first screen: an image, video or background image of at
+// least 80 by 80 px, or a colored gradient of at least 200 by 150 px as a
+// placeholder. Small icons, and plain colored shapes with an icon, do not count.
 async function heroMediaCount(page: Page): Promise<number> {
   return page.evaluate(() => {
     const fold = window.innerHeight
-    const isMedia = (el: Element) =>
+    const isImage = (el: Element) =>
       el.matches('img, video, picture, [role="img"]') ||
       getComputedStyle(el).backgroundImage.includes('url(')
+    const isGradient = (el: Element) => getComputedStyle(el).backgroundImage.includes('gradient(')
     return [...document.querySelectorAll('body *')].filter((el) => {
-      if (!isMedia(el)) return false
       const r = el.getBoundingClientRect()
-      return r.top < fold && r.width >= 80 && r.height >= 80
+      if (r.top >= fold) return false
+      // A real image or video of real size, not a small icon.
+      if (isImage(el)) return r.width >= 80 && r.height >= 80
+      // A colored gradient as a placeholder, large enough to stand in for a
+      // hero image. A plain colored shape with an icon in it does not count.
+      if (isGradient(el)) return r.width >= 200 && r.height >= 150
+      return false
     }).length
   })
 }
@@ -165,7 +172,7 @@ test.describe(`#${app.id} ${app.slug} | specific`, { tag: tagsFor(app) }, () => 
     expect(name).not.toMatch(GENERIC_TITLE)
   })
 
-  test('opens with a hero image or video', async ({ page }) => {
+  test('opens with a hero image, video or gradient placeholder', async ({ page }) => {
     expect(await heroMediaCount(page)).toBeGreaterThanOrEqual(1)
   })
 
