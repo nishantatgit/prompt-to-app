@@ -1,0 +1,80 @@
+{
+  "label": "pipeline",
+  "score": "1/5",
+  "passed": 1,
+  "total": 5,
+  "broken_greens": 2,
+  "apps": [
+    {
+      "id": 1,
+      "slug": "portfolio",
+      "result": "pass",
+      "confidence": 96,
+      "broken_green": false,
+      "tests_passed": 7,
+      "tests_run": 7,
+      "failed": []
+    },
+    {
+      "id": 2,
+      "slug": "bakery-landing",
+      "result": "fail",
+      "confidence": 84,
+      "broken_green": false,
+      "tests_passed": 8,
+      "tests_run": 10,
+      "failed": [
+        "opens with a hero image or video",
+        "contact form accepts a valid submission"
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "tip-calculator",
+      "result": "fail",
+      "confidence": 100,
+      "broken_green": true,
+      "tests_passed": 3,
+      "tests_run": 6,
+      "failed": [
+        "splits bill plus tip evenly",
+        "handles decimals",
+        "does not show Infinity or NaN for zero people"
+      ]
+    },
+    {
+      "id": 4,
+      "slug": "pomodoro-timer",
+      "result": "fail",
+      "confidence": 86.4,
+      "broken_green": false,
+      "tests_passed": 11,
+      "tests_run": 14,
+      "failed": [
+        "stops at 00:00 and pause does nothing after the end",
+        "the user can set the timer length",
+        "the timer length cannot be zero or negative"
+      ]
+    },
+    {
+      "id": 5,
+      "slug": "unit-converter",
+      "result": "fail",
+      "confidence": 100,
+      "broken_green": true,
+      "tests_passed": 3,
+      "tests_run": 12,
+      "failed": [
+        "offers all three conversions",
+        "converts km to miles",
+        "converts miles to km",
+        "converts kg to lb",
+        "converts lb to kg",
+        "converts °C to °F",
+        "converts °F to °C",
+        "converts a negative temperature",
+        "refuses non-numeric input"
+      ]
+    }
+  ]
+}
