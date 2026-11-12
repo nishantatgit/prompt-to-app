@@ -12,6 +12,8 @@ name: Benchmark
 #   ids=3,4      only these apps instead of a whole level
 #   level=2      another level
 #   label=name   the name of the run
+#   [retest]     no building: run the specs again on the apps deployed by the
+#                latest real run (or from=<run folder>), at no API cost
 
 on:
   push:
@@ -52,17 +54,39 @@ jobs:
           label="${INPUT_LABEL:-pipeline}"
           ids=""
           stub=false
+          retest=false
+          from=""
           [[ "$MESSAGE" =~ level=([0-9]+) ]] && level="${BASH_REMATCH[1]}"
           [[ "$MESSAGE" =~ ids=([0-9,]+) ]] && ids="${BASH_REMATCH[1]}"
           [[ "$MESSAGE" == *"[stub]"* ]] && stub=true && label=stub
+          [[ "$MESSAGE" == *"[retest]"* ]] && retest=true && label=retest
+          [[ "$MESSAGE" =~ from=([A-Za-z0-9_-]+) ]] && from="${BASH_REMATCH[1]}"
           [[ "$MESSAGE" =~ label=([A-Za-z0-9_-]+) ]] && label="${BASH_REMATCH[1]}"
           if [ -n "$ids" ]; then apps="--ids $ids"; else apps="--level $level"; fi
           {
             echo "APPS=$apps"
             echo "LABEL=$label"
             echo "STUB_LLM=$stub"
+            echo "RETEST=$retest"
+            echo "FROM=$from"
           } >> "$GITHUB_ENV"
-          echo "Running $apps, label $label, stub $stub"
+          echo "Running $apps, label $label, stub $stub, retest $retest"
+
+      # For a retest, take builds.json from an earlier run: the one named in
+      # from=, or else the latest run that built apps with real models.
+      - name: Get the run to retest
+        if: env.RETEST == 'true'
+        run: |
+          git fetch -q origin benchmark-results
+          if [ -z "$FROM" ]; then
+            FROM=$(git ls-tree --name-only FETCH_HEAD:runs \
+              | grep -v -e retest -e stub -e failed \
+              | awk -F- '{print $(NF-3) $(NF-2) $(NF-1) $NF, $0}' | sort | tail -1 | cut -d' ' -f2)
+          fi
+          git show "FETCH_HEAD:runs/$FROM/builds.json" > "$RUNNER_TEMP/retest-builds.json"
+          echo "APPS=--retest $RUNNER_TEMP/retest-builds.json" >> "$GITHUB_ENV"
+          echo "FROM=$FROM" >> "$GITHUB_ENV"
+          echo "Retesting the apps from $FROM"
 
       # No cache: the action's cleanup step prunes it after the job and failed
       # the run with exit code 2, after the results were already published.
@@ -78,12 +102,14 @@ jobs:
         run: corepack enable
 
       - name: Install backend
+        if: env.RETEST != 'true'
         working-directory: backend
         run: uv sync --python 3.14
 
       # Vyskar's own tests run Playwright inside each generated app, so the
       # browser for the template's Playwright version must be installed.
       - name: Install browsers for generated apps
+        if: env.RETEST != 'true'
         working-directory: backend/templates/react-vite
         run: |
           yarn install --frozen-lockfile
@@ -96,6 +122,7 @@ jobs:
           yarn playwright install --with-deps chromium
 
       - name: Start backend
+        if: env.RETEST != 'true'
         working-directory: backend
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -131,7 +158,8 @@ jobs:
         env:
           LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-        # APPS is "--level N" or "--ids 3,4", so it is left unquoted to split.
+        # APPS is "--level N", "--ids 3,4" or "--retest <file>", so it is left
+        # unquoted to split.
         run: node scripts/benchmark.mjs $APPS --label "$LABEL"
 
       # Commit the results so they can be read with git, even when a step
@@ -170,6 +198,7 @@ jobs:
             "label": "$LABEL",
             "apps": "$APPS",
             "stub_llm": $STUB_LLM,
+            "retest_of": "$FROM",
             "model": "$MODEL",
             "commit": "$GITHUB_SHA",
             "workflow_run": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
