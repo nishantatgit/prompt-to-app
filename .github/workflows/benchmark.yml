@@ -1,0 +1,159 @@
+name: Benchmark
+
+# Runs the benchmark on GitHub's servers: starts the Vyskar backend, builds
+# the chosen apps with a real model, deploys them to Vercel, runs the specs,
+# and commits the results to the benchmark-results branch.
+#
+# Start it by pushing to the run-benchmark branch (level 1, label "pipeline"),
+# or from the Actions tab with your own level and label once this file is on
+# main.
+
+on:
+  push:
+    branches: [run-benchmark]
+  workflow_dispatch:
+    inputs:
+      level:
+        description: Benchmark level to run
+        default: "1"
+      label:
+        description: Name for this run, such as pipeline or loop
+        default: pipeline
+
+permissions:
+  contents: write
+
+concurrency:
+  group: benchmark
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      LEVEL: ${{ inputs.level || '1' }}
+      LABEL: ${{ inputs.label || 'pipeline' }}
+      # The same model for every agent. Change these to match production.
+      MODEL: claude-sonnet-5-5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable yarn
+        run: corepack enable
+
+      - name: Install backend
+        working-directory: backend
+        run: uv sync --python 3.14
+
+      # Vyskar's own tests run Playwright inside each generated app, so the
+      # browser for the template's Playwright version must be installed.
+      - name: Install browsers for generated apps
+        working-directory: backend/templates/react-vite
+        run: |
+          yarn install --frozen-lockfile
+          yarn playwright install --with-deps chromium
+
+      - name: Install benchmark
+        working-directory: benchmark
+        run: |
+          yarn install --frozen-lockfile
+          yarn playwright install --with-deps chromium
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          GUARD_PROVIDER: anthropic
+          GUARD_MODEL: ${{ env.MODEL }}
+          ARCHITECT_PROVIDER: anthropic
+          ARCHITECT_MODEL: ${{ env.MODEL }}
+          TEST_PLANNER_PROVIDER: anthropic
+          TEST_PLANNER_MODEL: ${{ env.MODEL }}
+          BUILDER_PROVIDER: anthropic
+          BUILDER_MODEL: ${{ env.MODEL }}
+          VALIDATOR_PROVIDER: anthropic
+          VALIDATOR_MODEL: ${{ env.MODEL }}
+          ANALYST_MAX_ATTEMPTS: 2
+          ARCHITECT_MAX_ATTEMPTS: 2
+          TEST_PLANNER_MAX_ATTEMPTS: 2
+          BUILDER_MAX_ATTEMPTS: 3
+          VALIDATOR_MAX_ATTEMPTS: 2
+          GRAPH_RECURSION_LIMIT: 50
+          WORKSPACES_DIR: ${{ runner.temp }}/workspaces
+          BUILDS_PER_HOUR: 100
+        run: |
+          nohup uv run uvicorn api.main:app --port 8000 > "$GITHUB_WORKSPACE/backend.log" 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/api/health && exit 0
+            sleep 2
+          done
+          echo "Backend did not start"; cat "$GITHUB_WORKSPACE/backend.log"; exit 1
+
+      - name: Run benchmark
+        working-directory: benchmark
+        env:
+          LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROVIDER: anthropic
+        run: node scripts/benchmark.mjs --level "$LEVEL" --label "$LABEL"
+
+      # Commit the results so they can be read with git, even when a step
+      # above failed. Keys are scrubbed from the backend log first.
+      - name: Publish results
+        if: always()
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          RUN_DIR=$(ls -d benchmark/results/"$LABEL"-* 2>/dev/null | tail -1)
+          NAME=$(basename "${RUN_DIR:-$LABEL-failed-$GITHUB_RUN_ID}")
+          DEST="$RUNNER_TEMP/results/runs/$NAME"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin benchmark-results 2>/dev/null; then
+            git worktree add "$RUNNER_TEMP/results" FETCH_HEAD
+          else
+            git worktree add --detach "$RUNNER_TEMP/results"
+            git -C "$RUNNER_TEMP/results" checkout --orphan benchmark-results
+            git -C "$RUNNER_TEMP/results" rm -rfq .
+          fi
+
+          mkdir -p "$DEST"
+          for f in score.json builds.json results.json; do
+            [ -f "$RUN_DIR/$f" ] && cp "$RUN_DIR/$f" "$DEST/"
+          done
+          if [ -f backend.log ]; then
+            tail -n 3000 backend.log \
+              | sed -e "s|${ANTHROPIC_API_KEY:-no-key}|***|g" -e "s|${VERCEL_TOKEN:-no-token}|***|g" \
+              > "$DEST/backend.log"
+          fi
+          cat > "$DEST/run.json" <<EOF
+          {
+            "label": "$LABEL",
+            "level": "$LEVEL",
+            "model": "$MODEL",
+            "commit": "$GITHUB_SHA",
+            "workflow_run": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          }
+          EOF
+
+          cd "$RUNNER_TEMP/results"
+          git add -A
+          git commit -qm "chore: add benchmark results $NAME" || exit 0
+          git push origin HEAD:benchmark-results
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: benchmark/results/latest/report
+          if-no-files-found: ignore
