@@ -1,0 +1,5 @@
+[
+  { "tool": "list_files", "args": {} },
+  { "tool": "write_file", "args": { "path": "src/App.jsx", "content_file": "builder.jsx" } },
+  { "done": "Built the tip calculator in src/App.jsx." }
+]

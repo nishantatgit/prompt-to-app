@@ -1,0 +1,14 @@
+[
+  { "tool": "write_file", "args": { "path": "src/App.jsx", "content_file": "builder_broken.jsx" } },
+  { "done": "Wrote the first version of src/App.jsx." },
+  { "tool": "read_file", "args": { "path": "src/App.jsx" } },
+  {
+    "tool": "edit_file",
+    "args": {
+      "path": "src/App.jsx",
+      "old": "(1 + tipPercent / 100) / people",
+      "new": "(1 + tipPercent / 100)) / people"
+    }
+  },
+  { "done": "Fixed the missing bracket in calculatePerPerson." }
+]

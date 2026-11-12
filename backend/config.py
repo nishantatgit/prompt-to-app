@@ -38,6 +38,11 @@ class Settings(BaseSettings):
 
     workspaces_dir: Path
 
+    # How the app is built: "pipeline" (one model call, then the build, retried
+    # through the graph) or "loop" (a model working on files with tools until
+    # the build passes). Set with BUILDER_MODE.
+    builder_mode: Literal["pipeline", "loop"] = "pipeline"
+
     def api_key_for(self, provider: Provider) -> str:
         key = self.anthropic_api_key if provider == "anthropic" else self.openai_api_key
         if key is None or not key.get_secret_value().strip():
