@@ -1,0 +1,9 @@
+{
+  "label": "retest",
+  "apps": "--retest /home/runner/work/_temp/retest-builds.json",
+  "stub_llm": false,
+  "retest_of": "pipeline-2026-11-12-0730",
+  "model": "claude-sonnet-5-5",
+  "commit": "74118ef0f681aaa512fa77b6c730475d7eaa0455",
+  "workflow_run": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43188039404"
+}
