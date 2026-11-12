@@ -86,13 +86,6 @@ def make_after_test_planner(max_attempts: int):
     return after_test_planner
 
 
-def make_after_test_executor(can_deploy):
-    def after(state):
-        return "deploy" if can_deploy else END
-
-    return after
-
-
 def build_graph(
     models: AgentModels, limits: AgentLimits, workspaces_dir: Path, vercel_token: str | None = None
 ):
@@ -122,6 +115,7 @@ def build_graph(
     graph.add_edge("builder", "build_check")
     graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
     graph.add_edge(["build_done", "write_test"], "test_executor")
-    graph.add_conditional_edges("test_executor", make_after_test_executor(bool(vercel_token)))
+    # Deploy always runs; without a token it records why it skipped.
+    graph.add_edge("test_executor", "deploy")
     graph.add_edge("deploy", END)
     return graph.compile()
