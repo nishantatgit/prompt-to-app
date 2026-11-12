@@ -12,6 +12,9 @@ name: Benchmark
 #   ids=3,4      only these apps instead of a whole level
 #   level=2      another level
 #   label=name   the name of the run
+#   mode=loop    build with the build loop instead of the pipeline
+#                (BUILDER_MODE); the default label becomes "loop"
+#   scenario=x   the stub scenario, such as tip-calculator-retry
 #   [retest]     no building: run the specs again on the apps deployed by the
 #                latest real run (or from=<run folder>), at no API cost
 
@@ -56,11 +59,17 @@ jobs:
           stub=false
           retest=false
           from=""
+          mode=pipeline
+          scenario=tip-calculator
           [[ "$MESSAGE" =~ level=([0-9]+) ]] && level="${BASH_REMATCH[1]}"
           [[ "$MESSAGE" =~ ids=([0-9,]+) ]] && ids="${BASH_REMATCH[1]}"
           [[ "$MESSAGE" == *"[stub]"* ]] && stub=true && label=stub
           [[ "$MESSAGE" == *"[retest]"* ]] && retest=true && label=retest
           [[ "$MESSAGE" =~ from=([A-Za-z0-9_-]+) ]] && from="${BASH_REMATCH[1]}"
+          [[ "$MESSAGE" =~ mode=(pipeline|loop) ]] && mode="${BASH_REMATCH[1]}"
+          [[ "$MESSAGE" =~ scenario=([A-Za-z0-9_-]+) ]] && scenario="${BASH_REMATCH[1]}"
+          if [ "$mode" = loop ] && [ "$label" = pipeline ]; then label=loop; fi
+          if [ "$mode" = loop ] && [ "$label" = stub ]; then label=stub-loop; fi
           [[ "$MESSAGE" =~ label=([A-Za-z0-9_-]+) ]] && label="${BASH_REMATCH[1]}"
           if [ -n "$ids" ]; then apps="--ids $ids"; else apps="--level $level"; fi
           {
@@ -69,8 +78,10 @@ jobs:
             echo "STUB_LLM=$stub"
             echo "RETEST=$retest"
             echo "FROM=$from"
+            echo "BUILDER_MODE=$mode"
+            echo "STUB_SCENARIO=$scenario"
           } >> "$GITHUB_ENV"
-          echo "Running $apps, label $label, stub $stub, retest $retest"
+          echo "Running $apps, label $label, mode $mode, stub $stub ($scenario), retest $retest"
 
       # For a retest, take builds.json from an earlier run: the one named in
       # from=, or else the latest run that built apps with real models.
@@ -198,6 +209,8 @@ jobs:
             "label": "$LABEL",
             "apps": "$APPS",
             "stub_llm": $STUB_LLM,
+            "stub_scenario": "$STUB_SCENARIO",
+            "builder_mode": "$BUILDER_MODE",
             "retest_of": "$FROM",
             "model": "$MODEL",
             "commit": "$GITHUB_SHA",
