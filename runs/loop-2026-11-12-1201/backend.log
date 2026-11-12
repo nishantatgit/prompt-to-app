@@ -1,0 +1,237 @@
+INFO:     Started server process [3118]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[startup] .env loaded from /home/runner/work/prompt-to-app/prompt-to-app/backend/.env: False | LANGSMITH_TRACING=None | LANGSMITH_PROJECT=None
+INFO:     127.0.0.1:43998 - "GET /api/health HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:44006 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:50460 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35148 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58288 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50878 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37290 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53152 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43340 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56036 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46090 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37596 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43624 - "GET /api/jobs/26-11-12-1794483196-d34e330da7 HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:43638 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:60196 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44442 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54736 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54708 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54330 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57534 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50026 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51818 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54644 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45130 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47716 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46554 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42388 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49790 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55636 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40324 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45762 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34034 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59530 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49706 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40362 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46096 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34058 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41506 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49784 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39358 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58652 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35854 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34086 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53318 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47134 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45094 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60168 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56398 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57310 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45134 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53428 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42110 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39314 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49364 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57214 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58730 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47876 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37060 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50400 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41748 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44632 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50122 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59370 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38026 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55840 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47818 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33510 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53328 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60228 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34590 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52960 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52582 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51382 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51438 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34072 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59934 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52244 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42974 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60948 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50126 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57458 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54250 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54146 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47826 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59638 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50702 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38388 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+Output parser received a `max_tokens` stop reason. The output is likely incomplete—please increase `max_tokens` or shorten your prompt.
+Traceback (most recent call last):
+  File "/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_core/output_parsers/openai_tools.py", line 368, in parse_result
+    pydantic_objects.append(tool(**res["args"]))
+                            ~~~~^^^^^^^^^^^^^^^
+  File "/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/pydantic/main.py", line 280, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for TestPlan
+unit_cases
+  Field required [type=missing, input_value={'strategy': 'Unit tests ...there are no accounts.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+api_cases
+  Field required [type=missing, input_value={'strategy': 'Unit tests ...there are no accounts.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+data_access_cases
+  Field required [type=missing, input_value={'strategy': 'Unit tests ...there are no accounts.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+e2e_tests
+  Field required [type=missing, input_value={'strategy': 'Unit tests ...there are no accounts.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+INFO:     127.0.0.1:39198 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46668 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47088 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43864 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58220 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53168 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55522 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57996 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59442 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52060 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58156 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49758 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40328 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33034 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57968 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+INFO:     127.0.0.1:53394 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54308 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59016 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34784 - "GET /api/jobs/26-11-12-1794483306-94587b1994 HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:34798 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:56846 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50542 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49740 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39754 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48012 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53478 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53224 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45014 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57142 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39648 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47978 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57946 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49300 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52994 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41298 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58092 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50944 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56276 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33994 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44920 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32802 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47016 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50678 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36278 - "GET /api/jobs/26-11-12-1794484227-48d3d7702a HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:36284 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:41052 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37988 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51390 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57996 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40932 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47740 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38714 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60480 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35184 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45502 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53922 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49264 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43582 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56762 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35884 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+attachment_name :  error-context
+attachment_name :  trace
+INFO:     127.0.0.1:39908 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58528 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59798 - "GET /api/jobs/26-11-12-1794484467-668fdfb3ab HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:59800 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:37118 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50494 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58726 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56254 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53156 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46366 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46328 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33000 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47790 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59456 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49164 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59890 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49868 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42106 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35392 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51722 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44582 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55606 - "GET /api/jobs/26-11-12-1794484657-e974d31cdb HTTP/1.1" 200 OK

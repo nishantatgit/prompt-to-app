@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "slug": "portfolio",
+    "job_id": "26-11-12-1794483196-d34e330da7",
+    "status": "failed",
+    "reason": "Architecture failed: 1 validation error for Architecture\n  Value error, ui_elements labels must be unique [type=value_error, input_value={'summary': 'A single-pag...r; no other animation.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error",
+    "deploy_url": "",
+    "confidence": null,
+    "seconds": 110
+  },
+  {
+    "id": 2,
+    "slug": "bakery-landing",
+    "job_id": "26-11-12-1794483306-94587b1994",
+    "status": "succeeded",
+    "reason": "",
+    "deploy_url": "https://single-page-landing-94587b.vyskar.app",
+    "confidence": 74.2,
+    "seconds": 921
+  },
+  {
+    "id": 3,
+    "slug": "tip-calculator",
+    "job_id": "26-11-12-1794484227-48d3d7702a",
+    "status": "succeeded",
+    "reason": "",
+    "deploy_url": "https://simple-tip-calculator-48d3d7.vyskar.app",
+    "confidence": 100,
+    "seconds": 240
+  },
+  {
+    "id": 4,
+    "slug": "pomodoro-timer",
+    "job_id": "26-11-12-1794484467-668fdfb3ab",
+    "status": "succeeded",
+    "reason": "",
+    "deploy_url": "https://pomodoro-timer-web-668fdf.vyskar.app",
+    "confidence": 68.2,
+    "seconds": 190
+  },
+  {
+    "id": 5,
+    "slug": "unit-converter",
+    "job_id": "26-11-12-1794484657-e974d31cdb",
+    "status": "succeeded",
+    "reason": "",
+    "deploy_url": "https://simple-unit-converter-e974d3.vyskar.app",
+    "confidence": 100,
+    "seconds": 180
+  }
+]

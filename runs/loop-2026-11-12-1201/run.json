@@ -1,0 +1,11 @@
+{
+  "label": "loop",
+  "apps": "--level 1",
+  "stub_llm": false,
+  "stub_scenario": "tip-calculator",
+  "builder_mode": "loop",
+  "retest_of": "",
+  "model": "claude-sonnet-5-5",
+  "commit": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+  "workflow_run": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43210015773"
+}

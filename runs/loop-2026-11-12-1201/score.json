@@ -1,0 +1,65 @@
+{
+  "label": "loop",
+  "score": "2/5",
+  "passed": 2,
+  "total": 5,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 1,
+      "slug": "portfolio",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Architecture failed: 1 validation error for Architecture\n  Value error, ui_elements labels must be unique [type=value_error, input_value={'summary': 'A single-pag...r; no other animation.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error"
+    },
+    {
+      "id": 2,
+      "slug": "bakery-landing",
+      "result": "fail",
+      "confidence": 74.2,
+      "broken_green": false,
+      "tests_passed": 8,
+      "tests_run": 10,
+      "failed": [
+        "opens with a hero image, video or gradient placeholder",
+        "contact form accepts a valid submission"
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "tip-calculator",
+      "result": "pass",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 6,
+      "tests_run": 6,
+      "failed": []
+    },
+    {
+      "id": 4,
+      "slug": "pomodoro-timer",
+      "result": "fail",
+      "confidence": 68.2,
+      "broken_green": false,
+      "tests_passed": 11,
+      "tests_run": 12,
+      "failed": [
+        "fits a mobile screen"
+      ]
+    },
+    {
+      "id": 5,
+      "slug": "unit-converter",
+      "result": "pass",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 12,
+      "tests_run": 12,
+      "failed": []
+    }
+  ]
+}

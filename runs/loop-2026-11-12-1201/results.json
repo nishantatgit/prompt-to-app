@@ -1,0 +1,2545 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.4/x64/bin/node",
+      "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "@app01|@app02|@app03|@app04|@app05"
+    ],
+    "configFile": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/playwright.config.ts",
+    "rootDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+        "commitHash": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+        "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43210015773"
+      },
+      "gitCommit": {
+        "shortHash": "9468d7c",
+        "hash": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+        "subject": "ci: level 1 with the build loop mode=loop",
+        "body": "ci: level 1 with the build loop mode=loop\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+        "author": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794483141000
+        },
+        "committer": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794483141000
+        },
+        "branch": "run-benchmark"
+      },
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+            "commitHash": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43210015773"
+          },
+          "gitCommit": {
+            "shortHash": "9468d7c",
+            "hash": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+            "subject": "ci: level 1 with the build loop mode=loop",
+            "body": "ci: level 1 with the build loop mode=loop\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483141000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483141000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+            "commitHash": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43210015773"
+          },
+          "gitCommit": {
+            "shortHash": "9468d7c",
+            "hash": "9468d7ce5c29f635cfcae9d94313c4363cc57a6d",
+            "subject": "ci: level 1 with the build loop mode=loop",
+            "body": "ci: level 1 with the build loop mode=loop\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483141000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483141000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "snapshotDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "screenshot": "on",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "results/latest/report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/latest/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "apps/01-portfolio.spec.ts",
+      "file": "apps/01-portfolio.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#1 portfolio | specific",
+          "file": "apps/01-portfolio.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows the person name as the main heading",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                        "line": 20,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:39.069Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                            "line": 20,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "900e198d2e296bba4212-30193d7a3cc473611db7",
+              "file": "apps/01-portfolio.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "has more than one section",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                        "line": 20,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:39.070Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                            "line": 20,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "900e198d2e296bba4212-36a6a43cb2c28a7592c1",
+              "file": "apps/01-portfolio.spec.ts",
+              "line": 35,
+              "column": 7
+            },
+            {
+              "title": "has a work section",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                        "line": 20,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:39.070Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                            "line": 20,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "900e198d2e296bba4212-684520b12b1cd09be598",
+              "file": "apps/01-portfolio.spec.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "has contact details",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                        "line": 20,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:39.070Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/01-portfolio.spec.ts",
+                            "line": 20,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "900e198d2e296bba4212-5936f5497d7b2e1311da",
+              "file": "apps/01-portfolio.spec.ts",
+              "line": 45,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "apps/02-bakery.spec.ts",
+      "file": "apps/02-bakery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#2 bakery-landing | specific",
+          "file": "apps/02-bakery.spec.ts",
+          "line": 195,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows the bakery name at the top of the page",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 725,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:39.515Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-c88e5-name-at-the-top-of-the-page/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-38e086ac000662672177",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 202,
+              "column": 7
+            },
+            {
+              "title": "opens with a hero image, video or gradient placeholder",
+              "ok": false,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 633,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m1\u001b[39m\nReceived:    \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m1\u001b[39m\nReceived:    \u001b[31m0\u001b[39m\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts:209:40",
+                        "location": {
+                          "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts",
+                          "column": 40,
+                          "line": 209
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 207 |\u001b[39m\n \u001b[90m 208 |\u001b[39m   test(\u001b[32m'opens with a hero image, video or gradient placeholder'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 209 |\u001b[39m     expect(\u001b[36mawait\u001b[39m heroMediaCount(page))\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m1\u001b[39m)\n \u001b[90m     |\u001b[39m                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 210 |\u001b[39m   })\n \u001b[90m 211 |\u001b[39m\n \u001b[90m 212 |\u001b[39m   test(\u001b[32m'shows a menu with at least 3 items'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts",
+                            "column": 40,
+                            "line": 209
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m1\u001b[39m\nReceived:    \u001b[31m0\u001b[39m\n\n  207 |\n  208 |   test('opens with a hero image, video or gradient placeholder', async ({ page }) => {\n> 209 |     expect(await heroMediaCount(page)).toBeGreaterThanOrEqual(1)\n      |                                        ^\n  210 |   })\n  211 |\n  212 |   test('shows a menu with at least 3 items', async ({ page }) => {\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts:209:40"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:40.399Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-6eb36-deo-or-gradient-placeholder/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-6eb36-deo-or-gradient-placeholder/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-6eb36-deo-or-gradient-placeholder/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts",
+                        "column": 40,
+                        "line": 209
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-058efcdaab0895799f16",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 208,
+              "column": 7
+            },
+            {
+              "title": "shows a menu with at least 3 items",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 605,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:41.690Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-59ca5--menu-with-at-least-3-items/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-e44218547f72cd8da801",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 212,
+              "column": 7
+            },
+            {
+              "title": "has a contact form",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 543,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:42.425Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-landing-specific-has-a-contact-form/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-d56a50a9e047e064c02c",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 217,
+              "column": 7
+            },
+            {
+              "title": "contact form rejects an empty submission",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 657,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:42.989Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-95fce-rejects-an-empty-submission/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-ccfde6c0bceb98c58b37",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 222,
+              "column": 7
+            },
+            {
+              "title": "contact form rejects a badly formatted email",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1147,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:43.665Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-adb20-cts-a-badly-formatted-email/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-dd22df9c48ad04b0b3d3",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 231,
+              "column": 7
+            },
+            {
+              "title": "contact form accepts a valid submission",
+              "ok": false,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 6129,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts:251:49",
+                        "location": {
+                          "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts",
+                          "column": 49,
+                          "line": 251
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 249 |\u001b[39m     \u001b[36mawait\u001b[39m (\u001b[36mawait\u001b[39m submitButton(page))\u001b[33m.\u001b[39mclick()\n \u001b[90m 250 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 251 |\u001b[39m     \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(() \u001b[33m=>\u001b[39m successCount(page))\u001b[33m.\u001b[39mtoBeGreaterThan(before)\n \u001b[90m     |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 252 |\u001b[39m   })\n \u001b[90m 253 |\u001b[39m })\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts",
+                            "column": 49,
+                            "line": 251
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  249 |     await (await submitButton(page)).click()\n  250 |\n> 251 |     await expect.poll(() => successCount(page)).toBeGreaterThan(before)\n      |                                                 ^\n  252 |   })\n  253 | })\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts:251:49"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:44.832Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-b7e80--accepts-a-valid-submission/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-b7e80--accepts-a-valid-submission/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-02-bakery--2-bakery-l-b7e80--accepts-a-valid-submission/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/02-bakery.spec.ts",
+                        "column": 49,
+                        "line": 251
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d67645f1847bce14092b-93353a5eb2c0f01e7547",
+              "file": "apps/02-bakery.spec.ts",
+              "line": 245,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "apps/03-tip-calculator.spec.ts",
+      "file": "apps/03-tip-calculator.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#3 tip-calculator | specific",
+          "file": "apps/03-tip-calculator.spec.ts",
+          "line": 25,
+          "column": 6,
+          "specs": [
+            {
+              "title": "splits bill plus tip evenly",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 975,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:39.520Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-03-tip-calculator--3--5921a-splits-bill-plus-tip-evenly/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa3b795ef6f963f0c64c-f935328d6e9e1ba25318",
+              "file": "apps/03-tip-calculator.spec.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "handles decimals",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 514,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:40.649Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-03-tip-calculator--3--1fcb0-r-specific-handles-decimals/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa3b795ef6f963f0c64c-18501d99a5e9763f73ac",
+              "file": "apps/03-tip-calculator.spec.ts",
+              "line": 41,
+              "column": 7
+            },
+            {
+              "title": "does not show Infinity or NaN for zero people",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 577,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:41.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-03-tip-calculator--3--6306d-nity-or-NaN-for-zero-people/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa3b795ef6f963f0c64c-3980368823f9ebaeff5c",
+              "file": "apps/03-tip-calculator.spec.ts",
+              "line": 50,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "apps/04-pomodoro-timer.spec.ts",
+      "file": "apps/04-pomodoro-timer.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#4 pomodoro-timer | specific",
+          "file": "apps/04-pomodoro-timer.spec.ts",
+          "line": 58,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows a timer that starts above zero",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 689,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:41.785Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--16e8d-imer-that-starts-above-zero/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-617369286af5be521af7",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 66,
+              "column": 7
+            },
+            {
+              "title": "timer is big and in the first screen",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 506,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:42.492Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--8bb04-big-and-in-the-first-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-83961659042638e9348b",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 71,
+              "column": 7
+            },
+            {
+              "title": "start counts down",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 610,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:43.013Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--23fe2--specific-start-counts-down/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-c77e0df526864cd60fc9",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 86,
+              "column": 7
+            },
+            {
+              "title": "start does nothing while running",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 578,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:43.640Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--a3b5f--does-nothing-while-running/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-a281f3bc629135910c19",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 93,
+              "column": 7
+            },
+            {
+              "title": "pause does nothing before start",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 480,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:44.242Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--3015e-e-does-nothing-before-start/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-d6dc8d7f085193617193",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 103,
+              "column": 7
+            },
+            {
+              "title": "pause stops the countdown and start resumes it",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 824,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:44.745Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--33cef-ntdown-and-start-resumes-it/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-087df9431dfbc26c7f01",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 110,
+              "column": 7
+            },
+            {
+              "title": "reset returns to the full time and stops",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 557,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:45.587Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--5459e--to-the-full-time-and-stops/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-376404265f5318dd06de",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 126,
+              "column": 7
+            },
+            {
+              "title": "a reload starts a new session from the full time",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 655,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:46.158Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--13e7b--session-from-the-full-time/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-ed4452d339be5df75b6e",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 137,
+              "column": 7
+            },
+            {
+              "title": "never goes below zero when the session ends",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 25520,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:46.825Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-04-pomodoro-timer--4--ceafc--zero-when-the-session-ends/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b3d4efb3040b6418289-a107548a3a66a5d9f292",
+              "file": "apps/04-pomodoro-timer.spec.ts",
+              "line": 146,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "apps/05-unit-converter.spec.ts",
+      "file": "apps/05-unit-converter.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#5 unit-converter | specific",
+          "file": "apps/05-unit-converter.spec.ts",
+          "line": 186,
+          "column": 6,
+          "specs": [
+            {
+              "title": "offers all three conversions",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 865,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:51.564Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--79ac1-ffers-all-three-conversions/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-b43c12f7dcca6ede7d7b",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 193,
+              "column": 7
+            },
+            {
+              "title": "converts km to miles",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 691,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:52.551Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--ca936-ecific-converts-km-to-miles/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-a78d703dfbc9c525f4ac",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 220,
+              "column": 9
+            },
+            {
+              "title": "converts miles to km",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 566,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:53.266Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--70db1-ecific-converts-miles-to-km/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-706605263b23bf2e910b",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 220,
+              "column": 9
+            },
+            {
+              "title": "converts kg to lb",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 569,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:53.846Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--6acc5--specific-converts-kg-to-lb/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-f8b6cecc8d30082f4d0f",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 220,
+              "column": 9
+            },
+            {
+              "title": "converts lb to kg",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 756,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:54.430Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--b67fd--specific-converts-lb-to-kg/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-793ced47065de698a4b4",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 220,
+              "column": 9
+            },
+            {
+              "title": "converts °C to °F",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 720,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:55.199Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--c69c5--specific-converts-°C-to-°F/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-c3c5cc17467a1d563493",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 220,
+              "column": 9
+            },
+            {
+              "title": "converts °F to °C",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 572,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:55.932Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--a149d--specific-converts-°F-to-°C/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-0a9999e5907bdde1f2e7",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 220,
+              "column": 9
+            },
+            {
+              "title": "converts a negative temperature",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 548,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:56.522Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--d43d6-erts-a-negative-temperature/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-9d5f3813bb2a753c115e",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 225,
+              "column": 7
+            },
+            {
+              "title": "refuses non-numeric input",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 561,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:57.082Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-05-unit-converter--5--b9b61-c-refuses-non-numeric-input/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "59ff89ff7518553bd389-1de7cb0781be0bfb7daf",
+              "file": "apps/05-unit-converter.spec.ts",
+              "line": 229,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "common/common.spec.ts",
+      "file": "common/common.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#1 portfolio | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "line": 10,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:57.667Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "line": 10,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-21d3074935b4d2edb9eb",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "line": 10,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:57.667Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "line": 10,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-6285b271bd6cbe4248f1",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app01",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "line": 10,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:57.667Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "line": 10,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-3d473545723d64b5325e",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "#2 bakery-landing | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 440,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:57.667Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--2-bakery-landing-common-page-loads/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-06295b8ff914df3df615",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 903,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:58.120Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--2-bakery-landing-common-no-console-errors/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-60274375fb1488d08bdb",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app02",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 391,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:59.035Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--2-bakery-landing-common-fits-a-mobile-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-3bb581bc535eecb11296",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "#3 tip-calculator | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 515,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:59.440Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--3-tip-calculator-common-page-loads/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-a2400baca75d5c91b61b",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 901,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:00:59.967Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--3-tip-calculator-common-no-console-errors/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-07af85ce786b0ef85110",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 457,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:00.880Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--3-tip-calculator-common-fits-a-mobile-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-76b31ebc1e690def36e0",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "#4 pomodoro-timer | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 385,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:01.349Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--4-pomodoro-timer-common-page-loads/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-bbbccc503fe812410a2a",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 945,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:01.747Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--4-pomodoro-timer-common-no-console-errors/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-29ba93bec3517932c175",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": false,
+              "tags": [
+                "app04",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 391,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts:38:31",
+                        "location": {
+                          "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                          "column": 31,
+                          "line": 38
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 36 |\u001b[39m         () \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mscrollWidth \u001b[33m>\u001b[39m window\u001b[33m.\u001b[39minnerWidth\u001b[33m,\u001b[39m\n \u001b[90m 37 |\u001b[39m       )\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 38 |\u001b[39m       expect(scrollsSideways)\u001b[33m.\u001b[39mtoBe(\u001b[36mfalse\u001b[39m)\n \u001b[90m    |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 39 |\u001b[39m     })\n \u001b[90m 40 |\u001b[39m   })\n \u001b[90m 41 |\u001b[39m }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "column": 31,
+                            "line": 38
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n\n  36 |         () => document.documentElement.scrollWidth > window.innerWidth,\n  37 |       )\n> 38 |       expect(scrollsSideways).toBe(false)\n     |                               ^\n  39 |     })\n  40 |   })\n  41 | }\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts:38:31"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:02.704Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--4-pomodoro-timer-common-fits-a-mobile-screen/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--4-pomodoro-timer-common-fits-a-mobile-screen/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--4-pomodoro-timer-common-fits-a-mobile-screen/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "column": 31,
+                        "line": 38
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-f1ead1007aa3ab4d2989",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "#5 unit-converter | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 557,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:03.631Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--5-unit-converter-common-page-loads/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-62d01a8206720d91c5f6",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 913,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:04.325Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--5-unit-converter-common-no-console-errors/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-00e2231b70dd00e85a5a",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app05",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 501,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T12:01:05.252Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--5-unit-converter-common-fits-a-mobile-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-e9f290c6525e6cc65b13",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-12T12:00:38.783Z",
+    "duration": 33621.302,
+    "expected": 37,
+    "skipped": 7,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}
