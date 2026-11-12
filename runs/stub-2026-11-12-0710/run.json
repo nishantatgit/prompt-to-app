@@ -1,0 +1,8 @@
+{
+  "label": "stub",
+  "apps": "--ids 3",
+  "stub_llm": true,
+  "model": "claude-sonnet-5-5",
+  "commit": "1948b162422758c9c84287ea4cddc7660f1a3560",
+  "workflow_run": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43173167828"
+}

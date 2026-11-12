@@ -1,0 +1,19 @@
+{
+  "label": "stub",
+  "score": "1/1",
+  "passed": 1,
+  "total": 1,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 3,
+      "slug": "tip-calculator",
+      "result": "pass",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 6,
+      "tests_run": 6,
+      "failed": []
+    }
+  ]
+}
