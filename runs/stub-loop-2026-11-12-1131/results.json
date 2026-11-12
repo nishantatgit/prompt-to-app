@@ -1,0 +1,482 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.4/x64/bin/node",
+      "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "@app03"
+    ],
+    "configFile": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/playwright.config.ts",
+    "rootDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/bbc3438aa84ff5f283544cdef336606e0d9c5162",
+        "commitHash": "bbc3438aa84ff5f283544cdef336606e0d9c5162",
+        "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43209682728"
+      },
+      "gitCommit": {
+        "shortHash": "bbc3438",
+        "hash": "bbc3438aa84ff5f283544cdef336606e0d9c5162",
+        "subject": "ci: check loop mode end to end [stub] ids=3 mode=loop scenario=tip-calculator-retry",
+        "body": "ci: check loop mode end to end [stub] ids=3 mode=loop scenario=tip-calculator-retry\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+        "author": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794483006000
+        },
+        "committer": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794483006000
+        },
+        "branch": "run-benchmark"
+      },
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/bbc3438aa84ff5f283544cdef336606e0d9c5162",
+            "commitHash": "bbc3438aa84ff5f283544cdef336606e0d9c5162",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43209682728"
+          },
+          "gitCommit": {
+            "shortHash": "bbc3438",
+            "hash": "bbc3438aa84ff5f283544cdef336606e0d9c5162",
+            "subject": "ci: check loop mode end to end [stub] ids=3 mode=loop scenario=tip-calculator-retry",
+            "body": "ci: check loop mode end to end [stub] ids=3 mode=loop scenario=tip-calculator-retry\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483006000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483006000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/bbc3438aa84ff5f283544cdef336606e0d9c5162",
+            "commitHash": "bbc3438aa84ff5f283544cdef336606e0d9c5162",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43209682728"
+          },
+          "gitCommit": {
+            "shortHash": "bbc3438",
+            "hash": "bbc3438aa84ff5f283544cdef336606e0d9c5162",
+            "subject": "ci: check loop mode end to end [stub] ids=3 mode=loop scenario=tip-calculator-retry",
+            "body": "ci: check loop mode end to end [stub] ids=3 mode=loop scenario=tip-calculator-retry\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483006000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794483006000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "snapshotDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "screenshot": "on",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "results/latest/report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/latest/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "apps/03-tip-calculator.spec.ts",
+      "file": "apps/03-tip-calculator.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#3 tip-calculator | specific",
+          "file": "apps/03-tip-calculator.spec.ts",
+          "line": 25,
+          "column": 6,
+          "specs": [
+            {
+              "title": "splits bill plus tip evenly",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 852,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T11:31:39.941Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-03-tip-calculator--3--5921a-splits-bill-plus-tip-evenly/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa3b795ef6f963f0c64c-f935328d6e9e1ba25318",
+              "file": "apps/03-tip-calculator.spec.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "handles decimals",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 291,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T11:31:40.950Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-03-tip-calculator--3--1fcb0-r-specific-handles-decimals/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa3b795ef6f963f0c64c-18501d99a5e9763f73ac",
+              "file": "apps/03-tip-calculator.spec.ts",
+              "line": 41,
+              "column": 7
+            },
+            {
+              "title": "does not show Infinity or NaN for zero people",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 286,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T11:31:41.264Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-03-tip-calculator--3--6306d-nity-or-NaN-for-zero-people/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa3b795ef6f963f0c64c-3980368823f9ebaeff5c",
+              "file": "apps/03-tip-calculator.spec.ts",
+              "line": 50,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "common/common.spec.ts",
+      "file": "common/common.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#3 tip-calculator | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 739,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T11:31:39.981Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--3-tip-calculator-common-page-loads/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-a2400baca75d5c91b61b",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 748,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T11:31:40.881Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--3-tip-calculator-common-no-console-errors/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-07af85ce786b0ef85110",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app03",
+                "level1"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 173,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T11:31:41.651Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--3-tip-calculator-common-fits-a-mobile-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-76b31ebc1e690def36e0",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-12T11:31:39.228Z",
+    "duration": 2644.061,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

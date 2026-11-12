@@ -1,0 +1,12 @@
+[
+  {
+    "id": 3,
+    "slug": "tip-calculator",
+    "job_id": "26-11-12-1794483058-617573b6cf",
+    "status": "succeeded",
+    "reason": "",
+    "deploy_url": "https://tip-calculator-splits-617573.vyskar.app",
+    "confidence": 100,
+    "seconds": 40
+  }
+]
