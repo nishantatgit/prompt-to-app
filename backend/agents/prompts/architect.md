@@ -261,10 +261,11 @@ technical for an engineer's portfolio or warm for a bakery. Describe:
 - status colors: green for success, orange for warning, red for error. If the
   accent is itself green, orange or red, shift the status color's hue so the
   two never look the same.
-- typeface: one Google Font that matches the personality, used for the whole
-  app. Neutral: Inter. Playful: Nunito or Poppins. Formal: Source Serif 4 for
-  headings with Inter for body text. Name the weights used, such as 400 and
-  600. When pairing two weights, skip one in between (400 with 600, not 500).
+- typeface: Google Fonts chosen for this app's subject: one family for the
+  whole app, or a display face for headings with a clearly different body
+  face. Avoid the defaults of generated apps (Inter, Roboto, Open Sans,
+  Poppins, Space Grotesk) unless the subject calls for one. Name the weights
+  used, such as 400 and 600. When pairing two weights, skip one in between (400 with 600, not 500).
 - type hierarchy: one large headline, smaller section headings, muted
   secondary text. Body text is 16px, with sizes taken only from 12, 14, 16,
   20, 24 and 32px (larger only for a hero headline). Body line height 1.5 to

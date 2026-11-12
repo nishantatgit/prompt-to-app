@@ -17,7 +17,9 @@ from tools.file_tools import make_file_tools
 from tools.sandbox import Sandbox
 
 PROMPTS = Path(__file__).parent / "prompts"
-PROMPT = (PROMPTS / "build_loop.md").read_text() + (PROMPTS / "builder.md").read_text()
+PROMPT = "".join(
+    (PROMPTS / name).read_text() for name in ("build_loop.md", "builder.md", "design_building.md")
+)
 
 # Only the end of a build log goes back to the model; errors are printed last.
 LOG_CHARS = 4000
