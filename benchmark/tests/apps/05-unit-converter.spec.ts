@@ -8,6 +8,9 @@ import { getApp, getAppUrl, tagsFor } from '../../helpers/apps'
 // - a pair of fields per unit, where typing in one fills the other
 // - one field with "from" and "to" dropdowns
 // - one field per conversion with a swap button
+// - one field with a single direction dropdown or radio, like "Kilometers to Miles"
+// A category tab or button (Distance, Weight, Temperature) is clicked first
+// when the page has one.
 // The answer is found by looking for the expected number anywhere on the
 // page, not in a specific element, as the tip calculator spec does.
 
@@ -102,6 +105,36 @@ async function prepare(page: Page, from: Unit, to: Unit): Promise<Locator | null
       if (await visible(input)) return input.first()
     }
   }
+  // Shape 4: one direction choice such as "Kilometers to Miles", as a
+  // dropdown option or a radio button, next to one field.
+  for (const select of selects) {
+    const value = await select.evaluate(
+      (el: HTMLSelectElement, [fromSource, toSource]) => {
+        const from = new RegExp(fromSource, 'i')
+        const to = new RegExp(toSource, 'i')
+        const option = [...el.options].find((o) => {
+          const text = o.textContent ?? ''
+          const a = text.search(from)
+          const b = text.search(to)
+          return a >= 0 && b > a
+        })
+        return option ? option.value : null
+      },
+      [from.label.source, to.label.source],
+    )
+    if (value === null) continue
+    await select.selectOption(value)
+    const box = select.locator('xpath=ancestor::*[.//input][1]')
+    const input = box.locator('input:not([type=hidden]):not([type=checkbox]):not([type=radio])')
+    if (await visible(input)) return input.first()
+  }
+  const direction = new RegExp(`(${from.label.source}).*\\bto\\b.*(${to.label.source})`, 'i')
+  const radio = page.getByRole('radio', { name: direction }).first()
+  if (await visible(radio)) {
+    await radio.check()
+    const input = page.getByRole('spinbutton').or(page.getByRole('textbox')).first()
+    if (await visible(input)) return input
+  }
   return null
 }
 
@@ -158,12 +191,26 @@ test.describe(`#${app.id} ${app.slug} | specific`, { tag: tagsFor(app) }, () => 
   })
 
   test('offers all three conversions', async ({ page }) => {
-    const text = await page.locator('body').evaluate((body) => {
-      const labels = [...body.querySelectorAll('[aria-label], [placeholder]')].map(
-        (el) => `${el.getAttribute('aria-label') ?? ''} ${el.getAttribute('placeholder') ?? ''}`,
-      )
-      return `${body.textContent ?? ''} ${labels.join(' ')}`
-    })
+    const pageText = () =>
+      page.locator('body').evaluate((body) => {
+        const labels = [...body.querySelectorAll('[aria-label], [placeholder]')].map(
+          (el) => `${el.getAttribute('aria-label') ?? ''} ${el.getAttribute('placeholder') ?? ''}`,
+        )
+        return `${body.textContent ?? ''} ${labels.join(' ')}`
+      })
+
+    // A page with category tabs shows one category at a time, so open each.
+    let text = await pageText()
+    for (const category of [KM.category, KG.category, C.category]) {
+      const tab = page
+        .getByRole('tab', { name: category })
+        .or(page.getByRole('button', { name: category }))
+        .first()
+      if (await visible(tab)) {
+        await tab.click()
+        text += ' ' + (await pageText())
+      }
+    }
     for (const unit of [KM, MI, KG, LB, C, F]) {
       expect(text, `mentions ${unit.name}`).toMatch(unit.mention)
     }

@@ -1,9 +1,11 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { getApp, getAppUrl, tagsFor } from '../../helpers/apps'
 
-// Pass check: a big MM:SS countdown that the user can set, start, pause and
-// reset. Start works only when stopped or paused, Pause only while running.
-// The time never starts at zero or below and never counts below 00:00.
+// Pass check: a big MM:SS countdown from a fixed starting time that the user
+// can start, pause and reset. Start works only when stopped or paused, Pause
+// only while running. The time never goes below 00:00; when a session ends the
+// timer may stop at 00:00 or move on to a break, as the Pomodoro technique does.
+// The prompt does not ask for setting the length, so that is not checked.
 //
 // The browser clock is faked, so "run 25 minutes" takes milliseconds.
 // A control that should do nothing passes if it is hidden, disabled, or
@@ -15,8 +17,6 @@ const url = getAppUrl(app.id)
 const START = /start|play|resume/i
 const PAUSE = /pause/i
 const RESET = /reset|restart/i
-const DURATION = /minutes?|duration|length|work|focus|session|set (the )?time/i
-const APPLY = /^(set|apply|save|update)\b/i
 
 // The element whose whole text is a time like 25:00.
 function timerDisplay(page: Page): Locator {
@@ -53,26 +53,7 @@ async function expectSeconds(page: Page, expected: number) {
   expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1)
 }
 
-// The field where the user sets the timer length.
-async function durationInput(page: Page): Promise<Locator> {
-  for (const role of ['spinbutton', 'textbox', 'combobox'] as const) {
-    const field = page.getByRole(role, { name: DURATION })
-    if ((await field.count()) > 0) return field.first()
-  }
-  return page.getByRole('spinbutton').first()
-}
 
-// Enter a length, then press a Set or Apply button if the app has one.
-async function setLength(page: Page, field: Locator, minutes: string) {
-  if ((await field.evaluate((el) => el.tagName)) === 'SELECT') {
-    await field.selectOption(minutes)
-  } else {
-    await field.fill(minutes)
-  }
-  await field.blur()
-  const apply = button(page, APPLY)
-  if (!(await isUnavailable(apply))) await apply.click()
-}
 
 test.describe(`#${app.id} ${app.slug} | specific`, { tag: tagsFor(app) }, () => {
   test.skip(!url, 'Not deployed yet')
@@ -162,39 +143,22 @@ test.describe(`#${app.id} ${app.slug} | specific`, { tag: tagsFor(app) }, () => 
     await expectSeconds(page, full)
   })
 
-  test('stops at 00:00 and pause does nothing after the end', async ({ page }) => {
+  test('never goes below zero when the session ends', async ({ page }) => {
     const full = await readSeconds(page)
     await button(page, START).click()
     await page.clock.runFor((full + 5) * 1_000)
-    expect(await readSeconds(page)).toBe(0)
 
-    await clickIfAvailable(button(page, PAUSE))
-    await page.clock.runFor(3_000)
-    expect(await readSeconds(page)).toBe(0)
-  })
+    const after = await readSeconds(page)
+    expect(after).toBeGreaterThanOrEqual(0)
 
-  test('the user can set the timer length', async ({ page }) => {
-    const input = await durationInput(page)
-    await expect(input).toBeVisible()
-
-    await setLength(page, input, '2')
-    await expectSeconds(page, 120)
-
-    await button(page, START).click()
-    await page.clock.runFor(3_000)
-    await expectSeconds(page, 117)
-  })
-
-  test('the timer length cannot be zero or negative', async ({ page }) => {
-    const input = await durationInput(page)
-    await expect(input).toBeVisible()
-
-    for (const bad of ['0', '-5']) {
-      await page.reload()
-      const field = await durationInput(page)
-      await setLength(page, field, bad).catch(() => {})
-      await clickIfAvailable(button(page, START))
-      expect(await readSeconds(page), `after entering ${bad}`).toBeGreaterThan(0)
+    // Stopped at 00:00: Pause must do nothing. Moved on to a break: the break
+    // is a new countdown, so there is nothing more to check.
+    if (after === 0) {
+      await clickIfAvailable(button(page, PAUSE))
+      await page.clock.runFor(3_000)
+      expect(await readSeconds(page)).toBe(0)
     }
   })
+
+
 })
