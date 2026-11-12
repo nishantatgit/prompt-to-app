@@ -68,8 +68,6 @@ Design:
 - Build a polished, modern UI, the quality of a professional product.
 - Clear hierarchy: one large headline, smaller section headings, muted
   secondary text. Use a consistent spacing scale and generous whitespace.
-- Group related content in cards with rounded corners, a subtle border or
-  shadow, and comfortable padding.
 - Interactive elements have hover and focus states and smooth transitions.
 - Use simple inline SVG icons where they help people scan, such as next to
   section headings or contact links.
@@ -114,7 +112,6 @@ Icons
 Cards
 - Cards in a set share one layout. Long text truncates (`line-clamp`). A missing image shows
   a placeholder, never a broken image.
-- Clickable cards show it: a soft shadow and a slight lift on hover.
 
 Motion
 - Animate only to give feedback or show a change of state. Keep it under 300ms with ease-out.
@@ -137,7 +134,7 @@ in components. No hex values inside components.
     --color-success: #16a34a;
     --color-warning: #ea580c;
     --color-error: #dc2626;
-    --font-sans: "Inter", system-ui, sans-serif;
+    --font-sans: "<font from visual_design>", system-ui, sans-serif;
   }
 - Load the font in index.html with a Google Fonts <link>, only the weights
   named in visual_design. No font packages.
