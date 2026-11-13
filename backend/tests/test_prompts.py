@@ -55,4 +55,4 @@ def test_test_planner_checks_saved_data_inside_its_list():
 
     rules = (Path(__file__).parent.parent / "agents/prompts/test_planner.md").read_text()
     assert "getByRole('list', { name: 'Entries' }).getByText(message)" in rules
-    assert "page wide search" in rules
+    assert "never with a page wide getByText" in " ".join(rules.split())
