@@ -90,8 +90,13 @@ async function main() {
     builds = await buildAll(apps, async (app, build) => {
       results = runTests([app])
       suites.push(...(results.suites ?? []))
-      if (await deleteDatabase(build.database_name)) {
-        console.log(`#${app.id} ${app.slug}: deleted database ${build.database_name}`)
+      try {
+        if (await deleteDatabase(build.database_name)) {
+          console.log(`#${app.id} ${app.slug}: deleted database ${build.database_name}`)
+        }
+      } catch (error) {
+        // The scores still count; the database has to be deleted by hand.
+        console.warn(`#${app.id} ${app.slug}: could not delete database ${build.database_name}: ${error.message}`)
       }
     })
     results = { ...(results ?? {}), suites }
