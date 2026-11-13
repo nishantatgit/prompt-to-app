@@ -1,0 +1,30 @@
+{
+  "strategy": "End to end tests sign the guestbook against the real database and check the entry survives a reload.",
+  "unit_cases": [],
+  "api_cases": [],
+  "data_access_cases": [
+    { "id": "D1", "description": "Anyone can read entries", "table": "guestbook_entries", "as_user": "anonymous", "operation": "select", "expect": "allowed" },
+    { "id": "D2", "description": "Anyone can add an entry", "table": "guestbook_entries", "as_user": "anonymous", "operation": "insert", "expect": "allowed" },
+    { "id": "D3", "description": "Nobody can delete entries", "table": "guestbook_entries", "as_user": "anonymous", "operation": "delete", "expect": "denied" }
+  ],
+  "e2e_tests": [
+    {
+      "id": "E1",
+      "criterion_id": "F1-AC1",
+      "description": "The form is visible",
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('shows the form', async ({ page }) => {\n  await page.goto('/')\n  await expect(page.getByLabel('Name')).toBeVisible()\n  await expect(page.getByLabel('Message')).toBeVisible()\n  await expect(page.getByRole('button', { name: 'Sign the guestbook' })).toBeVisible()\n})\n"
+    },
+    {
+      "id": "E2",
+      "criterion_id": "F1-AC2",
+      "description": "A signed entry is saved and survives a reload",
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('saves an entry', async ({ page }) => {\n  const message = `Hello from test ${Date.now()}`\n  await page.goto('/')\n  await page.getByLabel('Name').fill('Asha')\n  await page.getByLabel('Message').fill(message)\n  await page.getByRole('button', { name: 'Sign the guestbook' }).click()\n  await expect(page.getByText(message)).toBeVisible()\n  await page.reload()\n  await expect(page.getByText(message)).toBeVisible()\n})\n"
+    },
+    {
+      "id": "E3",
+      "criterion_id": "F2-AC1",
+      "description": "The entries list is visible",
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('shows the entries list', async ({ page }) => {\n  await page.goto('/')\n  await expect(page.getByRole('list', { name: 'Entries' })).toBeVisible()\n})\n"
+    }
+  ]
+}
