@@ -29,7 +29,8 @@ STAGES = {
 MAX_ACTIVITY = 50
 
 MAX_ACTIVE_JOBS = int(os.getenv("MAX_ACTIVE_JOBS", "6"))
-FINISHED_STATUSES = {"succeeded", "failed", "rejected"}
+FINISHED_STATUSES = {"succeeded", "failed", "rejected", "cancelled"}
+CANCELLED_REASON = "You cancelled this build."
 
 
 def active_job_count() -> int:
@@ -75,6 +76,25 @@ def _add_activity(job_id: str, text: str) -> None:
         job["stage"] = "building"
 
 
+def cancel_job(job_id: str) -> bool:
+    """Stop a build. Returns False when the job has already finished.
+
+    The job shows as cancelled at once. The graph stops at the next step,
+    and the build loop at its next turn, so no more model calls are made
+    with the user's key."""
+    with _lock:
+        job = _jobs[job_id]
+        if job["status"] in FINISHED_STATUSES:
+            return False
+        job.update(status="cancelled", reason=CANCELLED_REASON)
+        return True
+
+
+def is_cancelled(job_id: str) -> bool:
+    with _lock:
+        return _jobs[job_id]["status"] == "cancelled"
+
+
 def _outcome(state: dict) -> tuple[str, str]:
     if state.get("allowed") is False:
         return "rejected", state.get("guard_reason", "")
@@ -89,12 +109,19 @@ def _outcome(state: dict) -> tuple[str, str]:
 
 
 def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
+    if is_cancelled(job_id):
+        return  # cancelled while waiting in the queue
     _update(job_id, status="running")
     state = {"prompt": prompt, "job_id": job_id}
+    config = {
+        "recursion_limit": recursion_limit,
+        # Long steps, such as the build loop, check this between model calls.
+        "configurable": {"cancelled": lambda: is_cancelled(job_id)},
+    }
     try:
-        for mode, chunk in graph.stream(
-            dict(state), {"recursion_limit": recursion_limit}, stream_mode=["updates", "custom"]
-        ):
+        for mode, chunk in graph.stream(dict(state), config, stream_mode=["updates", "custom"]):
+            if is_cancelled(job_id):
+                return
             if mode == "custom":
                 if "activity" in chunk:
                     _add_activity(job_id, chunk["activity"])
@@ -103,8 +130,12 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
                 state.update(values or {})
                 _update(job_id, stage=STAGES.get(node, node), state=dict(state))
         status, reason = _outcome(state)
-        _update(job_id, status=status, reason=reason, state=state)
+        with _lock:
+            if _jobs[job_id]["status"] != "cancelled":
+                _jobs[job_id].update(status=status, reason=reason, state=state)
     except Exception as error:
+        if is_cancelled(job_id):
+            return
         reason = rejected_reason(error) or f"internal error: {error}"
         _update(job_id, status="failed", reason=reason)
 

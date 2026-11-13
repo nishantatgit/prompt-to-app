@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getJob } from '../lib/api.js'
+import { cancelJob, getJob } from '../lib/api.js'
 
 const STAGES = [
   'checking request',
@@ -11,7 +11,7 @@ const STAGES = [
   'deploying',
 ]
 const POLL_MS = 2000
-const FINISHED = new Set(['succeeded', 'failed', 'rejected'])
+const FINISHED = new Set(['succeeded', 'failed', 'rejected', 'cancelled'])
 
 function failureHeading(job) {
   if (job.status === 'rejected') return 'Vyskar could not build this request.'
@@ -41,7 +41,21 @@ function LoopActivity({ job }) {
 export default function JobView({ jobId, onDone }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
+  const [cancelling, setCancelling] = useState(false)
   const furthest = useRef(-1)
+
+  async function handleCancel() {
+    setCancelling(true)
+    try {
+      const next = await cancelJob(jobId)
+      setJob(next)
+      onDone?.(next)
+    } catch (err) {
+      // Usually the build finished first; the next poll shows how it ended.
+      setError(err.message)
+      setCancelling(false)
+    }
+  }
 
   useEffect(() => {
     let stopped = false
@@ -111,6 +125,24 @@ export default function JobView({ jobId, onDone }) {
             )
           })}
         </ol>
+      )}
+
+      {!finished && !error && (
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={cancelling}
+          className="mt-5 min-h-11 rounded-full border border-wall px-5 text-sm text-muted hover:text-fg disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {cancelling ? 'Cancelling...' : 'Cancel build'}
+        </button>
+      )}
+
+      {job?.status === 'cancelled' && (
+        <div className="mt-5 flex flex-col gap-2">
+          <p className="font-display text-xl font-bold">Build cancelled.</p>
+          <p className="text-sm text-muted">Nothing was deployed. Change your prompt and build again.</p>
+        </div>
       )}
 
       {job?.status === 'succeeded' && (
