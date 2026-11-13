@@ -32,20 +32,16 @@ echo "store: $SID"
 STORE=$(get "/storage/stores/$SID?teamId=$TEAM")
 RID=$(echo "$STORE" | jq -r '(.store // .) | .externalResourceId')
 echo "$STORE" | jq -c '(.store // .) | {status, externalResourceId, targets, projects: [.projectsMetadata[]?.projectId]}'
-echo "== connect"
-for body in "{\"projectId\":\"$PID\",\"envVarEnvironments\":[\"production\",\"preview\",\"development\"],\"makeEnvVarsSensitive\":false}"; do
-  for rid in "$SID" "$RID"; do
-    R=$(post "/v1/integrations/installations/$CFG/resources/$rid/connections?teamId=$TEAM" "$body")
-    echo "resource=$rid body=$body -> $(echo "$R" | jq -c '{error: .error.message} // .' | cut -c1-300)"
-  done
+echo "== read each key by id"
+ENVS=$(get "/v10/projects/$PID/env?teamId=$TEAM")
+for id in $(echo "$ENVS" | jq -r '.envs[].id'); do
+  get "/v1/projects/$PID/env/$id?teamId=$TEAM" | jq -c '{key, type, decrypted, looksPlain: ((.value // "") | startswith("eyJ2Ijoi") | not), valueLength: ((.value // "") | length)}'
 done
-echo "== project env vars"
-get "/v10/projects/$PID/env?teamId=$TEAM&decrypt=true" | jq -c '[.envs[]? | {key, type, target, valueLength: (.value // "" | length), decrypted}]'
 echo "== try postgres"
-URL=$(get "/v10/projects/$PID/env?teamId=$TEAM&decrypt=true" | jq -r '.envs[]? | select(.key=="POSTGRES_URL_NON_POOLING") | .value' | head -1)
-if [ -n "$URL" ] && [ "${#URL}" -gt 20 ]; then
-  sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1
-  psql "$URL" -tAc "select 'connected', current_database(), version()" 2>&1 | cut -c1-120
-else
-  echo "no usable POSTGRES_URL_NON_POOLING value (length ${#URL})"
-fi
+URL_ID=$(echo "$ENVS" | jq -r '.envs[] | select(.key=="POSTGRES_URL_NON_POOLING") | .id')
+URL=$(get "/v1/projects/$PID/env/$URL_ID?teamId=$TEAM" | jq -r '.value // empty')
+case "$URL" in
+  postgres*) sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1
+             if psql "$URL" -tAc "select 1" >/dev/null 2>&1; then echo "postgres: connected"; else echo "postgres: could not connect"; fi ;;
+  *) echo "postgres: the value is not a connection string" ;;
+esac
