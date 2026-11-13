@@ -32,6 +32,6 @@ printf "VITE_SUPABASE_URL=%s\nVITE_SUPABASE_ANON_KEY=%s\n" "$URL" "$ANON" > $W/.
 jq -r '.e2e_tests[] | select(.id=="E2") | .code' scripts/guestbook/test_planner.json > $W/tests/e2.spec.js
 cd $W && yarn install --silent >/dev/null 2>&1 && yarn -s build >/dev/null 2>&1 && echo "built" && npx playwright install --with-deps chromium >/dev/null 2>&1
 PORT=4300 yarn -s playwright test --reporter=line 2>&1 | grep -vE "^\s*$" | tail -12
-for f in test-results/*/error-context.md; do echo "== $f"; sed -n '/Page snapshot/,$p' "$f" | head -40; done
+for f in test-results/*/error-context.md; do echo "== $f"; grep -v '^\s*$' "$f" | sed -n '8,70p'; done
 cd - >/dev/null
 echo "cleanup: disconnect $(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" -X DELETE "$API/v1/storage/stores/$SID/connections?teamId=$TEAM"), delete $(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" -X DELETE "$API/v1/storage/stores/integration/$SID?teamId=$TEAM")"
