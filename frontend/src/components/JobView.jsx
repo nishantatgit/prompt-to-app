@@ -16,6 +16,7 @@ const FINISHED = new Set(['succeeded', 'failed', 'rejected', 'cancelled'])
 function failureHeading(job) {
   if (job.status === 'rejected') return 'Vyskar could not build this request.'
   if (job.reason?.startsWith('key rejected')) return 'Your API key did not work.'
+  if (job.reason?.startsWith('no credit')) return 'Your AI account is out of credit.'
   if (job.reason?.startsWith('internal error')) return 'Something went wrong on our side.'
   return 'The app did not pass its checks.'
 }
@@ -104,6 +105,13 @@ export default function JobView({ jobId, onDone }) {
         <span className={job?.status === 'succeeded' ? 'text-accent' : ''}>{job?.status || 'starting'}</span>
       </div>
 
+      {job?.status === 'queued' && (
+        <p className="mt-4 text-sm text-muted">
+          Waiting for a free builder. Vyskar builds two apps at a time, so yours starts as soon as
+          one finishes.
+        </p>
+      )}
+
       {!finished && !error && (
         <ol className="mt-5 flex flex-col gap-1 font-mono text-sm">
           {STAGES.map((stage, i) => {
@@ -164,7 +172,7 @@ export default function JobView({ jobId, onDone }) {
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">{failureHeading(job)}</p>
           <p className="text-sm leading-relaxed text-muted">
-            {job.reason?.replace(/^key rejected: /, '')}
+            {job.reason?.replace(/^(key rejected|no credit): /, '')}
           </p>
           {job.test_summary && (
             <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 font-mono text-xs text-dim">{job.test_summary}</pre>

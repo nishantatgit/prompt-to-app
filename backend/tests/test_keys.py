@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from agents import keys
-from agents.keys import KeyRejected, check_key, rejected_reason
+from agents.keys import KeyRejected, check_key, user_error_reason as rejected_reason
 
 REQUEST = httpx.Request("GET", "https://api.example.com/v1/models")
 
@@ -17,11 +17,14 @@ def auth_error(module):
 
 class FakeClient:
     """Stands in for the Anthropic or OpenAI client: models.list() raises
-    the given error, or returns nothing when there is none."""
+    `error`, messages.create() raises `call_error`, or both return nothing."""
 
-    def __init__(self, error=None):
+    def __init__(self, error=None, call_error=None):
         self.error = error
+        self.call_error = call_error
         self.models = self
+        self.messages = self
+        self.created = []
 
     def __call__(self, **kwargs):
         return self
@@ -30,10 +33,49 @@ class FakeClient:
         if self.error:
             raise self.error
 
+    def create(self, **kwargs):
+        self.created.append(kwargs)
+        if self.call_error:
+            raise self.call_error
 
-def test_valid_anthropic_key_passes(monkeypatch):
-    monkeypatch.setattr(keys.anthropic, "Anthropic", FakeClient())
+
+def no_credit_error():
+    response = httpx.Response(400, request=REQUEST)
+    return anthropic.BadRequestError(
+        "Your credit balance is too low to access the Anthropic API.", response=response, body=None
+    )
+
+
+def openai_quota_error():
+    response = httpx.Response(429, request=REQUEST)
+    error = openai.RateLimitError("You exceeded your current quota", response=response, body=None)
+    error.code = "insufficient_quota"
+    return error
+
+
+def test_valid_anthropic_key_passes_with_a_one_token_call(monkeypatch):
+    client = FakeClient()
+    monkeypatch.setattr(keys.anthropic, "Anthropic", client)
     check_key("anthropic", "sk-ant-good")
+    assert client.created[0]["max_tokens"] == 1
+
+
+def test_anthropic_account_without_credit_is_caught_before_the_build(monkeypatch):
+    monkeypatch.setattr(keys.anthropic, "Anthropic", FakeClient(call_error=no_credit_error()))
+    with pytest.raises(KeyRejected, match="Your Anthropic account has no credit left"):
+        check_key("anthropic", "sk-ant-broke")
+
+
+def test_other_errors_from_the_credit_call_do_not_block(monkeypatch):
+    response = httpx.Response(404, request=REQUEST)
+    missing = anthropic.NotFoundError("model not found", response=response, body=None)
+    monkeypatch.setattr(keys.anthropic, "Anthropic", FakeClient(call_error=missing))
+    check_key("anthropic", "sk-ant-good")
+
+
+def test_no_credit_during_a_build_gets_its_own_reason():
+    assert rejected_reason(no_credit_error()).startswith("no credit: Your Anthropic account")
+    assert rejected_reason(openai_quota_error()).startswith("no credit: Your OpenAI account")
 
 
 def test_rejected_anthropic_key_raises_a_clear_message(monkeypatch):
