@@ -3,9 +3,30 @@
   "unit_cases": [],
   "api_cases": [],
   "data_access_cases": [
-    { "id": "D1", "description": "Anyone can read entries", "table": "guestbook_entries", "as_user": "anonymous", "operation": "select", "expect": "allowed" },
-    { "id": "D2", "description": "Anyone can add an entry", "table": "guestbook_entries", "as_user": "anonymous", "operation": "insert", "expect": "allowed" },
-    { "id": "D3", "description": "Nobody can delete entries", "table": "guestbook_entries", "as_user": "anonymous", "operation": "delete", "expect": "denied" }
+    {
+      "id": "D1",
+      "description": "Anyone can read entries",
+      "table": "guestbook_entries",
+      "as_user": "anonymous",
+      "operation": "select",
+      "expect": "allowed"
+    },
+    {
+      "id": "D2",
+      "description": "Anyone can add an entry",
+      "table": "guestbook_entries",
+      "as_user": "anonymous",
+      "operation": "insert",
+      "expect": "allowed"
+    },
+    {
+      "id": "D3",
+      "description": "Nobody can delete entries",
+      "table": "guestbook_entries",
+      "as_user": "anonymous",
+      "operation": "delete",
+      "expect": "denied"
+    }
   ],
   "e2e_tests": [
     {
@@ -18,7 +39,7 @@
       "id": "E2",
       "criterion_id": "F1-AC2",
       "description": "A signed entry is saved and survives a reload",
-      "code": "import { test, expect } from '@playwright/test'\n\ntest('saves an entry', async ({ page }) => {\n  const message = `Hello from test ${Date.now()}`\n  await page.goto('/')\n  await page.getByLabel('Name').fill('Asha')\n  await page.getByLabel('Message').fill(message)\n  await page.getByRole('button', { name: 'Sign the guestbook' }).click()\n  await expect(page.getByText(message)).toBeVisible()\n  await page.reload()\n  await expect(page.getByText(message)).toBeVisible()\n})\n"
+      "code": "import { test, expect } from '@playwright/test'\n\ntest('saves an entry', async ({ page }) => {\n  const message = `Hello from test ${Date.now()}`\n  const entries = page.getByRole('list', { name: 'Entries' })\n  await page.goto('/')\n  await page.getByLabel('Name').fill('Asha')\n  await page.getByLabel('Message').fill(message)\n  await page.getByRole('button', { name: 'Sign the guestbook' }).click()\n  await expect(entries.getByText(message)).toBeVisible()\n  await page.reload()\n  await expect(entries.getByText(message)).toBeVisible()\n})\n"
     },
     {
       "id": "E3",

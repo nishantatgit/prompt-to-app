@@ -48,3 +48,11 @@ def test_build_loop_knows_how_to_use_supabase():
 def test_guides_cover_light_and_dark():
     assert "light and a dark version" in ARCHITECT_PROMPT
     assert "prefers-color-scheme: dark" in BUILDER_PROMPT
+
+
+def test_test_planner_checks_saved_data_inside_its_list():
+    from pathlib import Path
+
+    rules = (Path(__file__).parent.parent / "agents/prompts/test_planner.md").read_text()
+    assert "getByRole('list', { name: 'Entries' }).getByText(message)" in rules
+    assert "page wide search" in rules
