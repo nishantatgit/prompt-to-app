@@ -4,9 +4,9 @@ from typing import Literal
 
 
 def make_after_build_check(max_attempts: int):
-    def after_build_check(state: JobState) -> Literal["build_done", "builder", "__end__"]:
+    def after_build_check(state: JobState) -> Literal["migrations", "builder", "__end__"]:
         if state.get("build_ok"):
-            return "build_done"  # later: the test step
+            return "migrations"
         if state.get("build_log", "").startswith("yarn install failed"):
             return END  # environment problem, not the code
         if state.get("builder_attempts", 0) < max_attempts:
