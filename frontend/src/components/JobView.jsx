@@ -15,6 +15,7 @@ const FINISHED = new Set(['succeeded', 'failed', 'rejected'])
 
 function failureHeading(job) {
   if (job.status === 'rejected') return 'Vyskar could not build this request.'
+  if (job.reason?.startsWith('key rejected')) return 'Your API key did not work.'
   if (job.reason?.startsWith('internal error')) return 'Something went wrong on our side.'
   return 'The app did not pass its checks.'
 }
@@ -109,7 +110,9 @@ export default function JobView({ jobId, onDone }) {
       {(job?.status === 'failed' || job?.status === 'rejected') && (
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">{failureHeading(job)}</p>
-          <p className="text-sm leading-relaxed text-muted">{job.reason}</p>
+          <p className="text-sm leading-relaxed text-muted">
+            {job.reason?.replace(/^key rejected: /, '')}
+          </p>
           {job.test_summary && (
             <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 font-mono text-xs text-dim">{job.test_summary}</pre>
           )}
