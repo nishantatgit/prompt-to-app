@@ -23,3 +23,8 @@ def test_build_loop_gets_the_building_guide():
 
     assert "Visual design: building" in LOOP_PROMPT
     assert "edit_file" in LOOP_PROMPT
+
+
+def test_guides_cover_light_and_dark():
+    assert "light and a dark version" in ARCHITECT_PROMPT
+    assert "prefers-color-scheme: dark" in BUILDER_PROMPT

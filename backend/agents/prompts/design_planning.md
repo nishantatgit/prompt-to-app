@@ -24,3 +24,6 @@ default you would give any app.
    ones with clear roles.
 5. Put the boldness in one place, the most characteristic part of this app,
    and keep everything around it calm.
+6. Plan a light and a dark version of the palette. The dark version is
+   designed, not inverted: keep text readable and keep the accent working on
+   the dark background, adjusting its lightness if needed.

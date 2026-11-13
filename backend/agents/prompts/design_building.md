@@ -31,6 +31,17 @@ Content
   sent"). Errors say what went wrong and how to fix it, without apologizing.
   An empty screen says what to do next.
 
+Light and dark
+- The app follows the device's light or dark setting. Define every color as a
+  token in src/index.css, then give the dark values in the same file:
+  @media (prefers-color-scheme: dark) { :root { --color-surface: ...; } }
+  redefines only the tokens. Components use the tokens and never set a color
+  of their own, so they change with the theme.
+- Set the page background and text color on body from the tokens.
+- Check text contrast in both themes: at least 4.5:1 for text, 3:1 for icons,
+  borders of inputs and chart marks.
+- Native controls follow the theme with color-scheme: light dark on :root.
+
 Motion
 - One deliberate moment, such as a result appearing, is better than effects
   on every element.
