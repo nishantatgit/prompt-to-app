@@ -31,7 +31,7 @@ PRODUCT=$(echo "$PRODUCTS" | jq -r '.products[0].slug // .products[0].id // empt
 
 echo "== storage endpoints in the OpenAPI spec"
 curl -sS https://vercel.com/openapi.json -o /tmp/openapi.json
-jq -r '.paths | to_entries[] | select(.key | test("storage/stores|integrations/installations/.*/resources")) | .key as $p | .value | keys[] | "\(.) \($p)"' /tmp/openapi.json | grep -iv parameters
+jq -r '.paths | to_entries[] | select(.key | test("stores|resources|installations")) | .key as $p | .value | keys[] | "\(.) \($p)"' /tmp/openapi.json | grep -iv parameters
 
 [ "${CREATE:-}" != "1" ] && exit 0
 echo "== create a test store"
@@ -39,4 +39,10 @@ NAME="vyskar-spike-$(date +%s)"
 RES=$(curl -sS "${auth[@]}" -H 'Content-Type: application/json' -X POST "$API/v1/storage/stores/integration/direct$Q" \
   -d "{\"name\":\"$NAME\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"$PRODUCT\"}")
 echo "$RES" | jq '{error, store: (.store | if . then {id, name, status, externalResourceId, billingPlan: .billingPlan.name, secretNames: [.secrets[]?.name]} else null end)}'
-echo "$RES" | jq -r '.store.id // empty' > /tmp/store_id
+SID=$(echo "$RES" | jq -r '.store.id // empty')
+[ -z "$SID" ] && exit 0
+for i in $(seq 1 30); do
+  ST=$(get "/storage/stores/$SID$Q" | jq -r '.store.status // .status // "unknown"')
+  echo "status after $((i*10))s: $ST"; [ "$ST" = "available" ] && break; sleep 10
+done
+get "/storage/stores/$SID$Q" | jq '(.store // .) | {id, name, status, externalResourceId, secretNames: [.secrets[]?.name]}' 
