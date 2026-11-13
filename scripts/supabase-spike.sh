@@ -24,12 +24,14 @@ for i in 1 2 3 4 5 6 7 8; do psql "$PG" -qtAc "select 1" >/dev/null 2>&1 && brea
 echo "migration: $(psql "$PG" -v ON_ERROR_STOP=1 -q -f scripts/001_guestbook.sql 2>&1 | head -3 || true)done"
 echo "grants: $(psql "$PG" -tAc "select string_agg(grantee||':'||privilege_type, ', ') from information_schema.role_table_grants where table_name='guestbook_entries'")"
 echo "default privileges for anon on public: $(psql "$PG" -tAc "select count(*) from pg_default_acl")"
-sleep 5
-for KEY in "$ANON" "$PUB"; do
-  echo "-- key starting ${KEY:0:6}"
-  echo "select: $(curl -sS -w ' %{http_code}' "$URL/rest/v1/guestbook_entries?select=id" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" | cut -c1-300)"
-  echo "insert: $(curl -sS -w ' %{http_code}' -X POST "$URL/rest/v1/guestbook_entries" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' -H 'Prefer: return=minimal' -d '{"name":"Asha","message":"hello"}' | cut -c1-400)"
-  echo "insert with apikey only: $(curl -sS -w ' %{http_code}' -X POST "$URL/rest/v1/guestbook_entries" -H "apikey: $KEY" -H 'Content-Type: application/json' -H 'Prefer: return=minimal' -d '{"name":"Asha","message":"hello"}' | cut -c1-400)"
-done
-echo "rows now: $(psql "$PG" -tAc 'select count(*) from guestbook_entries')"
+echo "== build the stub app with this database"
+W=/tmp/app && rm -rf $W && git show origin/feat/supabase-build:backend/templates/react-vite/package.json >/dev/null 2>&1
+git fetch -q origin feat/supabase-build && mkdir -p $W && git archive origin/feat/supabase-build backend/templates/react-vite | tar -x -C /tmp && cp -r /tmp/backend/templates/react-vite/. $W/
+mkdir -p $W/src/lib $W/tests && cp scripts/guestbook/guestbook.jsx $W/src/App.jsx && cp scripts/guestbook/supabase.js $W/src/lib/supabase.js
+printf "VITE_SUPABASE_URL=%s\nVITE_SUPABASE_ANON_KEY=%s\n" "$URL" "$ANON" > $W/.env.local
+jq -r '.e2e_tests[] | select(.id=="E2") | .code' scripts/guestbook/test_planner.json > $W/tests/e2.spec.js
+cd $W && yarn install --silent >/dev/null 2>&1 && yarn -s build >/dev/null 2>&1 && echo "built" && npx playwright install --with-deps chromium >/dev/null 2>&1
+PORT=4300 yarn -s playwright test --reporter=line 2>&1 | grep -vE "^\s*$" | tail -12
+for f in test-results/*/error-context.md; do echo "== $f"; sed -n '/Page snapshot/,$p' "$f" | head -40; done
+cd - >/dev/null
 echo "cleanup: disconnect $(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" -X DELETE "$API/v1/storage/stores/$SID/connections?teamId=$TEAM"), delete $(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" -X DELETE "$API/v1/storage/stores/integration/$SID?teamId=$TEAM")"
