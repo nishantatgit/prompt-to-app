@@ -20,6 +20,24 @@ function failureHeading(job) {
   return 'The app did not pass its checks.'
 }
 
+// The build loop's latest steps, such as "Writing src/App.jsx" or "Build 1 failed,
+// fixing it". Only loop jobs have them; pipeline jobs show the steps alone.
+const ACTIVITY_SHOWN = 6
+
+function LoopActivity({ job }) {
+  if (job?.builder_mode !== 'loop' || !job.activity?.length) return null
+  const recent = job.activity.slice(-ACTIVITY_SHOWN)
+  return (
+    <ul aria-label="Build steps" className="mt-2 ml-[1.375rem] flex flex-col gap-1 border-l border-line pl-3 text-xs">
+      {recent.map((text, i) => (
+        <li key={job.activity.length - recent.length + i} className={i === recent.length - 1 ? 'text-fg' : 'text-dim'}>
+          {text}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export default function JobView({ jobId, onDone }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
@@ -78,14 +96,17 @@ export default function JobView({ jobId, onDone }) {
             const done = i < reached
             const current = i === reached
             return (
-              <li key={stage} className="flex items-center gap-3 py-1.5">
-                <span
-                  aria-hidden="true"
-                  className={`h-2.5 w-2.5 rounded-full ${
-                    done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
-                  }`}
-                />
-                <span className={done || current ? 'text-fg' : 'text-dim'}>{stage}</span>
+              <li key={stage} className="py-1.5">
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
+                    }`}
+                  />
+                  <span className={done || current ? 'text-fg' : 'text-dim'}>{stage}</span>
+                </div>
+                {stage === 'building' && <LoopActivity job={job} />}
               </li>
             )
           })}

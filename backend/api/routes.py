@@ -107,7 +107,7 @@ def build(
         builder_mode=settings.builder_mode,
     )
     job_id = new_job_id()
-    create_job(job_id, req.prompt)
+    create_job(job_id, req.prompt, settings.builder_mode)
     submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
     return {"job_id": job_id}
 

@@ -11,6 +11,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langgraph.config import get_stream_writer
 
 from agents.build_check import build_check
 from tools.file_tools import make_file_tools
@@ -26,6 +27,29 @@ PROMPT = "\n".join(
 LOG_CHARS = 4000
 WRITE_TOOLS = {"write_file", "edit_file"}
 
+# What each tool call looks like in the job view's activity list.
+ACTIVITY = {
+    "write_file": "Writing {path}",
+    "edit_file": "Editing {path}",
+    "read_file": "Reading {path}",
+    "list_files": "Looking at the project files",
+}
+
+
+def _reporter() -> Callable[[str], None]:
+    """Sends a line to the job's activity list while the graph streams. Outside
+    a graph run, such as in unit tests, the lines go nowhere."""
+    try:
+        writer = get_stream_writer()
+    except RuntimeError:
+        return lambda text: None
+    return lambda text: writer({"activity": text})
+
+
+def describe(call: dict) -> str:
+    template = ACTIVITY.get(call["name"], "Using {name}")
+    return template.format(name=call["name"], path=call["args"].get("path", "a file"))
+
 
 def make_build_loop(
     llm,
@@ -34,6 +58,7 @@ def make_build_loop(
     build: Callable[[dict], dict] = build_check,
 ):
     def build_loop(state: dict) -> dict:
+        report = _reporter()
         sandbox = Sandbox(Path(state["workspace_dir"]))
         tools = {tool.name: tool for tool in make_file_tools(sandbox)}
         model = llm.bind_tools(list(tools.values()))
@@ -53,6 +78,7 @@ def make_build_loop(
 
             if response.tool_calls:
                 for call in response.tool_calls:
+                    report(describe(call))
                     tool = tools.get(call["name"])
                     if tool is None:
                         messages.append(
@@ -70,7 +96,14 @@ def make_build_loop(
 
             # No tool call: the model says it is done. The build decides.
             builds += 1
+            report(f"Running build {builds} of {max_builds}")
             result = build({"workspace_dir": state["workspace_dir"]})
+            if result["build_ok"]:
+                report("Build passed")
+            elif builds < max_builds:
+                report(f"Build {builds} failed, fixing it")
+            else:
+                report(f"Build {builds} failed, no attempts left")
             if result["build_ok"] or builds >= max_builds:
                 return _finish(result, written, builds, turn)
             messages.append(
@@ -81,6 +114,7 @@ def make_build_loop(
                 )
             )
 
+        report(f"Stopped after {max_turns} turns without a passing build")
         log = f"Stopped after {max_turns} model turns without a passing build."
         if result["build_log"]:
             log += "\n\nLast build log:\n" + result["build_log"]
