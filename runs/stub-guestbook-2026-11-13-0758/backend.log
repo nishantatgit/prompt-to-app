@@ -1,0 +1,14 @@
+INFO:     Started server process [3163]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[startup] .env loaded from /home/runner/work/prompt-to-app/prompt-to-app/backend/.env: False | LANGSMITH_TRACING=None | LANGSMITH_PROJECT=None
+INFO:     127.0.0.1:56428 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56440 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:41732 - "GET /api/jobs/26-11-13-1794556673-9bd78ee96c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44114 - "GET /api/jobs/26-11-13-1794556673-9bd78ee96c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54360 - "GET /api/jobs/26-11-13-1794556673-9bd78ee96c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59568 - "GET /api/jobs/26-11-13-1794556673-9bd78ee96c HTTP/1.1" 200 OK
+attachment_name :  error-context
+attachment_name :  trace
+INFO:     127.0.0.1:36468 - "GET /api/jobs/26-11-13-1794556673-9bd78ee96c HTTP/1.1" 200 OK

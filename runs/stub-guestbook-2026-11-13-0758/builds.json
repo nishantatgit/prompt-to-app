@@ -1,0 +1,13 @@
+[
+  {
+    "id": 11,
+    "slug": "guestbook",
+    "job_id": "26-11-13-1794556673-9bd78ee96c",
+    "status": "failed",
+    "reason": "Vercel 402: {\"error\":{\"code\":\"payment_required\",\"message\":\"Resource is limited - try again in 24 hours (more than 100, code: \\\"api-deployments-free-per-day\\\").\",\"limit\":{\"total\":100,\"remaining\":0,\"reset\":1794643117205},\"resource\":\"api-deployments-free-per-day\"}}",
+    "deploy_url": "",
+    "confidence": 66.7,
+    "database_name": "guestbook-visitors-leave-9bd78e",
+    "seconds": 50
+  }
+]
