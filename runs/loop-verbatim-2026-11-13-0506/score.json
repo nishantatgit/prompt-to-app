@@ -1,0 +1,71 @@
+{
+  "label": "loop-verbatim",
+  "score": "3/5",
+  "passed": 3,
+  "total": 5,
+  "broken_greens": 1,
+  "apps": [
+    {
+      "id": 1,
+      "slug": "portfolio",
+      "result": "pass",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 7,
+      "tests_run": 7,
+      "failed": []
+    },
+    {
+      "id": 2,
+      "slug": "bakery-landing",
+      "result": "fail",
+      "confidence": 82.8,
+      "broken_green": false,
+      "tests_passed": 8,
+      "tests_run": 10,
+      "failed": [
+        "opens with a hero image, video or gradient placeholder",
+        "shows a menu with at least 3 items"
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "tip-calculator",
+      "result": "pass",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 6,
+      "tests_run": 6,
+      "failed": []
+    },
+    {
+      "id": 4,
+      "slug": "pomodoro-timer",
+      "result": "pass",
+      "confidence": 66.7,
+      "broken_green": false,
+      "tests_passed": 12,
+      "tests_run": 12,
+      "failed": []
+    },
+    {
+      "id": 5,
+      "slug": "unit-converter",
+      "result": "fail",
+      "confidence": 100,
+      "broken_green": true,
+      "tests_passed": 4,
+      "tests_run": 12,
+      "failed": [
+        "converts km to miles",
+        "converts miles to km",
+        "converts kg to lb",
+        "converts lb to kg",
+        "converts °C to °F",
+        "converts °F to °C",
+        "converts a negative temperature",
+        "refuses non-numeric input"
+      ]
+    }
+  ]
+}
