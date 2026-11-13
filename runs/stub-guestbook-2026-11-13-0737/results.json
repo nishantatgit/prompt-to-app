@@ -1,0 +1,378 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.4/x64/bin/node",
+      "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "@app11"
+    ],
+    "configFile": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/playwright.config.ts",
+    "rootDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+        "commitHash": "48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+        "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43386963755"
+      },
+      "gitCommit": {
+        "shortHash": "48e3f19",
+        "hash": "48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+        "subject": "ci: stub guestbook run against a real Supabase database [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+        "body": "ci: stub guestbook run against a real Supabase database [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+        "author": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794555386000
+        },
+        "committer": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794555386000
+        },
+        "branch": "run-benchmark"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+            "commitHash": "48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43386963755"
+          },
+          "gitCommit": {
+            "shortHash": "48e3f19",
+            "hash": "48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+            "subject": "ci: stub guestbook run against a real Supabase database [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+            "body": "ci: stub guestbook run against a real Supabase database [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794555386000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794555386000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+            "commitHash": "48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43386963755"
+          },
+          "gitCommit": {
+            "shortHash": "48e3f19",
+            "hash": "48e3f19c9c1893e7bdb03821b8172e41bc44e79d",
+            "subject": "ci: stub guestbook run against a real Supabase database [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+            "body": "ci: stub guestbook run against a real Supabase database [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794555386000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794555386000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "snapshotDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "screenshot": "on",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "results/latest/report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/latest/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "common/common.spec.ts",
+      "file": "common/common.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#11 guestbook | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "line": 10,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-13T07:37:23.854Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "line": 10,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-0c7680e3f7e4866928dc",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "line": 10,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-13T07:37:23.855Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "line": 10,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-b3699c7db7eb3cc4c862",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not deployed yet",
+                      "location": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "line": 10,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-13T07:37:23.855Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not deployed yet",
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "line": 10,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-ff4d405624308a1a0fe6",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-13T07:37:23.628Z",
+    "duration": 227.78499999999997,
+    "expected": 0,
+    "skipped": 3,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

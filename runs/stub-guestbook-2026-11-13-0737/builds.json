@@ -1,0 +1,12 @@
+[
+  {
+    "id": 11,
+    "slug": "guestbook",
+    "job_id": "26-11-13-1794555432-1e86930a25",
+    "status": "failed",
+    "reason": "internal error: At key 'errors': Can receive only one value per step. Use an Annotated key to handle multiple values.\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/INVALID_CONCURRENT_GRAPH_UPDATE",
+    "deploy_url": "",
+    "confidence": null,
+    "seconds": 10
+  }
+]
