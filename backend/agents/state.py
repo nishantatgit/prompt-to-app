@@ -26,6 +26,10 @@ class JobState(TypedDict, total=False):
     builder_attempts: int
     loop_turns: int
     build_ok: bool
+
+    database_name: str
+    database_error: str
+    migrations_applied: list[str]
     build_log: str
 
     tests_ok: bool
