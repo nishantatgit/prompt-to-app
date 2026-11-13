@@ -37,6 +37,22 @@ def test_frontend_design_skill_is_verbatim():
         assert skill in prompt
 
 
+def test_build_loop_knows_how_to_use_supabase():
+    from agents.build_loop import PROMPT as LOOP_PROMPT
+
+    assert "import.meta.env.VITE_SUPABASE_ANON_KEY" in LOOP_PROMPT
+    assert "supabase/migrations/*.sql" in LOOP_PROMPT
+    assert "api/index.py is a FastAPI app" in LOOP_PROMPT
+
+
 def test_guides_cover_light_and_dark():
     assert "light and a dark version" in ARCHITECT_PROMPT
     assert "prefers-color-scheme: dark" in BUILDER_PROMPT
+
+
+def test_test_planner_checks_saved_data_inside_its_list():
+    from pathlib import Path
+
+    rules = (Path(__file__).parent.parent / "agents/prompts/test_planner.md").read_text()
+    assert "getByRole('list', { name: 'Entries' }).getByText(message)" in rules
+    assert "never with a page wide getByText" in " ".join(rules.split())

@@ -86,12 +86,15 @@ async function buildOne(app) {
     reason: job.reason,
     deploy_url: job.deploy_url || '',
     confidence: job.confidence ?? null,
+    database_name: job.database_name || '',
+    test_summary: job.test_summary || '',
     seconds: Math.round((Date.now() - started) / 1000),
   }
 }
 
 // Build every app in order, then record the URLs. Returns one entry per app.
-export async function buildAll(apps) {
+// afterEach(app, build) runs once each app is built, before the next starts.
+export async function buildAll(apps, afterEach = async () => {}) {
   if (!KEY) throw new Error('Set LLM_API_KEY to your provider key first.')
   console.log(`Building ${apps.length} apps with ${PROVIDER} via ${API}\n`)
 
@@ -104,6 +107,10 @@ export async function buildAll(apps) {
     }
     const last = builds.at(-1)
     console.log(`#${app.id} ${app.slug}: ${last.status} ${last.deploy_url || last.reason}\n`)
+    const deployments = readJson('deployments.json')
+    deployments[String(last.id)] = last.deploy_url
+    writeJson('deployments.json', deployments)
+    await afterEach(app, last)
   }
 
   // Keep other apps' URLs. An app that failed this run gets an empty URL, so

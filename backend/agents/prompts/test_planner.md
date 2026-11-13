@@ -129,6 +129,10 @@ Rules:
   such as "275.00".
 - Persistence: perform the action, reload, then expect the data is still
   there. Only when storage is not "none".
+- Look for saved or added data inside the element that shows it, such as
+  `getByRole('list', { name: 'Entries' }).getByText(message)`, never with a
+  page wide getByText. Text just typed into a field also matches a page wide
+  search, so the test would pass before anything was saved.
 - Privacy: login_as user_a and create data, then login_as user_b and
   expect_no_text for that data.
 - Include at least one test with set_viewport size "small" for the main

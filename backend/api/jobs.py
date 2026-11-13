@@ -16,9 +16,11 @@ STAGES = {
     "analyst": "requirements",
     "architect": "architecture",
     "setup_workspace": "setting up",
+    "database": "setting up",
     "builder": "building",
     "build_check": "building",
     "build_done": "building",
+    "migrations": "building",
     "test_planner": "planning tests",
     "write_test": "planning tests",
     "test_executor": "testing",
@@ -102,6 +104,7 @@ def _outcome(state: dict) -> tuple[str, str]:
         return "succeeded", ""
     reason = (
         state.get("deploy_error")
+        or state.get("database_error")
         or "; ".join(state.get("errors") or [])
         or ("build failed" if state.get("build_ok") is False else "stopped early")
     )
@@ -154,6 +157,7 @@ def public_view(job: dict) -> dict:
         "builder_mode": job.get("builder_mode", "pipeline"),
         "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
+        "database_name": state.get("database_name", ""),
         "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),
     }
