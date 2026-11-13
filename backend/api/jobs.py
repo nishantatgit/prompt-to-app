@@ -23,6 +23,9 @@ STAGES = {
     "deploy": "deploying",
 }
 
+# The job view shows the build loop's latest steps; older ones are dropped.
+MAX_ACTIVITY = 50
+
 MAX_ACTIVE_JOBS = int(os.getenv("MAX_ACTIVE_JOBS", "6"))
 FINISHED_STATUSES = {"succeeded", "failed", "rejected"}
 
@@ -36,7 +39,7 @@ def has_capacity() -> bool:
     return active_job_count() < MAX_ACTIVE_JOBS
 
 
-def create_job(job_id: str, prompt: str) -> None:
+def create_job(job_id: str, prompt: str, builder_mode: str = "pipeline") -> None:
     with _lock:
         _jobs[job_id] = {
             "job_id": job_id,
@@ -44,6 +47,8 @@ def create_job(job_id: str, prompt: str) -> None:
             "status": "queued",
             "stage": None,
             "reason": "",
+            "builder_mode": builder_mode,
+            "activity": [],
             "created_at": time.time(),
             "state": {},
         }
@@ -58,6 +63,14 @@ def get_job(job_id: str) -> dict | None:
 def _update(job_id: str, **fields) -> None:
     with _lock:
         _jobs[job_id].update(fields)
+
+
+def _add_activity(job_id: str, text: str) -> None:
+    """One step of the build loop. The loop runs while the job is building."""
+    with _lock:
+        job = _jobs[job_id]
+        job["activity"] = (job["activity"] + [text])[-MAX_ACTIVITY:]
+        job["stage"] = "building"
 
 
 def _outcome(state: dict) -> tuple[str, str]:
@@ -77,10 +90,14 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
     _update(job_id, status="running")
     state = {"prompt": prompt, "job_id": job_id}
     try:
-        for update in graph.stream(
-            dict(state), {"recursion_limit": recursion_limit}, stream_mode="updates"
+        for mode, chunk in graph.stream(
+            dict(state), {"recursion_limit": recursion_limit}, stream_mode=["updates", "custom"]
         ):
-            for node, values in update.items():
+            if mode == "custom":
+                if "activity" in chunk:
+                    _add_activity(job_id, chunk["activity"])
+                continue
+            for node, values in chunk.items():
                 state.update(values or {})
                 _update(job_id, stage=STAGES.get(node, node), state=dict(state))
         status, reason = _outcome(state)
@@ -100,6 +117,8 @@ def public_view(job: dict) -> dict:
         "status": job["status"],
         "stage": job["stage"],
         "reason": job["reason"],
+        "builder_mode": job.get("builder_mode", "pipeline"),
+        "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
         "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),
