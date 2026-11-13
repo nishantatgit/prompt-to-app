@@ -1,53 +1,51 @@
 #!/usr/bin/env bash
-# Checks that Vyskar can create a Supabase database through Vercel's API.
-# Prints only IDs, names and statuses, never secret values.
+# Phase 2: how does Vyskar get a new database's keys? Prints only names,
+# lengths and statuses, never secret values.
 set -uo pipefail
 API=https://api.vercel.com
+TEAM=team_71xyHRYPaRkkn2kQ99UT0mDP
+CFG=icfg_OSg4qJPPHnK2vActpSWCUuaE
 auth=(-H "Authorization: Bearer $VERCEL_TOKEN")
 get() { curl -sS "${auth[@]}" "$API$1"; }
+post() { curl -sS "${auth[@]}" -H 'Content-Type: application/json' -X POST "$API$1" -d "$2"; }
 
-echo "== user and default team"
-get /v2/user | jq '{username: .user.username, defaultTeamId: .user.defaultTeamId}'
-TEAM=$(get /v2/user | jq -r '.user.defaultTeamId // empty')
-Q=${TEAM:+?teamId=$TEAM}
-echo "== teams"
-get /v2/teams | jq '[.teams[]? | {id, slug, name}]'
-
-echo "== integration configurations"
-for q in "view=account&teamId=$TEAM" "view=project&teamId=$TEAM" "view=account" "view=account&installationType=marketplace&teamId=$TEAM"; do
-  echo "-- $q"; get "/v1/integrations/configurations?$q" | jq -c '[.[]? | {id, slug, integrationId, installationType, source}] // .'
-done
-echo "-- stores"; get "/v1/storage/stores$Q" | jq -c '[.stores[]? | {id, name, type, product: .product.slug}] // .'
-CONFIGS=$(for q in "view=account&teamId=$TEAM" "view=project&teamId=$TEAM"; do get "/v1/integrations/configurations?$q"; done | jq -s 'add')
-echo "$CONFIGS" | jq '[.[]? | {id, slug, integrationId, ownerId, source}] // .'
-CFG=$(echo "$CONFIGS" | jq -r '[.[]? | select(.slug | test("supabase"; "i"))][0].id // empty')
-echo "supabase configuration: ${CFG:-NOT FOUND}"
-[ -z "$CFG" ] && exit 0
-
-echo "== products"
-PRODUCTS=$(get "/v1/integrations/configuration/$CFG/products$Q")
-echo "$PRODUCTS" | jq '[.products[]? | {id, slug, name, protocols: (.protocols|keys?)}] // .'
-PRODUCT=$(echo "$PRODUCTS" | jq -r '.products[0].slug // .products[0].id // empty')
-echo "== metadata schema"
-echo "$PRODUCTS" | jq '.products[0].metadataSchema'
-REGIONS=$(echo "$PRODUCTS" | jq -r '.products[0].metadataSchema.properties.region | (.enum // [.items.enum[]?] // [.options[]?.value] // []) | .[]' 2>/dev/null)
-REGION=$(echo "$REGIONS" | grep -iE "ap-south|bom|mumbai" | head -1); REGION=${REGION:-$(echo "$REGIONS" | head -1)}
-echo "region: ${REGION:-none found}"
-
-[ -n "${SKIP_SPEC:-}" ] || { echo "== storage endpoints in the OpenAPI spec"
+echo "== request schemas"
 curl -sS https://vercel.com/openapi.json -o /tmp/openapi.json
-jq -r '.paths | to_entries[] | select(.key | test("stores|resources|installations")) | .key as $p | .value | keys[] | "\(.) \($p)"' /tmp/openapi.json | grep -iv parameters; }
+for p in '/v1/integrations/installations/{integrationConfigurationId}/resources/{resourceId}/connections' '/v10/projects/{idOrName}/env/{id}' '/v1/projects/{idOrName}/env/{id}'; do
+  echo "-- $p"; jq -c --arg p "$p" '.paths[$p] | to_entries[]? | {method: .key, params: [.value.parameters[]?.name], body: .value.requestBody.content["application/json"].schema}' /tmp/openapi.json | cut -c1-1500
+done
+jq -r '.paths | keys[] | select(test("projects/\\{idOrName\\}/env"))' /tmp/openapi.json
 
 [ "${CREATE:-}" != "1" ] && exit 0
-echo "== create a test store"
-NAME="vyskar-spike-$(date +%s)"
-RES=$(curl -sS "${auth[@]}" -H 'Content-Type: application/json' -X POST "$API/v1/storage/stores/integration/direct$Q" \
-  -d "{\"name\":\"$NAME\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"$PRODUCT\",\"metadata\":{\"region\":\"bom1\",\"publicEnvVarPrefix\":\"VITE_\"}}")
-echo "$RES" | jq '{error, store: (.store | if . then {id, name, status, externalResourceId, billingPlan: .billingPlan.name, secretNames: [.secrets[]?.name]} else null end)}'
-SID=$(echo "$RES" | jq -r '.store.id // empty')
-[ -z "$SID" ] && exit 0
-for i in $(seq 1 30); do
-  ST=$(get "/storage/stores/$SID$Q" | jq -r '.store.status // .status // "unknown"')
-  echo "status after $((i*10))s: $ST"; [ "$ST" = "available" ] && break; sleep 10
+echo "== project"
+PROJ=$(post "/v11/projects?teamId=$TEAM" '{"name":"vyskar-db-spike","framework":"vite"}')
+PID=$(echo "$PROJ" | jq -r '.id // empty'); [ -z "$PID" ] && PID=$(get "/v9/projects/vyskar-db-spike?teamId=$TEAM" | jq -r .id)
+echo "project: $PID"
+echo "== store (reuse vyskar-db-spike if it exists)"
+SID=$(get "/v1/storage/stores?teamId=$TEAM" | jq -r '.stores[]? | select(.name=="vyskar-db-spike") | .id' | head -1)
+if [ -z "$SID" ]; then
+  RES=$(post "/v1/storage/stores/integration/direct?teamId=$TEAM" "{\"name\":\"vyskar-db-spike\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"supabase\",\"metadata\":{\"region\":\"bom1\",\"publicEnvVarPrefix\":\"VITE_\"}}")
+  echo "$RES" | jq -c '{error, id: .store.id, status: .store.status}'
+  SID=$(echo "$RES" | jq -r '.store.id // empty')
+fi
+echo "store: $SID"
+STORE=$(get "/storage/stores/$SID?teamId=$TEAM")
+RID=$(echo "$STORE" | jq -r '(.store // .) | .externalResourceId')
+echo "$STORE" | jq -c '(.store // .) | {status, externalResourceId, targets, projects: [.projectsMetadata[]?.projectId]}'
+echo "== connect"
+for body in "{\"projectId\":\"$PID\"}" "{\"projectId\":\"$PID\",\"environments\":[\"production\",\"preview\",\"development\"]}"; do
+  for rid in "$SID" "$RID"; do
+    R=$(post "/v1/integrations/installations/$CFG/resources/$rid/connections?teamId=$TEAM" "$body")
+    echo "resource=$rid body=$body -> $(echo "$R" | jq -c '{error: .error.message} // .' | cut -c1-300)"
+  done
 done
-get "/storage/stores/$SID$Q" | jq '(.store // .) | {id, name, status, externalResourceId, secretNames: [.secrets[]?.name]}' 
+echo "== project env vars"
+get "/v10/projects/$PID/env?teamId=$TEAM&decrypt=true" | jq -c '[.envs[]? | {key, type, target, valueLength: (.value // "" | length), decrypted}]'
+echo "== try postgres"
+URL=$(get "/v10/projects/$PID/env?teamId=$TEAM&decrypt=true" | jq -r '.envs[]? | select(.key=="POSTGRES_URL_NON_POOLING") | .value' | head -1)
+if [ -n "$URL" ] && [ "${#URL}" -gt 20 ]; then
+  sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1
+  psql "$URL" -tAc "select 'connected', current_database(), version()" 2>&1 | cut -c1-120
+else
+  echo "no usable POSTGRES_URL_NON_POOLING value (length ${#URL})"
+fi
