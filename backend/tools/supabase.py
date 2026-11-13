@@ -141,13 +141,28 @@ def migration_files(job_dir: Path) -> list[Path]:
     return sorted((Path(job_dir) / "supabase" / "migrations").glob("*.sql"))
 
 
+def wait_for_connection(database_url: str, connect=psycopg.connect, timeout: int = 120):
+    """A new database is reported available a little before Postgres accepts
+    connections, so connecting is retried. Errors in the SQL itself are not."""
+    deadline = time.monotonic() + timeout
+    delay = 2
+    while True:
+        try:
+            return connect(database_url, autocommit=False)
+        except psycopg.OperationalError:
+            if time.monotonic() + delay > deadline:
+                raise
+            time.sleep(delay)
+            delay = min(delay * 2, 15)
+
+
 def apply_migrations(database_url: str, job_dir: Path, connect=psycopg.connect) -> list[str]:
     """Run each migration in its own transaction, in file name order. Raises
     with the file's name when one fails, and stops there."""
     applied = []
     for path in migration_files(job_dir):
         try:
-            with connect(database_url, autocommit=False) as conn:
+            with wait_for_connection(database_url, connect) as conn:
                 conn.execute(path.read_text())
         except Exception as error:
             raise RuntimeError(f"{path.name}: {error}") from error

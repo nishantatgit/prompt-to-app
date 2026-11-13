@@ -167,3 +167,34 @@ def test_a_failing_migration_names_its_file_and_stops(tmp_path):
 
 def test_no_migrations_folder_applies_nothing(tmp_path):
     assert supabase.apply_migrations("postgres://x", tmp_path) == []
+
+
+def test_connecting_is_retried_while_the_new_database_starts(tmp_path, monkeypatch):
+    import psycopg
+
+    migrations(tmp_path, {"001_tables.sql": "create table"})
+    log, attempts = [], []
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+
+    def connect(url, autocommit):
+        attempts.append(url)
+        if len(attempts) < 3:
+            raise psycopg.OperationalError("failed to check out a connection")
+        return FakeConnection(log)
+
+    assert supabase.apply_migrations("postgres://x", tmp_path, connect=connect) == ["001_tables.sql"]
+    assert len(attempts) == 3
+
+
+def test_connecting_gives_up_after_the_timeout(monkeypatch):
+    import psycopg
+
+    clock = iter(range(0, 1000, 30))
+    monkeypatch.setattr(supabase.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+
+    def connect(url, autocommit):
+        raise psycopg.OperationalError("still starting")
+
+    with pytest.raises(psycopg.OperationalError):
+        supabase.wait_for_connection("postgres://x", connect, timeout=120)
