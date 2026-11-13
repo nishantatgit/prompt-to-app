@@ -55,7 +55,7 @@ def test_creates_the_database_and_keeps_keys_out_of_state(tmp_path):
 def test_missing_setup_ends_the_job_with_a_clear_reason(tmp_path):
     out = make_database(None, "icfg_1")(job(tmp_path))
     assert out["database_error"] == NOT_SET_UP
-    assert out["errors"] == [NOT_SET_UP]
+    assert "errors" not in out  # runs alongside the test planner
     assert after_database(out) == "__end__"
 
 
@@ -91,3 +91,11 @@ def test_a_failed_migration_ends_the_job(tmp_path):
     out = make_migrations(apply=apply)(job(tmp_path))
     assert out["database_error"] == "A database migration failed: 002_policies.sql: syntax error"
     assert after_migrations(out) == "__end__"
+
+
+def test_a_database_failure_is_the_jobs_reason():
+    from api.jobs import _outcome
+
+    status, reason = _outcome({"database_error": "Could not create the app's database: Vercel 402"})
+    assert status == "failed"
+    assert reason == "Could not create the app's database: Vercel 402"
