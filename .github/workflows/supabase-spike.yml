@@ -12,6 +12,7 @@ jobs:
       - name: Run the check
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SKIP_SPEC: "1"
           CREATE: ${{ contains(github.event.head_commit.message, '[create]') && '1' || '' }}
         run: scripts/supabase-spike.sh > spike-output.txt 2>&1; cat spike-output.txt
       - name: Save the output

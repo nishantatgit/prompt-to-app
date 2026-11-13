@@ -28,16 +28,21 @@ echo "== products"
 PRODUCTS=$(get "/v1/integrations/configuration/$CFG/products$Q")
 echo "$PRODUCTS" | jq '[.products[]? | {id, slug, name, protocols: (.protocols|keys?)}] // .'
 PRODUCT=$(echo "$PRODUCTS" | jq -r '.products[0].slug // .products[0].id // empty')
+echo "== metadata schema"
+echo "$PRODUCTS" | jq '.products[0].metadataSchema'
+REGIONS=$(echo "$PRODUCTS" | jq -r '.products[0].metadataSchema.properties.region | (.enum // [.items.enum[]?] // [.options[]?.value] // []) | .[]' 2>/dev/null)
+REGION=$(echo "$REGIONS" | grep -iE "ap-south|bom|mumbai" | head -1); REGION=${REGION:-$(echo "$REGIONS" | head -1)}
+echo "region: ${REGION:-none found}"
 
-echo "== storage endpoints in the OpenAPI spec"
+[ -n "${SKIP_SPEC:-}" ] || { echo "== storage endpoints in the OpenAPI spec"
 curl -sS https://vercel.com/openapi.json -o /tmp/openapi.json
-jq -r '.paths | to_entries[] | select(.key | test("stores|resources|installations")) | .key as $p | .value | keys[] | "\(.) \($p)"' /tmp/openapi.json | grep -iv parameters
+jq -r '.paths | to_entries[] | select(.key | test("stores|resources|installations")) | .key as $p | .value | keys[] | "\(.) \($p)"' /tmp/openapi.json | grep -iv parameters; }
 
 [ "${CREATE:-}" != "1" ] && exit 0
 echo "== create a test store"
 NAME="vyskar-spike-$(date +%s)"
 RES=$(curl -sS "${auth[@]}" -H 'Content-Type: application/json' -X POST "$API/v1/storage/stores/integration/direct$Q" \
-  -d "{\"name\":\"$NAME\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"$PRODUCT\"}")
+  -d "{\"name\":\"$NAME\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"$PRODUCT\",\"metadata\":{\"region\":\"$REGION\"}}")
 echo "$RES" | jq '{error, store: (.store | if . then {id, name, status, externalResourceId, billingPlan: .billingPlan.name, secretNames: [.secrets[]?.name]} else null end)}'
 SID=$(echo "$RES" | jq -r '.store.id // empty')
 [ -z "$SID" ] && exit 0
