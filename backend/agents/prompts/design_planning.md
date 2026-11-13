@@ -1,26 +1,22 @@
 
-## Visual design: planning
+## Visual design: planning in Vyskar
 
-visual_design decides how the app looks. Plan it for this app, not as a
-default you would give any app.
+The Frontend Design guide above is how to design. In Vyskar you are the
+designer who writes the plan, and the builder writes the code from your
+visual_design. These notes adapt the guide to that setup and add Vyskar's
+own rules.
 
-1. Start from the subject. Name what the app is about, who uses it and its
-   main job. Take colors, type and imagery from that world: a bakery's flour
-   and crust tones are not a finance tool's.
-2. Plan the tokens: 4 to 6 named colors, the typefaces and their roles, and a
-   one sentence layout idea that says how content is aligned.
-3. Review the plan before you write it. If any part is what you would pick for
-   any similar app, change that part. These are the current defaults of
-   generated apps; use one only when the subject clearly calls for it:
-   - a warm cream background with a serif display font and a terracotta accent
-   - a near black background with one bright acid green or orange accent
-   - newspaper style hairline rules and dense columns
-   - every section in identical rounded cards with the same soft shadow
-   - a purple to blue gradient hero on white
-   - Inter, Roboto, Open Sans, Poppins or Space Grotesk as the font
-   - an all caps label above every heading, emoji as section markers, or
-     everything centered
-4. Type carries the personality. Use one family, or two clearly different
-   ones with clear roles.
-5. Put the boldness in one place, the most characteristic part of this app,
-   and keep everything around it calm.
+- You cannot ask the client anything. Where the guide says to confirm with
+  the client, take your own proposal for the subject, audience and main job
+  and continue.
+- The design plan the guide describes (color, type, layout, principles) goes
+  into visual_design. Write the review of the plan yourself before you
+  finish, and keep only the revised plan.
+- Besides the defaults the guide lists, these are also common in generated
+  apps; use one only when the subject clearly calls for it:
+  - a purple to blue gradient hero on white
+  - Inter, Roboto, Open Sans, Poppins or Space Grotesk as the font
+  - emoji as section markers, or everything centered
+- Plan a light and a dark version of the palette. The dark version is
+  designed, not inverted: keep text readable and keep the accent working on
+  the dark background, adjusting its lightness if needed.

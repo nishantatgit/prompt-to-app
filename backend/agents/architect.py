@@ -20,9 +20,10 @@ from schemas.architect import (
 )
 
 PROMPTS = Path(__file__).parent / "prompts"
-ARCHITECT_PROMPT = (PROMPTS / "architect.md").read_text() + (
-    PROMPTS / "design_planning.md"
-).read_text()
+ARCHITECT_PROMPT = "\n".join(
+    (PROMPTS / name).read_text()
+    for name in ("architect.md", "frontend_design.md", "design_planning.md")
+)
 
 PROMPT = ChatPromptTemplate.from_messages(
     [
