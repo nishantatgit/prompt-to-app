@@ -11,7 +11,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
-from langgraph.config import get_stream_writer
+from langgraph.config import get_config, get_stream_writer
 
 from agents.build_check import build_check
 from tools.file_tools import make_file_tools
@@ -46,6 +46,16 @@ def _reporter() -> Callable[[str], None]:
     return lambda text: writer({"activity": text})
 
 
+def _cancel_check() -> Callable[[], bool]:
+    """Whether the user cancelled the job. The job runner puts this check in
+    the graph config; outside a graph run there is nothing to cancel."""
+    try:
+        check = get_config().get("configurable", {}).get("cancelled")
+    except RuntimeError:
+        check = None
+    return check or (lambda: False)
+
+
 def describe(call: dict) -> str:
     template = ACTIVITY.get(call["name"], "Using {name}")
     return template.format(name=call["name"], path=call["args"].get("path", "a file"))
@@ -59,6 +69,7 @@ def make_build_loop(
 ):
     def build_loop(state: dict) -> dict:
         report = _reporter()
+        cancelled = _cancel_check()
         sandbox = Sandbox(Path(state["workspace_dir"]))
         tools = {tool.name: tool for tool in make_file_tools(sandbox)}
         model = llm.bind_tools(list(tools.values()))
@@ -73,6 +84,10 @@ def make_build_loop(
         result = {"build_ok": False, "build_log": ""}
 
         for turn in range(1, max_turns + 1):
+            if cancelled():
+                return _finish(
+                    {"build_ok": False, "build_log": "Cancelled by the user."}, written, builds, turn
+                )
             response = model.invoke(messages)
             messages.append(response)
 
