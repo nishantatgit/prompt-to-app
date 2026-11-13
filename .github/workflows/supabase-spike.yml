@@ -1,0 +1,23 @@
+name: supabase-spike
+on:
+  push:
+    branches: [spike/supabase-store]
+permissions:
+  contents: write
+jobs:
+  spike:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the check
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          CREATE: ${{ contains(github.event.head_commit.message, '[create]') && '1' || '' }}
+        run: scripts/supabase-spike.sh > spike-output.txt 2>&1; cat spike-output.txt
+      - name: Save the output
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          git fetch origin spike-results || true
+          git checkout -B spike-results
+          mkdir -p out && mv spike-output.txt "out/${GITHUB_SHA::7}.txt"
+          git add out && git commit -m "chore: spike output ${GITHUB_SHA::7}" && git push -f origin spike-results
