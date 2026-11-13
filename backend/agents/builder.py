@@ -3,7 +3,11 @@ from pathlib import Path
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-PROMPT = (Path(__file__).parent / "prompts" / "builder.md").read_text()
+PROMPTS = Path(__file__).parent / "prompts"
+PROMPT = "\n".join(
+    (PROMPTS / name).read_text()
+    for name in ("builder.md", "frontend_design.md", "design_building.md")
+)
 
 
 def strip_fences(text: str) -> str:

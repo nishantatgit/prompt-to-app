@@ -19,7 +19,11 @@ from schemas.architect import (
     UIElement,
 )
 
-ARCHITECT_PROMPT = (Path(__file__).parent / "prompts" / "architect.md").read_text()
+PROMPTS = Path(__file__).parent / "prompts"
+ARCHITECT_PROMPT = "\n".join(
+    (PROMPTS / name).read_text()
+    for name in ("architect.md", "frontend_design.md", "design_planning.md")
+)
 
 PROMPT = ChatPromptTemplate.from_messages(
     [
