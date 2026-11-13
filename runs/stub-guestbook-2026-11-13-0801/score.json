@@ -1,0 +1,20 @@
+{
+  "label": "stub-guestbook",
+  "score": "0/1",
+  "passed": 0,
+  "total": 1,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 11,
+      "slug": "guestbook",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "A database migration failed: 001_guestbook.sql: connection failed: connection to server at \"3.111.105.85\", port 5432 failed: FATAL:  (ECHECKOUTRETRIES) failed to check out a connection after multiple retries\nMultiple connection attempts failed. All failures were:\n- host: 'aws-0-ap-south-1.pooler.supabase.com', port: '5432', hostaddr: '65.0.195.55': connection failed: connection to server at \"65.0.195.55\", port 5432 failed: FATAL:  (EAUTHQUERY) authentication query failed: connection to database not available\n- host: 'aws-0-ap-south-1.pooler.supabase.com', port: '5432', hostaddr: '3.111.105.85': connection failed: connection to server at \"3.111.105.85\", port 5432 failed: FATAL:  (ECHECKOUTRETRIES) failed to check out a connection after multiple retries"
+    }
+  ]
+}
