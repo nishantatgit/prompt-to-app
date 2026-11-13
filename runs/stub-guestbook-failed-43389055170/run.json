@@ -1,0 +1,11 @@
+{
+  "label": "stub-guestbook",
+  "apps": "--ids 11",
+  "stub_llm": true,
+  "stub_scenario": "guestbook",
+  "builder_mode": "loop",
+  "retest_of": "",
+  "model": "claude-sonnet-5-5",
+  "commit": "eb53af6cfb0c56d35cb2ec0a730a221e1552f237",
+  "workflow_run": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43389055170"
+}
