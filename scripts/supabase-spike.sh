@@ -1,21 +1,14 @@
 #!/usr/bin/env bash
-# What is prod serving? Checks the frontend bundle and the backend API.
+# Start one small build on prod and watch its mode, stage and loop steps.
 set -uo pipefail
-for host in app.vyskar.com vyskar.com; do
-  echo "== https://$host"
-  HTML=$(curl -sS -m 20 "https://$host/")
-  JS=$(echo "$HTML" | grep -o 'src="/assets/[^"]*\.js"' | head -1 | cut -d'"' -f2)
-  echo "bundle: $JS"
-  [ -z "$JS" ] && continue
-  B=$(curl -sS -m 20 "https://$host$JS")
-  for s in "Build steps" "builder_mode" "Your API key did not work" "Cancel build"; do
-    printf "  %-28s %s\n" "$s" "$(echo "$B" | grep -c "$s")"
-  done
-  echo "  api urls: $(echo "$B" | grep -oE 'https://[a-z0-9.-]+(fly\.dev|vyskar\.com)[^"]*' | sort -u | tr '\n' ' ')"
-done
-for api in https://backend-satin-skylark-1693.fly.dev https://api.vyskar.com; do
-  echo "== $api"
-  curl -sS -m 20 "$api/api/health"; echo
-  curl -sS -m 20 "$api/api/jobs/does-not-exist"; echo
-  curl -sS -m 30 -X POST "$api/api/build" -H 'Content-Type: application/json' -d '{"prompt":"x","provider":"anthropic","api_key":"sk-ant-invalid"}'; echo
+API=https://api.vyskar.com
+BODY=$(jq -n --arg k "$ANTHROPIC_API_KEY" '{prompt:"A counter with a plus button, a minus button and a reset button",provider:"anthropic",api_key:$k}')
+JOB=$(curl -sS -m 60 -X POST "$API/api/build" -H 'Content-Type: application/json' -d "$BODY")
+echo "start: $JOB"
+ID=$(echo "$JOB" | jq -r '.job_id // empty'); [ -z "$ID" ] && exit 0
+for i in $(seq 1 60); do
+  J=$(curl -sS -m 20 "$API/api/jobs/$ID")
+  echo "$(date -u +%T) $(echo "$J" | jq -c '{status, stage, builder_mode, steps: (.activity|length), last: (.activity[-3:] // [])}')"
+  echo "$J" | jq -e '.status | IN("succeeded","failed","rejected","cancelled")' >/dev/null && { echo "$J" | jq -c '{reason, deploy_url, confidence}'; break; }
+  sleep 10
 done
