@@ -1,6 +1,9 @@
 # Third-party notice
 
-`design_planning.md` and `design_building.md` include ideas and rules adapted
-from Anthropic's `frontend-design` skill, used under the Apache License 2.0
-(see `LICENSE-frontend-design.txt`). The text was rewritten and shortened for
-Vyskar's architect and builder prompts, and combined with Vyskar's own rules.
+`frontend_design.md` is the body of Anthropic's `frontend-design` skill
+(https://github.com/anthropics/skills/tree/main/skills/frontend-design),
+copied without changes except that the YAML front matter is left out. It is
+used under the Apache License 2.0; see `LICENSE-frontend-design.txt`.
+
+`design_planning.md` and `design_building.md` are Vyskar's own. They adapt
+the skill to Vyskar's architect and builder and add Vyskar's rules.

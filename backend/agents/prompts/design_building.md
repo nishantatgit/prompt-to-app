@@ -1,7 +1,13 @@
 
-## Visual design: building
+## Visual design: building in Vyskar
 
-Follow visual_design exactly. These rules cover what it does not say.
+The Frontend Design guide above is how to design. In Vyskar the design plan
+is already made: follow visual_design exactly, and skip the guide's planning
+and review pass. These notes adapt the guide to that setup and add Vyskar's
+own rules.
+
+- You cannot ask the client anything or take screenshots. Check your work by
+  reading your code against the plan and these rules.
 
 Layout
 - The app works at phone width (375px) with no sideways scrolling. Keep at
@@ -16,8 +22,6 @@ Structure
 - A border, shadow or filled background marks something as a separate
   object. Use them only where that is true, such as items in a set of
   products. Not every section is a card.
-- Number things (1, 2, 3) only when they are a real sequence, such as the
-  steps of a process.
 - Repeated items share one layout, padding and alignment.
 
 Content
@@ -26,10 +30,6 @@ Content
   replace sample content, say so on the page.
 - A landing page opens with a hero. Without a real photo, use a large colored
   gradient as the image placeholder, not an icon.
-- Name things by what people recognize. A button says exactly what happens
-  ("Send message"), and its confirmation uses the same words ("Message
-  sent"). Errors say what went wrong and how to fix it, without apologizing.
-  An empty screen says what to do next.
 
 Light and dark
 - The app follows the device's light or dark setting. Define every color as a
@@ -41,10 +41,6 @@ Light and dark
 - Check text contrast in both themes: at least 4.5:1 for text, 3:1 for icons,
   borders of inputs and chart marks.
 - Native controls follow the theme with color-scheme: light dark on :root.
-
-Motion
-- One deliberate moment, such as a result appearing, is better than effects
-  on every element.
 
 Charts, when the app has them
 - Pick the chart by what the data shows: change over time is a line,
