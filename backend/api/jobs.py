@@ -3,6 +3,8 @@ import time
 import os
 from concurrent.futures import ThreadPoolExecutor
 
+from agents.keys import rejected_reason
+
 MAX_CONCURRENT_JOBS = 2
 
 _executor = ThreadPoolExecutor(max_workers=MAX_CONCURRENT_JOBS)
@@ -86,7 +88,8 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
         status, reason = _outcome(state)
         _update(job_id, status=status, reason=reason, state=state)
     except Exception as error:
-        _update(job_id, status="failed", reason=f"internal error: {error}")
+        reason = rejected_reason(error) or f"internal error: {error}"
+        _update(job_id, status="failed", reason=reason)
 
 
 def submit(graph, job_id: str, prompt: str, recursion_limit: int) -> None:

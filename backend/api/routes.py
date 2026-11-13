@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, SecretStr
 
 from agents.graph import AgentLimits, AgentModels, build_graph
+from agents.keys import KeyRejected, check_key
 from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
 from api.jobs import create_job, get_job, has_capacity, public_view, submit
@@ -76,6 +77,13 @@ def build(
         key = settings.api_key_for(req.provider)
     else:
         raise HTTPException(status_code=400, detail="An API key is required.")
+
+    # A bad key fails here in a second, instead of as an error mid build.
+    if not stub_mode():
+        try:
+            check_key(req.provider, key)
+        except KeyRejected as error:
+            raise HTTPException(status_code=400, detail=str(error))
 
     if not has_capacity():
         raise HTTPException(
