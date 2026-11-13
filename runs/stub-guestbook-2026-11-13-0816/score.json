@@ -1,0 +1,20 @@
+{
+  "label": "stub-guestbook",
+  "score": "0/1",
+  "passed": 0,
+  "total": 1,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 11,
+      "slug": "guestbook",
+      "result": "not built",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Vercel 402: {\"error\":{\"code\":\"payment_required\",\"message\":\"Resource is limited - try again in 24 hours (more than 100, code: \\\"api-deployments-free-per-day\\\").\",\"limit\":{\"total\":100,\"remaining\":0,\"reset\":1794644191711},\"resource\":\"api-deployments-free-per-day\"}}"
+    }
+  ]
+}
