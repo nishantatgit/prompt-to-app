@@ -87,6 +87,7 @@ async function buildOne(app) {
     deploy_url: job.deploy_url || '',
     confidence: job.confidence ?? null,
     database_name: job.database_name || '',
+    test_summary: job.test_summary || '',
     seconds: Math.round((Date.now() - started) / 1000),
   }
 }
