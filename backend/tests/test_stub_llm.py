@@ -50,3 +50,31 @@ def test_loop_with_the_retry_script(tmp_path):
     assert out["build_ok"] is True
     assert out["builder_attempts"] == 2
     assert "(1 + tipPercent / 100)) / people" in (tmp_path / "src" / "App.jsx").read_text()
+
+
+def test_an_unknown_scenario_is_an_error(monkeypatch):
+    import pytest
+
+    from agents.stub_llm import make_stub_models
+
+    monkeypatch.setenv("STUB_SCENARIO", "no-such-app")
+    with pytest.raises(ValueError, match="Unknown STUB_SCENARIO 'no-such-app'"):
+        make_stub_models(["guard"])
+
+
+def test_the_guestbook_scenario_passes_every_planning_agent():
+    from agents.analyst import make_analyst
+    from agents.architect import make_architect
+    from agents.stub_llm import StubLLM
+    from agents.test_planner import make_test_planner
+
+    state = {"prompt": "A guestbook where visitors leave a name and message", "job_id": "x"}
+    for agent, make, key in [
+        ("analyst", make_analyst, "requirements"),
+        ("architect", make_architect, "architecture"),
+        ("test_planner", make_test_planner, "test_plan"),
+    ]:
+        out = make(StubLLM(agent=agent, scenario="guestbook"))(state)
+        assert out.get(key), out
+        state.update(out)
+    assert state["architecture"]["storage"] == "supabase"
