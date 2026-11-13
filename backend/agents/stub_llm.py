@@ -110,4 +110,8 @@ class _ScriptedTurns:
 def make_stub_models(agents) -> dict:
     """One StubLLM per agent name, ready for AgentModels(**...)."""
     scenario = os.environ.get("STUB_SCENARIO", DEFAULT_SCENARIO)
+    # A missing scenario would quietly fall back to the default answers and
+    # test the wrong app, so it is an error.
+    if not (STUBS_DIR / scenario).is_dir():
+        raise ValueError(f"Unknown STUB_SCENARIO '{scenario}': no folder in {STUBS_DIR}")
     return {agent: StubLLM(agent=agent, scenario=scenario) for agent in agents}

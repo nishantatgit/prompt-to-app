@@ -25,7 +25,10 @@ When storage is "supabase":
   )
   Every other file imports supabase from that file.
 - The migrations create the architecture's tables, enable row level security
-  on each one and add its policies. Vyskar applies them before the app runs.
+  on each one, add its policies, and grant the anon and authenticated roles
+  only the operations the access rules allow, such as
+  grant select, insert on guestbook_entries to anon, authenticated;
+  Vyskar applies them before the app runs.
 - The browser only ever uses the anon key. Secret keys are read in api/*.py
   from environment variables, never written into any file.
 
