@@ -1,0 +1,12 @@
+[
+  {
+    "id": 11,
+    "slug": "guestbook",
+    "job_id": "26-11-13-1794555319-5d41e9b221",
+    "status": "failed",
+    "reason": "Requirements failed: requirement R1: source_quote 'bill amount' does not appear in the request. Quote the request exactly, or mark the requirement as implied with a reason.; Requirements failed: requirement R2: source_quote 'tip percent' does not appear in the request. Quote the request exactly, or mark the requirement as implied with a reason.; Requirements failed: requirement R3: source_quote 'number of people' does not appear in the request. Quote the request exactly, or mark the requirement as implied with a reason.",
+    "deploy_url": "",
+    "confidence": null,
+    "seconds": 10
+  }
+]

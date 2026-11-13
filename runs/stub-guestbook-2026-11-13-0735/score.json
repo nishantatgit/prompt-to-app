@@ -1,0 +1,20 @@
+{
+  "label": "stub-guestbook",
+  "score": "0/1",
+  "passed": 0,
+  "total": 1,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 11,
+      "slug": "guestbook",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Requirements failed: requirement R1: source_quote 'bill amount' does not appear in the request. Quote the request exactly, or mark the requirement as implied with a reason.; Requirements failed: requirement R2: source_quote 'tip percent' does not appear in the request. Quote the request exactly, or mark the requirement as implied with a reason.; Requirements failed: requirement R3: source_quote 'number of people' does not appear in the request. Quote the request exactly, or mark the requirement as implied with a reason."
+    }
+  ]
+}
