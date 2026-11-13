@@ -25,14 +25,15 @@ def test_pipeline_is_the_default_and_unchanged(parts):
     assert {"builder", "build_check", "build_done"} <= nodes
     assert ("builder", "build_check") in edges
     assert ("build_check", "builder") in edges  # retry routed through the graph
-    assert ("build_check", "build_done") in edges
+    assert ("build_check", "migrations") in edges
+    assert ("migrations", "build_done") in edges
 
 
 def test_loop_mode_replaces_the_builder_and_build_check(parts):
     nodes, edges = shape(build_graph(*parts, builder_mode="loop"))
     assert "build_check" not in nodes
     assert {"builder", "build_done"} <= nodes
-    assert ("builder", "build_done") in edges
+    assert ("builder", "migrations") in edges
     assert ("builder", "__end__") in edges  # a failed loop ends the job
     assert ("builder", "builder") not in edges  # retries happen inside the loop
 
@@ -47,3 +48,16 @@ def test_both_modes_share_everything_else(parts):
         return {e for e in edges if not build & set(e)}
 
     assert outside_build(pipeline_edges) == outside_build(loop_edges)
+
+
+def test_the_database_comes_before_the_build_and_migrations_after(parts):
+    for mode in ("pipeline", "loop"):
+        nodes, edges = shape(build_graph(*parts, builder_mode=mode))
+        assert {"database", "migrations"} <= nodes
+        assert ("setup_workspace", "database") in edges
+        assert ("database", "builder") in edges
+        assert ("database", "__end__") in edges
+        assert ("setup_workspace", "builder") not in edges
+        assert ("migrations", "build_done") in edges
+        assert ("migrations", "__end__") in edges
+        assert ("build_done", "test_executor") in edges
