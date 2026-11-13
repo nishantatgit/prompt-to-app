@@ -99,3 +99,13 @@ def test_a_database_failure_is_the_jobs_reason():
     status, reason = _outcome({"database_error": "Could not create the app's database: Vercel 402"})
     assert status == "failed"
     assert reason == "Could not create the app's database: Vercel 402"
+
+
+def test_the_job_view_names_the_database_but_holds_no_keys():
+    from api import jobs
+
+    jobs.create_job("db-1", "a guestbook", "loop")
+    jobs._update("db-1", state={"database_name": "guestbook-abc123", "deploy_url": "https://x"})
+    view = jobs.public_view(jobs.get_job("db-1"))
+    assert view["database_name"] == "guestbook-abc123"
+    assert not any("KEY" in k or "POSTGRES" in k for k in view)

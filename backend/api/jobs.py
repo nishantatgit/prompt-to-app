@@ -157,6 +157,7 @@ def public_view(job: dict) -> dict:
         "builder_mode": job.get("builder_mode", "pipeline"),
         "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
+        "database_name": state.get("database_name", ""),
         "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),
     }

@@ -20,6 +20,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildAll, pickApps } from './build-apps.mjs'
+import { deleteDatabase } from './databases.mjs'
 import { score } from './score.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -77,13 +78,25 @@ async function main() {
 
   let apps
   let builds
+  let results
   if (retest) {
     ;({ apps, builds } = reuseBuilds(retest))
+    results = runTests(apps)
   } else {
+    // Each app is tested right after it is built, then its database (if it
+    // has one) is deleted, so apps never hold more than one database at once.
     apps = pickApps(argv)
-    builds = await buildAll(apps)
+    const suites = []
+    builds = await buildAll(apps, async (app, build) => {
+      results = runTests([app])
+      suites.push(...(results.suites ?? []))
+      if (await deleteDatabase(build.database_name)) {
+        console.log(`#${app.id} ${app.slug}: deleted database ${build.database_name}`)
+      }
+    })
+    results = { ...(results ?? {}), suites }
+    fs.writeFileSync(path.join(latest, 'results.json'), JSON.stringify(results, null, 2) + '\n')
   }
-  const results = runTests(apps)
   const summary = { label, ...score(results, builds, readJson(path.join(root, 'apps.json'))) }
 
   const out = path.join(root, 'results', `${label}-${stamp()}`)
