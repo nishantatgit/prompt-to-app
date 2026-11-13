@@ -132,6 +132,9 @@ jobs:
         working-directory: benchmark
         env:
           LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # To delete each app's database after its tests.
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
           PROVIDER: anthropic
         # APPS is "--level N" or "--ids 3,4", so it is left unquoted to split.
         run: node scripts/benchmark.mjs $APPS --label "$LABEL"
