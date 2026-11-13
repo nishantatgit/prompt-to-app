@@ -1,0 +1,20 @@
+{
+  "label": "stub-guestbook",
+  "score": "0/1",
+  "passed": 0,
+  "total": 1,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 11,
+      "slug": "guestbook",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Could not create the app's database: Vercel 400: {\"error\":{\"code\":\"validation_error\",\"message\":\"The following organization members have reached their maximum limits for the number of active free projects within organizations where they are an administrator or owner: nishantatgit (2 project limit). To continue, these users will need to either delete, pause or upgrade one or more of these projects.\"}}"
+    }
+  ]
+}
