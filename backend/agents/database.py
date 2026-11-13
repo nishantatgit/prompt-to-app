@@ -32,8 +32,9 @@ def needs_database(state: dict) -> bool:
 
 
 def _fail(message: str) -> dict:
-    message = message[:2000]
-    return {"database_error": message, "errors": [message]}
+    # Only database_error: the database step runs in the same graph step as
+    # the test planner, and two nodes may not both write "errors" at once.
+    return {"database_error": message[:2000]}
 
 
 def make_database(token: str | None, config_id: str | None, provision=supabase.provision):

@@ -61,3 +61,32 @@ def test_the_database_comes_before_the_build_and_migrations_after(parts):
         assert ("migrations", "build_done") in edges
         assert ("migrations", "__end__") in edges
         assert ("build_done", "test_executor") in edges
+
+
+def test_a_failed_database_step_ends_the_job_cleanly(parts, monkeypatch):
+    """The database step runs alongside the test planner; when it fails the
+    graph must end with the reason, not crash on a conflicting update."""
+    import os
+
+    from agents import graph as graph_module
+    from agents.database import make_database
+
+    def failing(token, name, config_id):
+        raise RuntimeError("Vercel 402: payment required")
+
+    monkeypatch.setattr(
+        graph_module, "make_database", lambda t, c: make_database(t, c, provision=failing)
+    )
+    monkeypatch.setenv("STUB_SCENARIO", "guestbook")
+    from agents.stub_llm import StubLLM
+
+    models, limits, tmp = parts
+    models = AgentModels(**{a: StubLLM(agent=a, scenario="guestbook") for a in AGENTS})
+    g = build_graph(models, limits, tmp, vercel_token="tok", supabase_config_id="icfg", builder_mode="loop")
+    state = g.invoke(
+        {"prompt": "A guestbook where visitors leave a name and message", "job_id": "26-11-13-1-abcdef1234"},
+        {"recursion_limit": 50},
+    )
+    assert state["database_error"].startswith("Could not create the app's database: Vercel 402")
+    assert not state.get("build_ok")
+    assert os.path.isdir(tmp)

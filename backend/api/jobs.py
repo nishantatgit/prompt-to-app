@@ -104,6 +104,7 @@ def _outcome(state: dict) -> tuple[str, str]:
         return "succeeded", ""
     reason = (
         state.get("deploy_error")
+        or state.get("database_error")
         or "; ".join(state.get("errors") or [])
         or ("build failed" if state.get("build_ok") is False else "stopped early")
     )
