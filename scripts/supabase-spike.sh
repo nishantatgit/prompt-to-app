@@ -33,7 +33,7 @@ STORE=$(get "/storage/stores/$SID?teamId=$TEAM")
 RID=$(echo "$STORE" | jq -r '(.store // .) | .externalResourceId')
 echo "$STORE" | jq -c '(.store // .) | {status, externalResourceId, targets, projects: [.projectsMetadata[]?.projectId]}'
 echo "== connect"
-for body in "{\"projectId\":\"$PID\"}" "{\"projectId\":\"$PID\",\"environments\":[\"production\",\"preview\",\"development\"]}"; do
+for body in "{\"projectId\":\"$PID\",\"envVarEnvironments\":[\"production\",\"preview\",\"development\"],\"makeEnvVarsSensitive\":false}"; do
   for rid in "$SID" "$RID"; do
     R=$(post "/v1/integrations/installations/$CFG/resources/$rid/connections?teamId=$TEAM" "$body")
     echo "resource=$rid body=$body -> $(echo "$R" | jq -c '{error: .error.message} // .' | cut -c1-300)"
