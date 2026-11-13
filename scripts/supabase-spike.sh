@@ -14,7 +14,11 @@ echo "== teams"
 get /v2/teams | jq '[.teams[]? | {id, slug, name}]'
 
 echo "== integration configurations"
-CONFIGS=$(get "/v1/integrations/configurations?view=account${TEAM:+&teamId=$TEAM}")
+for q in "view=account&teamId=$TEAM" "view=project&teamId=$TEAM" "view=account" "view=account&installationType=marketplace&teamId=$TEAM"; do
+  echo "-- $q"; get "/v1/integrations/configurations?$q" | jq -c '[.[]? | {id, slug, integrationId, installationType, source}] // .'
+done
+echo "-- stores"; get "/v1/storage/stores$Q" | jq -c '[.stores[]? | {id, name, type, product: .product.slug}] // .'
+CONFIGS=$(for q in "view=account&teamId=$TEAM" "view=project&teamId=$TEAM"; do get "/v1/integrations/configurations?$q"; done | jq -s 'add')
 echo "$CONFIGS" | jq '[.[]? | {id, slug, integrationId, ownerId, source}] // .'
 CFG=$(echo "$CONFIGS" | jq -r '[.[]? | select(.slug | test("supabase"; "i"))][0].id // empty')
 echo "supabase configuration: ${CFG:-NOT FOUND}"
