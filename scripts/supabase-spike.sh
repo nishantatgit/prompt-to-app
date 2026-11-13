@@ -42,7 +42,7 @@ jq -r '.paths | to_entries[] | select(.key | test("stores|resources|installation
 echo "== create a test store"
 NAME="vyskar-spike-$(date +%s)"
 RES=$(curl -sS "${auth[@]}" -H 'Content-Type: application/json' -X POST "$API/v1/storage/stores/integration/direct$Q" \
-  -d "{\"name\":\"$NAME\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"$PRODUCT\",\"metadata\":{\"region\":\"$REGION\"}}")
+  -d "{\"name\":\"$NAME\",\"integrationConfigurationId\":\"$CFG\",\"integrationProductIdOrSlug\":\"$PRODUCT\",\"metadata\":{\"region\":\"bom1\",\"publicEnvVarPrefix\":\"VITE_\"}}")
 echo "$RES" | jq '{error, store: (.store | if . then {id, name, status, externalResourceId, billingPlan: .billingPlan.name, secretNames: [.secrets[]?.name]} else null end)}'
 SID=$(echo "$RES" | jq -r '.store.id // empty')
 [ -z "$SID" ] && exit 0
