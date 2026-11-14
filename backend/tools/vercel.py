@@ -117,9 +117,15 @@ def add_domain(token: str, project: str, domain: str) -> dict:
     return response.json()
 
 
+def project_name(name: str) -> str:
+    """The Vercel project an app deploys to. The database step connects the
+    app's database to this same project, so the deploy gets its keys."""
+    return f"vyskar-{name}"
+
+
 def deploy_app(token: str, job_dir: Path, name: str, root_domain: str = "vyskar.app") -> str:
     """Deploy a job folder and return its public URL, such as https://converter.vyskar.app."""
-    project = f"vyskar-{name}"
+    project = project_name(name)
     deployment = create_deployment(token, project, collect_files(job_dir))
     result = wait_until_ready(token, deployment["id"])
     if result["readyState"] != "READY":

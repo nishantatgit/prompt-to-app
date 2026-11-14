@@ -66,7 +66,10 @@ def test_provision_creates_connects_and_returns_the_keys(vercel):
     env = supabase.provision("tok", "guestbook-abc123", "icfg_1")
 
     assert env == KEYS
+    project = next(body for m, p, body in vercel.calls if p == "/v11/projects")
+    assert project["name"] == "vyskar-guestbook-abc123"  # the project deploy_app uses
     create = next(body for m, p, body in vercel.calls if p.endswith("/integration/direct"))
+    assert create["name"] == "guestbook-abc123"
     assert create["integrationConfigurationId"] == "icfg_1"
     assert create["metadata"] == {"region": "bom1", "publicEnvVarPrefix": "VITE_"}
     connect = next(body for m, p, body in vercel.calls if p.endswith("/connections"))
@@ -198,3 +201,71 @@ def test_connecting_gives_up_after_the_timeout(monkeypatch):
 
     with pytest.raises(psycopg.OperationalError):
         supabase.wait_for_connection("postgres://x", connect, timeout=120)
+
+
+class DroppingConnection(FakeConnection):
+    """The first `drops` executions are cut off, as when Postgres restarts."""
+
+    def __init__(self, log, state):
+        super().__init__(log)
+        self.state = state
+
+    def execute(self, sql):
+        if self.state["drops"] > 0:
+            self.state["drops"] -= 1
+            import psycopg
+
+            raise psycopg.errors.AdminShutdown("terminating connection due to administrator command")
+        self.log.append(sql)
+
+
+def test_a_migration_cut_off_by_a_restart_is_run_again(tmp_path, monkeypatch):
+    migrations(tmp_path, {"001_tables.sql": "create table"})
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    log, state = [], {"drops": 2}
+
+    applied = supabase.apply_migrations(
+        "postgres://x", tmp_path, connect=lambda url, autocommit: DroppingConnection(log, state)
+    )
+    assert applied == ["001_tables.sql"]
+    assert log == ["rollback", "rollback", "create table", "commit"]
+
+
+def test_a_connection_that_keeps_dropping_gives_up(tmp_path, monkeypatch):
+    migrations(tmp_path, {"001_tables.sql": "create table"})
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    state = {"drops": 99}
+    with pytest.raises(RuntimeError, match="001_tables.sql: terminating connection"):
+        supabase.apply_migrations(
+            "postgres://x", tmp_path, connect=lambda url, autocommit: DroppingConnection([], state)
+        )
+    assert state["drops"] == 99 - supabase.MIGRATION_ATTEMPTS
+
+
+def test_a_mistake_in_the_sql_is_not_retried(tmp_path, monkeypatch):
+    migrations(tmp_path, {"001_bad.sql": "creat table"})
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    attempts = []
+
+    def connect(url, autocommit):
+        attempts.append(1)
+        return FakeConnection([], fail_on="creat table")
+
+    with pytest.raises(RuntimeError, match="001_bad.sql"):
+        supabase.apply_migrations("postgres://x", tmp_path, connect=connect)
+    assert len(attempts) == 1
+
+
+def test_the_database_and_the_deploy_use_the_same_project(vercel, monkeypatch, tmp_path):
+    from tools import vercel as vercel_tools
+
+    deployed = []
+    monkeypatch.setattr(vercel_tools, "create_deployment", lambda t, project, files: deployed.append(project) or {"id": "d1"})
+    monkeypatch.setattr(vercel_tools, "wait_until_ready", lambda t, i: {"readyState": "READY"})
+    monkeypatch.setattr(vercel_tools, "add_domain", lambda t, p, d: {})
+
+    supabase.provision("tok", "guestbook-abc123", "icfg_1")
+    vercel_tools.deploy_app("tok", tmp_path, "guestbook-abc123")
+
+    connected_to = next(b["name"] for m, p, b in vercel.calls if p == "/v11/projects")
+    assert deployed == [connected_to]
