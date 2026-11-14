@@ -54,6 +54,11 @@ def create_job(job_id: str, prompt: str, builder_mode: str = "pipeline") -> None
             "reason": "",
             "builder_mode": builder_mode,
             "activity": [],
+            # Per stage: when its first step started, how many of its steps
+            # are running, and when its last step finished.
+            "timings": {},
+            "started_at": None,
+            "finished_at": None,
             "created_at": time.time(),
             "state": {},
         }
@@ -88,13 +93,63 @@ def cancel_job(job_id: str) -> bool:
         job = _jobs[job_id]
         if job["status"] in FINISHED_STATUSES:
             return False
-        job.update(status="cancelled", reason=CANCELLED_REASON)
+        job.update(status="cancelled", reason=CANCELLED_REASON, finished_at=time.time())
         return True
 
 
 def is_cancelled(job_id: str) -> bool:
     with _lock:
         return _jobs[job_id]["status"] == "cancelled"
+
+
+def _step_started(job_id: str, node: str) -> None:
+    stage = STAGES.get(node)
+    if stage is None:
+        return
+    with _lock:
+        timing = _jobs[job_id]["timings"].setdefault(stage, {"started": time.time(), "running": 0})
+        timing["running"] += 1
+        timing["finished"] = None
+
+
+def _step_finished(job_id: str, node: str) -> None:
+    stage = STAGES.get(node)
+    if stage is None:
+        return
+    with _lock:
+        timing = _jobs[job_id]["timings"].get(stage)
+        if timing is None:
+            return
+        timing["running"] = max(0, timing["running"] - 1)
+        if timing["running"] == 0:
+            timing["finished"] = time.time()
+
+
+def _finish_clock(job_id: str) -> None:
+    """Stop the job's clock, and any stage still running when it ended."""
+    now = time.time()
+    with _lock:
+        job = _jobs[job_id]
+        job["finished_at"] = job["finished_at"] or now
+        for timing in job["timings"].values():
+            if timing.get("finished") is None:
+                timing["finished"] = now
+                timing["running"] = 0
+
+
+def timings_view(job: dict, now: float | None = None) -> dict:
+    """Seconds per stage, and in total, counting running ones up to now."""
+    now = now or time.time()
+    stages = {
+        stage: {
+            "seconds": round((t.get("finished") or now) - t["started"], 1),
+            "running": t.get("finished") is None,
+        }
+        for stage, t in job.get("timings", {}).items()
+    }
+    started = job.get("started_at")
+    total = round((job.get("finished_at") or now) - started, 1) if started else None
+    return {"stages": stages, "total_seconds": total}
 
 
 def _outcome(state: dict) -> tuple[str, str]:
@@ -112,9 +167,16 @@ def _outcome(state: dict) -> tuple[str, str]:
 
 
 def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
+    try:
+        _run_graph(graph, job_id, prompt, recursion_limit)
+    finally:
+        _finish_clock(job_id)
+
+
+def _run_graph(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
     if is_cancelled(job_id):
         return  # cancelled while waiting in the queue
-    _update(job_id, status="running")
+    _update(job_id, status="running", started_at=time.time())
     state = {"prompt": prompt, "job_id": job_id}
     config = {
         "recursion_limit": recursion_limit,
@@ -122,9 +184,17 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
         "configurable": {"cancelled": lambda: is_cancelled(job_id)},
     }
     try:
-        for mode, chunk in graph.stream(dict(state), config, stream_mode=["updates", "custom"]):
+        stream = graph.stream(dict(state), config, stream_mode=["updates", "custom", "tasks"])
+        for mode, chunk in stream:
             if is_cancelled(job_id):
                 return
+            if mode == "tasks":
+                # A task event without a result is the step starting.
+                if "result" in chunk or "error" in chunk:
+                    _step_finished(job_id, chunk["name"])
+                else:
+                    _step_started(job_id, chunk["name"])
+                continue
             if mode == "custom":
                 if "activity" in chunk:
                     _add_activity(job_id, chunk["activity"])
@@ -160,4 +230,5 @@ def public_view(job: dict) -> dict:
         "database_name": state.get("database_name", ""),
         "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),
+        "timings": timings_view(job),
     }
