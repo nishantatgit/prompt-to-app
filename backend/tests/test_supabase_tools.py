@@ -198,3 +198,56 @@ def test_connecting_gives_up_after_the_timeout(monkeypatch):
 
     with pytest.raises(psycopg.OperationalError):
         supabase.wait_for_connection("postgres://x", connect, timeout=120)
+
+
+class DroppingConnection(FakeConnection):
+    """The first `drops` executions are cut off, as when Postgres restarts."""
+
+    def __init__(self, log, state):
+        super().__init__(log)
+        self.state = state
+
+    def execute(self, sql):
+        if self.state["drops"] > 0:
+            self.state["drops"] -= 1
+            import psycopg
+
+            raise psycopg.errors.AdminShutdown("terminating connection due to administrator command")
+        self.log.append(sql)
+
+
+def test_a_migration_cut_off_by_a_restart_is_run_again(tmp_path, monkeypatch):
+    migrations(tmp_path, {"001_tables.sql": "create table"})
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    log, state = [], {"drops": 2}
+
+    applied = supabase.apply_migrations(
+        "postgres://x", tmp_path, connect=lambda url, autocommit: DroppingConnection(log, state)
+    )
+    assert applied == ["001_tables.sql"]
+    assert log == ["rollback", "rollback", "create table", "commit"]
+
+
+def test_a_connection_that_keeps_dropping_gives_up(tmp_path, monkeypatch):
+    migrations(tmp_path, {"001_tables.sql": "create table"})
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    state = {"drops": 99}
+    with pytest.raises(RuntimeError, match="001_tables.sql: terminating connection"):
+        supabase.apply_migrations(
+            "postgres://x", tmp_path, connect=lambda url, autocommit: DroppingConnection([], state)
+        )
+    assert state["drops"] == 99 - supabase.MIGRATION_ATTEMPTS
+
+
+def test_a_mistake_in_the_sql_is_not_retried(tmp_path, monkeypatch):
+    migrations(tmp_path, {"001_bad.sql": "creat table"})
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    attempts = []
+
+    def connect(url, autocommit):
+        attempts.append(1)
+        return FakeConnection([], fail_on="creat table")
+
+    with pytest.raises(RuntimeError, match="001_bad.sql"):
+        supabase.apply_migrations("postgres://x", tmp_path, connect=connect)
+    assert len(attempts) == 1
