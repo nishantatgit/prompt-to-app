@@ -18,7 +18,7 @@ from pathlib import Path
 import httpx
 import psycopg
 
-from tools.vercel import API, _check, _headers, _params
+from tools.vercel import API, _check, _headers, _params, project_name
 
 # Mumbai: close to Vyskar's users and to Vercel's bom1 functions.
 REGION = "bom1"
@@ -119,8 +119,9 @@ def read_env(token: str, project_id: str) -> dict[str, str]:
 
 
 def provision(token: str, name: str, config_id: str) -> dict[str, str]:
-    """A new database connected to the project `name`, and its keys."""
-    project_id = create_project(token, name)
+    """A new database named `name`, connected to the Vercel project the app
+    will deploy to, and its keys."""
+    project_id = create_project(token, project_name(name))
     store_id = create_database(token, name, config_id)
     connect_database(token, config_id, store_id, project_id)
     env = read_env(token, project_id)
