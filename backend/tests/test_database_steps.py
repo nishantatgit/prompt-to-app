@@ -109,3 +109,18 @@ def test_the_job_view_names_the_database_but_holds_no_keys():
     view = jobs.public_view(jobs.get_job("db-1"))
     assert view["database_name"] == "guestbook-abc123"
     assert not any("KEY" in k or "POSTGRES" in k for k in view)
+
+
+def test_the_free_database_limit_gets_a_clear_message(tmp_path):
+    from agents.database import LIMIT_REACHED
+
+    def provision(*args):
+        raise RuntimeError(
+            'Vercel 400: {"error":{"code":"validation_error","message":"The following organization '
+            "members have reached their maximum limits for the number of active free projects within "
+            'organizations where they are an administrator or owner: nishantatgit (2 project limit)."}}'
+        )
+
+    out = make_database("tok", "icfg_1", provision=provision)(job(tmp_path))
+    assert out["database_error"] == LIMIT_REACHED
+    assert "Vercel 400" not in out["database_error"]

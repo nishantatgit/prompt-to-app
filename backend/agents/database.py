@@ -27,6 +27,20 @@ NOT_SET_UP = (
 )
 
 
+LIMIT_REACHED = (
+    "This app needs a database, but the free plan's limit of active databases "
+    "is reached. Delete or pause an unused Supabase project (at "
+    "vercel.com/dashboard/stores or supabase.com/dashboard), then build again."
+)
+
+
+def _provision_error(error: Exception) -> str:
+    text = str(error)
+    if "project limit" in text or "maximum limits for the number of active free projects" in text:
+        return LIMIT_REACHED
+    return f"Could not create the app's database: {text}"
+
+
 def needs_database(state: dict) -> bool:
     return (state.get("architecture") or {}).get("storage") == "supabase"
 
@@ -47,7 +61,7 @@ def make_database(token: str | None, config_id: str | None, provision=supabase.p
         try:
             env = provision(token, name, config_id)
         except Exception as error:
-            return _fail(f"Could not create the app's database: {error}")
+            return _fail(_provision_error(error))
         job_dir = Path(state["workspace_dir"])
         supabase.write_env_file(job_dir, env)
         (job_dir / DATABASE_ENV).write_text(env[supabase.MIGRATION_URL_KEY] + "\n")
