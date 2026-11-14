@@ -156,14 +156,34 @@ def wait_for_connection(database_url: str, connect=psycopg.connect, timeout: int
             delay = min(delay * 2, 15)
 
 
+# A new database restarts Postgres once soon after it is created, which cuts
+# off a running migration ("terminating connection due to administrator
+# command"). The file's transaction is then rolled back, so it is run again.
+MIGRATION_ATTEMPTS = 4
+RETRY_PAUSE = 5
+
+
+def run_migration(database_url: str, sql: str, connect=psycopg.connect) -> None:
+    """Run one migration file in one transaction, again when the connection
+    drops. A mistake in the SQL is raised at once."""
+    for attempt in range(1, MIGRATION_ATTEMPTS + 1):
+        try:
+            with wait_for_connection(database_url, connect) as conn:
+                conn.execute(sql)
+            return
+        except psycopg.OperationalError:
+            if attempt == MIGRATION_ATTEMPTS:
+                raise
+            time.sleep(RETRY_PAUSE)
+
+
 def apply_migrations(database_url: str, job_dir: Path, connect=psycopg.connect) -> list[str]:
     """Run each migration in its own transaction, in file name order. Raises
     with the file's name when one fails, and stops there."""
     applied = []
     for path in migration_files(job_dir):
         try:
-            with wait_for_connection(database_url, connect) as conn:
-                conn.execute(path.read_text())
+            run_migration(database_url, path.read_text(), connect)
         except Exception as error:
             raise RuntimeError(f"{path.name}: {error}") from error
         applied.append(path.name)
