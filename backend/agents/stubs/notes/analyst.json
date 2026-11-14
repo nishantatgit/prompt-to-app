@@ -1,0 +1,10 @@
+{
+  "app_summary": "Personal notes app where each person signs up, logs in and keeps private notes",
+  "requirements": [
+    { "id": "R1", "kind": "explicit", "statement": "A person can sign up and log in with an email and password", "source_quote": "signup and login", "reason": "" },
+    { "id": "R2", "kind": "explicit", "statement": "A logged in person writes notes and sees them listed", "source_quote": "A notes app", "reason": "" },
+    { "id": "R3", "kind": "implied", "statement": "Each person sees only their own notes", "source_quote": "", "reason": "Notes behind a login are private to the person who wrote them" }
+  ],
+  "out_of_scope": ["Sharing notes", "Password reset by email"],
+  "assumptions": ["A note is plain text"]
+}

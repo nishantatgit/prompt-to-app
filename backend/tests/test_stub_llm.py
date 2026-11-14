@@ -78,3 +78,21 @@ def test_the_guestbook_scenario_passes_every_planning_agent():
         assert out.get(key), out
         state.update(out)
     assert state["architecture"]["storage"] == "supabase"
+
+
+def test_the_notes_scenario_passes_every_planning_agent():
+    from agents.analyst import make_analyst
+    from agents.architect import make_architect
+    from agents.stub_llm import StubLLM
+    from agents.test_planner import make_test_planner
+
+    state = {"prompt": "A notes app with signup and login", "job_id": "x"}
+    for agent, make, key in [
+        ("analyst", make_analyst, "requirements"),
+        ("architect", make_architect, "architecture"),
+        ("test_planner", make_test_planner, "test_plan"),
+    ]:
+        out = make(StubLLM(agent=agent, scenario="notes"))(state)
+        assert out.get(key), out
+        state.update(out)
+    assert state["architecture"]["needs_auth"] is True
