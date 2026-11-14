@@ -1,0 +1,578 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.4/x64/bin/node",
+      "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "@app11"
+    ],
+    "configFile": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/playwright.config.ts",
+    "rootDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+        "commitHash": "b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+        "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43571322627"
+      },
+      "gitCommit": {
+        "shortHash": "b8a2b87",
+        "hash": "b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+        "subject": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+        "body": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+        "author": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794641361000
+        },
+        "committer": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794641361000
+        },
+        "branch": "run-benchmark"
+      },
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+            "commitHash": "b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43571322627"
+          },
+          "gitCommit": {
+            "shortHash": "b8a2b87",
+            "hash": "b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+            "subject": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+            "body": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641361000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641361000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+            "commitHash": "b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43571322627"
+          },
+          "gitCommit": {
+            "shortHash": "b8a2b87",
+            "hash": "b8a2b87c99f21f9a5274cbcbdaa52df01f34df72",
+            "subject": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+            "body": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641361000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641361000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "snapshotDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "screenshot": "on",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "results/latest/report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/latest/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "apps/11-guestbook.spec.ts",
+      "file": "apps/11-guestbook.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#11 guestbook | specific",
+          "file": "apps/11-guestbook.spec.ts",
+          "line": 44,
+          "column": 6,
+          "specs": [
+            {
+              "title": "has a name field, a message field and a button to sign",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 629,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:20.020Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-77e4e--field-and-a-button-to-sign/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-40b421685220fc434aec",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 51,
+              "column": 7
+            },
+            {
+              "title": "a signed entry shows with its name and message",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1233,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:20.820Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-116c1-s-with-its-name-and-message/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-29595f65372d83864047",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "the entry is still there after a reload",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1707,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:22.073Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-a49cf--still-there-after-a-reload/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-ce41ae06215698016d7e",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 66,
+              "column": 7
+            },
+            {
+              "title": "another visitor sees the entry",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3330,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:23.798Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-1ec77-ther-visitor-sees-the-entry/test-finished-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-1ec77-ther-visitor-sees-the-entry/test-finished-2.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-8a6e8df1b06df62b522a",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "an entry without a message is not saved",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2698,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:27.141Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-f437d-hout-a-message-is-not-saved/test-finished-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-f437d-hout-a-message-is-not-saved/test-finished-2.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-4336f4e034a37e49433d",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 90,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "common/common.spec.ts",
+      "file": "common/common.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#11 guestbook | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 729,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:20.023Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-page-loads/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-0c7680e3f7e4866928dc",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1224,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:20.889Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-no-console-errors/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-b3699c7db7eb3cc4c862",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 294,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:31:22.132Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-fits-a-mobile-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-ff4d405624308a1a0fe6",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-14T07:31:19.294Z",
+    "duration": 10589.931,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
