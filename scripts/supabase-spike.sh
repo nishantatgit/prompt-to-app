@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
-# Read only: each database, its creation time and the projects connected to it.
+# Read only: is the Supabase access token set, valid, and on the right account?
 set -uo pipefail
-API=https://api.vercel.com; Q="teamId=team_71xyHRYPaRkkn2kQ99UT0mDP"; auth=(-H "Authorization: Bearer $VERCEL_TOKEN")
-for id in $(curl -sS "${auth[@]}" "$API/v1/storage/stores?$Q" | jq -r '.stores[]?.id'); do
-  curl -sS "${auth[@]}" "$API/storage/stores/$id?$Q" | jq -c '(.store // .) | {name, created: (.createdAt/1000 | strftime("%Y-%m-%d %H:%M UTC")), projects: [.projectsMetadata[]? | .name // .projectId]}'
-done
+if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then echo "SUPABASE_ACCESS_TOKEN is not set as a GitHub secret"; exit 0; fi
+echo "token starts with: ${SUPABASE_ACCESS_TOKEN:0:4} (length ${#SUPABASE_ACCESS_TOKEN})"
+R=$(curl -sS -w '\n%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" https://api.supabase.com/v1/projects)
+CODE=$(echo "$R" | tail -1); BODY=$(echo "$R" | sed '$d')
+echo "projects call: $CODE"
+echo "$BODY" | jq -r 'if type=="array" then .[] | "\(.name)  ref=\(.id)  status=\(.status)" else . end' 2>/dev/null | head -20
+REF=$(echo "$BODY" | jq -r 'if type=="array" then .[] | select(.name=="single-event-rsvp-2043a8") | .id else empty end' 2>/dev/null)
+if [ -n "$REF" ]; then
+  echo "auth settings readable: $(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" https://api.supabase.com/v1/projects/$REF/config/auth)"
+fi
