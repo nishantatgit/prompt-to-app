@@ -1,0 +1,64 @@
+{
+  "summary": "A one page guestbook: a form to sign it and the list of entries, saved in Supabase",
+  "assumptions": ["Entries are public and cannot be edited or deleted"],
+  "coverage": [
+    { "requirement_id": "R1", "feature_ids": ["F1"] },
+    { "requirement_id": "R2", "feature_ids": ["F2"] }
+  ],
+  "storage": "supabase",
+  "needs_backend": false,
+  "needs_database": true,
+  "needs_auth": false,
+  "env_vars": [
+    { "name": "VITE_SUPABASE_URL", "used_by": "frontend", "secret": false, "purpose": "The Supabase project URL" },
+    { "name": "VITE_SUPABASE_ANON_KEY", "used_by": "frontend", "secret": false, "purpose": "The public anon key" }
+  ],
+  "ui_elements": [
+    { "kind": "input", "label": "Name", "purpose": "The visitor's name" },
+    { "kind": "input", "label": "Message", "purpose": "What the visitor wants to say" },
+    { "kind": "button", "label": "Sign the guestbook", "purpose": "Saves the entry" },
+    { "kind": "list", "label": "Entries", "purpose": "Everything visitors have written, newest first" }
+  ],
+  "features": [
+    {
+      "id": "F1",
+      "name": "Sign the guestbook",
+      "requirement_ids": ["R1"],
+      "description": "A form with a name and a message; both are required",
+      "acceptance_criteria": [
+        { "id": "F1-AC1", "statement": "The name and message inputs and the button are visible", "priority": "P1" },
+        { "id": "F1-AC2", "statement": "A signed entry appears in the list and is still there after a reload", "priority": "P1" }
+      ]
+    },
+    {
+      "id": "F2",
+      "name": "Read the guestbook",
+      "requirement_ids": ["R2"],
+      "description": "Lists every entry with its name and message, newest first",
+      "acceptance_criteria": [
+        { "id": "F2-AC1", "statement": "The entries list is visible when the page opens", "priority": "P2" }
+      ]
+    }
+  ],
+  "functions": [],
+  "tables": [
+    {
+      "name": "guestbook_entries",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "notes": "identity primary key" },
+        { "name": "created_at", "type": "timestamptz", "nullable": false, "notes": "default now()" },
+        { "name": "name", "type": "text", "nullable": false, "notes": "1 to 80 characters" },
+        { "name": "message", "type": "text", "nullable": false, "notes": "1 to 500 characters" }
+      ],
+      "access_rules": ["Anyone can read entries", "Anyone can add an entry", "Nobody can change or delete entries"]
+    }
+  ],
+  "api_routes": [],
+  "risks": [{ "risk": "Very long messages", "mitigation": "Length limits in the table and the form" }],
+  "files": [
+    { "path": "src/App.jsx", "owner": "frontend", "purpose": "The page" },
+    { "path": "src/lib/supabase.js", "owner": "frontend", "purpose": "The Supabase client" },
+    { "path": "supabase/migrations/001_guestbook.sql", "owner": "database", "purpose": "The entries table and its access rules" }
+  ],
+  "visual_design": "A warm paper coloured page with the form on top and entries below as simple notes."
+}

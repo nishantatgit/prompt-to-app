@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getJob } from '../lib/api.js'
+import { cancelJob, getJob } from '../lib/api.js'
 
 const STAGES = [
   'checking request',
@@ -11,18 +11,52 @@ const STAGES = [
   'deploying',
 ]
 const POLL_MS = 2000
-const FINISHED = new Set(['succeeded', 'failed', 'rejected'])
+const FINISHED = new Set(['succeeded', 'failed', 'rejected', 'cancelled'])
 
 function failureHeading(job) {
   if (job.status === 'rejected') return 'Vyskar could not build this request.'
+  if (job.reason?.startsWith('key rejected')) return 'Your API key did not work.'
+  if (job.reason?.startsWith('no credit')) return 'Your AI account is out of credit.'
   if (job.reason?.startsWith('internal error')) return 'Something went wrong on our side.'
   return 'The app did not pass its checks.'
+}
+
+// The build loop's latest steps, such as "Writing src/App.jsx" or "Build 1 failed,
+// fixing it". Only loop jobs have them; pipeline jobs show the steps alone.
+const ACTIVITY_SHOWN = 6
+
+function LoopActivity({ job }) {
+  if (job?.builder_mode !== 'loop' || !job.activity?.length) return null
+  const recent = job.activity.slice(-ACTIVITY_SHOWN)
+  return (
+    <ul aria-label="Build steps" className="mt-2 ml-[1.375rem] flex flex-col gap-1 border-l border-line pl-3 text-xs">
+      {recent.map((text, i) => (
+        <li key={job.activity.length - recent.length + i} className={i === recent.length - 1 ? 'text-fg' : 'text-dim'}>
+          {text}
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 export default function JobView({ jobId, onDone }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
+  const [cancelling, setCancelling] = useState(false)
   const furthest = useRef(-1)
+
+  async function handleCancel() {
+    setCancelling(true)
+    try {
+      const next = await cancelJob(jobId)
+      setJob(next)
+      onDone?.(next)
+    } catch (err) {
+      // Usually the build finished first; the next poll shows how it ended.
+      setError(err.message)
+      setCancelling(false)
+    }
+  }
 
   useEffect(() => {
     let stopped = false
@@ -71,24 +105,52 @@ export default function JobView({ jobId, onDone }) {
         <span className={job?.status === 'succeeded' ? 'text-accent' : ''}>{job?.status || 'starting'}</span>
       </div>
 
+      {job?.status === 'queued' && (
+        <p className="mt-4 text-sm text-muted">
+          Waiting for a free builder. Vyskar builds two apps at a time, so yours starts as soon as
+          one finishes.
+        </p>
+      )}
+
       {!finished && !error && (
         <ol className="mt-5 flex flex-col gap-1 font-mono text-sm">
           {STAGES.map((stage, i) => {
             const done = i < reached
             const current = i === reached
             return (
-              <li key={stage} className="flex items-center gap-3 py-1.5">
-                <span
-                  aria-hidden="true"
-                  className={`h-2.5 w-2.5 rounded-full ${
-                    done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
-                  }`}
-                />
-                <span className={done || current ? 'text-fg' : 'text-dim'}>{stage}</span>
+              <li key={stage} className="py-1.5">
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
+                    }`}
+                  />
+                  <span className={done || current ? 'text-fg' : 'text-dim'}>{stage}</span>
+                </div>
+                {stage === 'building' && <LoopActivity job={job} />}
               </li>
             )
           })}
         </ol>
+      )}
+
+      {!finished && !error && (
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={cancelling}
+          className="mt-5 min-h-11 rounded-full border border-wall px-5 text-sm text-muted hover:text-fg disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {cancelling ? 'Cancelling...' : 'Cancel build'}
+        </button>
+      )}
+
+      {job?.status === 'cancelled' && (
+        <div className="mt-5 flex flex-col gap-2">
+          <p className="font-display text-xl font-bold">Build cancelled.</p>
+          <p className="text-sm text-muted">Nothing was deployed. Change your prompt and build again.</p>
+        </div>
       )}
 
       {job?.status === 'succeeded' && (
@@ -109,7 +171,9 @@ export default function JobView({ jobId, onDone }) {
       {(job?.status === 'failed' || job?.status === 'rejected') && (
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">{failureHeading(job)}</p>
-          <p className="text-sm leading-relaxed text-muted">{job.reason}</p>
+          <p className="text-sm leading-relaxed text-muted">
+            {job.reason?.replace(/^(key rejected|no credit): /, '')}
+          </p>
           {job.test_summary && (
             <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 font-mono text-xs text-dim">{job.test_summary}</pre>
           )}

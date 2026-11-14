@@ -20,3 +20,7 @@ export async function startBuild({ prompt, provider, apiKey }) {
 export function getJob(jobId) {
   return request(`/api/jobs/${encodeURIComponent(jobId)}`);
 }
+
+export function cancelJob(jobId) {
+  return request(`/api/jobs/${encodeURIComponent(jobId)}/cancel`, { method: "POST" });
+}

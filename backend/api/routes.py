@@ -5,9 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, SecretStr
 
 from agents.graph import AgentLimits, AgentModels, build_graph
+from agents.keys import KeyRejected, check_key
 from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
-from api.jobs import create_job, get_job, has_capacity, public_view, submit
+from api.jobs import cancel_job, create_job, get_job, has_capacity, public_view, submit
 from api.limits import check_rate_limit
 from config import Settings, get_settings
 from tools.workspace import new_job_id
@@ -77,6 +78,13 @@ def build(
     else:
         raise HTTPException(status_code=400, detail="An API key is required.")
 
+    # A bad key fails here in a second, instead of as an error mid build.
+    if not stub_mode():
+        try:
+            check_key(req.provider, key)
+        except KeyRejected as error:
+            raise HTTPException(status_code=400, detail=str(error))
+
     if not has_capacity():
         raise HTTPException(
             status_code=503,
@@ -92,10 +100,15 @@ def build(
     else:
         models = make_models(req.provider, key, settings)
     graph = build_graph(
-        models, limits, settings.workspaces_dir, vercel_token=os.environ.get("VERCEL_TOKEN")
+        models,
+        limits,
+        settings.workspaces_dir,
+        vercel_token=os.environ.get("VERCEL_TOKEN"),
+        builder_mode=settings.builder_mode,
+        supabase_config_id=os.environ.get("VERCEL_SUPABASE_CONFIG_ID"),
     )
     job_id = new_job_id()
-    create_job(job_id, req.prompt)
+    create_job(job_id, req.prompt, settings.builder_mode)
     submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
     return {"job_id": job_id}
 
@@ -106,3 +119,12 @@ def get_job_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="job not found")
     return public_view(job)
+
+
+@router.post("/jobs/{job_id}/cancel")
+def cancel_build(job_id: str):
+    if get_job(job_id) is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    if not cancel_job(job_id):
+        raise HTTPException(status_code=409, detail="This build has already finished.")
+    return public_view(get_job(job_id))

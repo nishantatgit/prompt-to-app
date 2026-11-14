@@ -52,7 +52,8 @@ def collect_files(job_dir: Path) -> list[dict]:
         if not path.is_file():
             continue
         rel = path.relative_to(job_dir)
-        if SKIP_DIRS & set(rel.parts) or rel.name in SKIP_FILES:
+        # .env files hold keys for local runs only; deploys get theirs from the project.
+        if SKIP_DIRS & set(rel.parts) or rel.name in SKIP_FILES or rel.name.startswith(".env"):
             continue
         files.append(
             {

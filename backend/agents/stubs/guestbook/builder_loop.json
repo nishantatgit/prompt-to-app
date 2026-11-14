@@ -1,0 +1,7 @@
+[
+  { "tool": "list_files", "args": {} },
+  { "tool": "write_file", "args": { "path": "supabase/migrations/001_guestbook.sql", "content_file": "001_guestbook.sql" } },
+  { "tool": "write_file", "args": { "path": "src/lib/supabase.js", "content_file": "supabase.js" } },
+  { "tool": "write_file", "args": { "path": "src/App.jsx", "content_file": "guestbook.jsx" } },
+  { "done": "Built the guestbook: the table and its policies, the Supabase client and the page." }
+]

@@ -1,0 +1,9 @@
+{
+  "app_summary": "Guestbook where visitors leave a name and a message for everyone to see",
+  "requirements": [
+    { "id": "R1", "kind": "explicit", "statement": "A visitor leaves their name and a message", "source_quote": "visitors leave a name and message", "reason": "" },
+    { "id": "R2", "kind": "implied", "statement": "Everyone sees the messages visitors have left, newest first", "source_quote": "", "reason": "A guestbook is read by later visitors, so entries must be saved and shown to all" }
+  ],
+  "out_of_scope": ["Accounts or logins", "Editing or deleting entries"],
+  "assumptions": ["Anyone can sign the guestbook without logging in"]
+}

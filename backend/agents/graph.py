@@ -12,11 +12,13 @@ from agents.guard import make_guard
 from agents.test_planner import make_test_planner
 from agents.setup_workspace import make_setup_workspace
 from agents.builder import make_builder
+from agents.build_loop import make_build_loop
 from agents.build_check import build_check
 from agents.after_build_check import make_after_build_check
 from agents.qa.test_writer import test_writer
 from agents.qa.test_executor import test_executor
 from agents.deploy import make_deploy
+from agents.database import after_database, after_migrations, make_database, make_migrations
 
 
 @dataclass
@@ -73,6 +75,14 @@ def build_done(state: JobState) -> dict:
     return {}
 
 
+BuilderMode = Literal["pipeline", "loop"]
+
+
+def after_build_loop(state: JobState) -> Literal["migrations", "__end__"]:
+    # The loop already retried inside itself, so a failure here is final.
+    return "migrations" if state.get("build_ok") else END
+
+
 def make_after_test_planner(max_attempts: int):
     def after_test_planner(
         state: JobState,
@@ -87,7 +97,12 @@ def make_after_test_planner(max_attempts: int):
 
 
 def build_graph(
-    models: AgentModels, limits: AgentLimits, workspaces_dir: Path, vercel_token: str | None = None
+    models: AgentModels,
+    limits: AgentLimits,
+    workspaces_dir: Path,
+    vercel_token: str | None = None,
+    builder_mode: BuilderMode = "pipeline",
+    supabase_config_id: str | None = None,
 ):
     graph = StateGraph(JobState)
 
@@ -96,9 +111,23 @@ def build_graph(
     graph.add_node("architect", make_architect(models.architect))
     graph.add_node("test_planner", make_test_planner(models.test_planner))
     graph.add_node("setup_workspace", make_setup_workspace(workspaces_dir))
-    graph.add_node("builder", make_builder(models.builder))
+    # pipeline: one model call writes App.jsx, then build_check, with retries
+    #           routed through the graph.
+    # loop:     one node where the model works on files with tools until the
+    #           build passes or a limit is hit. It keeps the name "builder" so
+    #           job stages and the rest of the graph stay the same.
+    if builder_mode == "loop":
+        graph.add_node(
+            "builder", make_build_loop(models.builder, max_builds=limits.builder_max_attempts)
+        )
+    else:
+        graph.add_node("builder", make_builder(models.builder))
+        graph.add_node("build_check", build_check)
+    # Apps that store data in Supabase get a database before the build and
+    # their migrations after it. Other apps pass straight through both.
+    graph.add_node("database", make_database(vercel_token, supabase_config_id))
+    graph.add_node("migrations", make_migrations())
     graph.add_node("build_done", build_done)
-    graph.add_node("build_check", build_check)
     graph.add_node("write_test", test_writer)
     graph.add_node("test_executor", test_executor)
     graph.add_node("deploy", make_deploy(vercel_token))
@@ -109,11 +138,18 @@ def build_graph(
     graph.add_conditional_edges(
         "test_planner", make_after_test_planner(limits.test_planner_max_attempts)
     )
-    graph.add_edge("setup_workspace", "builder")  # replaces setup_workspace -> END
+    graph.add_edge("setup_workspace", "database")
+    graph.add_conditional_edges("database", after_database, ["builder", END])
     graph.add_edge("setup_workspace", "test_planner")
+    graph.add_conditional_edges("migrations", after_migrations, ["build_done", END])
 
-    graph.add_edge("builder", "build_check")
-    graph.add_conditional_edges("build_check", make_after_build_check(limits.builder_max_attempts))
+    if builder_mode == "loop":
+        graph.add_conditional_edges("builder", after_build_loop)
+    else:
+        graph.add_edge("builder", "build_check")
+        graph.add_conditional_edges(
+            "build_check", make_after_build_check(limits.builder_max_attempts)
+        )
     graph.add_edge(["build_done", "write_test"], "test_executor")
     # Deploy always runs; without a token it records why it skipped.
     graph.add_edge("test_executor", "deploy")
