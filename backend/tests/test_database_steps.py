@@ -109,3 +109,65 @@ def test_the_job_view_names_the_database_but_holds_no_keys():
     view = jobs.public_view(jobs.get_job("db-1"))
     assert view["database_name"] == "guestbook-abc123"
     assert not any("KEY" in k or "POSTGRES" in k for k in view)
+
+
+def test_the_free_database_limit_gets_a_clear_message(tmp_path):
+    from agents.database import LIMIT_REACHED
+
+    def provision(*args):
+        raise RuntimeError(
+            'Vercel 400: {"error":{"code":"validation_error","message":"The following organization '
+            "members have reached their maximum limits for the number of active free projects within "
+            'organizations where they are an administrator or owner: nishantatgit (2 project limit)."}}'
+        )
+
+    out = make_database("tok", "icfg_1", provision=provision)(job(tmp_path))
+    assert out["database_error"] == LIMIT_REACHED
+    assert "Vercel 400" not in out["database_error"]
+
+
+def auth_job(tmp_path):
+    state = job(tmp_path)
+    state["architecture"]["needs_auth"] = True
+    return state
+
+
+def test_apps_with_logins_turn_off_email_confirmation(tmp_path):
+    calls = []
+    step = make_database(
+        "tok",
+        "icfg_1",
+        provision=lambda *a: KEYS,
+        access_token="sbp_token",
+        allow_signups=lambda token, url: calls.append((token, url)),
+    )
+    out = step(auth_job(tmp_path))
+    assert out == {"database_name": "guestbook-visitors-abcdef"}
+    assert calls == [("sbp_token", "https://abc.supabase.co")]
+
+
+def test_apps_without_logins_leave_confirmation_alone(tmp_path):
+    def never(*args):
+        raise AssertionError("only apps with logins change the auth settings")
+
+    step = make_database("tok", "icfg_1", provision=lambda *a: KEYS, access_token="x", allow_signups=never)
+    assert step(job(tmp_path)) == {"database_name": "guestbook-visitors-abcdef"}
+
+
+def test_logins_without_an_access_token_end_the_job_before_creating_anything(tmp_path):
+    from agents.database import NO_ACCESS_TOKEN
+
+    def never(*args):
+        raise AssertionError("no database without a way to set up logins")
+
+    out = make_database("tok", "icfg_1", provision=never)(auth_job(tmp_path))
+    assert out["database_error"] == NO_ACCESS_TOKEN
+
+
+def test_a_failed_login_setup_ends_the_job(tmp_path):
+    def refuse(token, url):
+        raise RuntimeError("Supabase refused the access token (401)")
+
+    step = make_database("tok", "icfg_1", provision=lambda *a: KEYS, access_token="bad", allow_signups=refuse)
+    out = step(auth_job(tmp_path))
+    assert out["database_error"].startswith("Could not set up logins for the app's database: Supabase refused")

@@ -75,7 +75,7 @@ def test_a_failed_database_step_ends_the_job_cleanly(parts, monkeypatch):
         raise RuntimeError("Vercel 402: payment required")
 
     monkeypatch.setattr(
-        graph_module, "make_database", lambda t, c: make_database(t, c, provision=failing)
+        graph_module, "make_database", lambda t, c, **kw: make_database(t, c, provision=failing, **kw)
     )
     monkeypatch.setenv("STUB_SCENARIO", "guestbook")
     from agents.stub_llm import StubLLM

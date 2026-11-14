@@ -135,6 +135,13 @@ Rules:
   search, so the test would pass before anything was saved.
 - Privacy: login_as user_a and create data, then login_as user_b and
   expect_no_text for that data.
+- Logins, when needs_auth is true: each test signs up its own users through
+  the app's Sign up form, with a unique email such as
+  `vyskar.test+${Date.now()}a@gmail.com` and the password
+  "Test-password-123". Vyskar turns off email confirmation, so a signup is
+  logged in at once. For privacy, sign up user A and add data, log out, sign
+  up user B, then expect A's data to have count 0 inside the list that shows
+  data.
 - Include at least one test with set_viewport size "small" for the main
   flow, to check the mobile layout.
 - For numeric results, choose inputs whose correct output is exact and well

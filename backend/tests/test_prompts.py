@@ -56,3 +56,16 @@ def test_test_planner_checks_saved_data_inside_its_list():
     rules = (Path(__file__).parent.parent / "agents/prompts/test_planner.md").read_text()
     assert "getByRole('list', { name: 'Entries' }).getByText(message)" in rules
     assert "never with a page wide getByText" in " ".join(rules.split())
+
+
+def test_build_loop_and_test_planner_know_how_logins_work():
+    from pathlib import Path
+
+    prompts = Path(__file__).parent.parent / "agents/prompts"
+    loop = " ".join((prompts / "build_loop.md").read_text().split())
+    planner = " ".join((prompts / "test_planner.md").read_text().split())
+    assert "When needs_auth is true:" in loop
+    assert "Never show \"check your email\"" in loop
+    assert "user_id uuid not null default auth.uid()" in loop
+    assert "Vyskar turns off email confirmation" in planner
+    assert "@gmail.com" in planner
