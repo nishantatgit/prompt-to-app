@@ -1,0 +1,11 @@
+{
+  "label": "loop-guestbook",
+  "apps": "--ids 11",
+  "stub_llm": false,
+  "stub_scenario": "tip-calculator",
+  "builder_mode": "loop",
+  "retest_of": "",
+  "model": "claude-sonnet-5-5",
+  "commit": "e52d0e918df6943cf32d53ecacb55fb8845e9132",
+  "workflow_run": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43571568674"
+}

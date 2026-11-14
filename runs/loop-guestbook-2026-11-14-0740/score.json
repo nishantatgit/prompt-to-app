@@ -1,0 +1,19 @@
+{
+  "label": "loop-guestbook",
+  "score": "1/1",
+  "passed": 1,
+  "total": 1,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 11,
+      "slug": "guestbook",
+      "result": "pass",
+      "confidence": 100,
+      "broken_green": false,
+      "tests_passed": 8,
+      "tests_run": 8,
+      "failed": []
+    }
+  ]
+}

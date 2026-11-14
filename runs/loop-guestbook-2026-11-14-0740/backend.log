@@ -1,0 +1,54 @@
+INFO:     Started server process [3110]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[startup] .env loaded from /home/runner/work/prompt-to-app/prompt-to-app/backend/.env: False | LANGSMITH_TRACING=None | LANGSMITH_PROJECT=None
+INFO:     127.0.0.1:55678 - "GET /api/health HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:55682 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:37918 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39404 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39652 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58030 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60322 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56788 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53710 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33414 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55250 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55188 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39178 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55896 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38774 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51004 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36084 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35874 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37762 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43524 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36962 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57774 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59892 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49702 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50382 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44338 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44456 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56618 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54308 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47912 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39848 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58800 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49404 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59346 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59894 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51990 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39926 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41592 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37750 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53636 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55510 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45520 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41838 - "GET /api/jobs/26-11-14-1794641592-5b27496f84 HTTP/1.1" 200 OK
