@@ -14,6 +14,7 @@ the database. Deploys get them from the project itself.
 
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 import httpx
 import psycopg
@@ -189,3 +190,42 @@ def apply_migrations(database_url: str, job_dir: Path, connect=psycopg.connect) 
             raise RuntimeError(f"{path.name}: {error}") from error
         applied.append(path.name)
     return applied
+
+
+# Supabase's own API, for settings Vercel does not expose.
+MANAGEMENT_API = "https://api.supabase.com"
+
+
+def project_ref(supabase_url: str) -> str:
+    """The project's id, the first part of https://<ref>.supabase.co."""
+    return urlparse(supabase_url).hostname.split(".")[0]
+
+
+def allow_signups_without_confirmation(
+    access_token: str, supabase_url: str, timeout: int = 120
+) -> None:
+    """Let new users log in right after signing up.
+
+    By default Supabase makes users confirm their email first, and its
+    built-in email only reaches the project's own team, so nobody else who
+    signs up to a generated app could ever log in. A brand new project can
+    answer 404 or 5xx for a short while, so those are retried.
+    """
+    url = f"{MANAGEMENT_API}/v1/projects/{project_ref(supabase_url)}/config/auth"
+    deadline = time.monotonic() + timeout
+    while True:
+        response = httpx.patch(
+            url,
+            headers={"Authorization": f"Bearer {access_token}"},
+            json={"mailer_autoconfirm": True},
+            timeout=30,
+        )
+        if response.is_success:
+            return
+        if response.status_code in (401, 403):
+            raise RuntimeError(
+                f"Supabase refused the access token ({response.status_code}): {response.text[:300]}"
+            )
+        if time.monotonic() > deadline:
+            raise RuntimeError(f"Supabase {response.status_code}: {response.text[:300]}")
+        time.sleep(5)

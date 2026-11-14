@@ -1,0 +1,7 @@
+[
+  { "tool": "list_files", "args": {} },
+  { "tool": "write_file", "args": { "path": "supabase/migrations/001_notes.sql", "content_file": "001_notes.sql" } },
+  { "tool": "write_file", "args": { "path": "src/lib/supabase.js", "content_file": "supabase.js" } },
+  { "tool": "write_file", "args": { "path": "src/App.jsx", "content_file": "notes.jsx" } },
+  { "done": "Built the notes app: owner only table, the Supabase client, login and notes screens." }
+]

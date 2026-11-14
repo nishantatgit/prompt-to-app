@@ -103,6 +103,7 @@ def build_graph(
     vercel_token: str | None = None,
     builder_mode: BuilderMode = "pipeline",
     supabase_config_id: str | None = None,
+    supabase_access_token: str | None = None,
 ):
     graph = StateGraph(JobState)
 
@@ -125,7 +126,10 @@ def build_graph(
         graph.add_node("build_check", build_check)
     # Apps that store data in Supabase get a database before the build and
     # their migrations after it. Other apps pass straight through both.
-    graph.add_node("database", make_database(vercel_token, supabase_config_id))
+    graph.add_node(
+        "database",
+        make_database(vercel_token, supabase_config_id, access_token=supabase_access_token),
+    )
     graph.add_node("migrations", make_migrations())
     graph.add_node("build_done", build_done)
     graph.add_node("write_test", test_writer)

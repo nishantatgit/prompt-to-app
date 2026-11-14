@@ -140,6 +140,8 @@ jobs:
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
           # The Supabase integration installed on the Vercel account; not a secret.
           VERCEL_SUPABASE_CONFIG_ID: icfg_OSg4qJPPHnK2vActpSWCUuaE
+          # Lets apps with logins skip email confirmation.
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           GUARD_PROVIDER: anthropic
           GUARD_MODEL: ${{ env.MODEL }}
           ARCHITECT_PROVIDER: anthropic

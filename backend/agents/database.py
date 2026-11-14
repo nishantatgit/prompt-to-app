@@ -41,6 +41,17 @@ def _provision_error(error: Exception) -> str:
     return f"Could not create the app's database: {text}"
 
 
+NO_ACCESS_TOKEN = (
+    "This app has logins, but Vyskar's login setup is missing: "
+    "SUPABASE_ACCESS_TOKEN must be set so new users can log in without "
+    "confirming their email."
+)
+
+
+def needs_auth(state: dict) -> bool:
+    return bool((state.get("architecture") or {}).get("needs_auth"))
+
+
 def needs_database(state: dict) -> bool:
     return (state.get("architecture") or {}).get("storage") == "supabase"
 
@@ -51,17 +62,30 @@ def _fail(message: str) -> dict:
     return {"database_error": message[:2000]}
 
 
-def make_database(token: str | None, config_id: str | None, provision=supabase.provision):
+def make_database(
+    token: str | None,
+    config_id: str | None,
+    provision=supabase.provision,
+    access_token: str | None = None,
+    allow_signups=supabase.allow_signups_without_confirmation,
+):
     def database(state: dict) -> dict:
         if not needs_database(state):
             return {}
         if not token or not config_id:
             return _fail(NOT_SET_UP)
+        if needs_auth(state) and not access_token:
+            return _fail(NO_ACCESS_TOKEN)
         name = app_name(state)
         try:
             env = provision(token, name, config_id)
         except Exception as error:
             return _fail(_provision_error(error))
+        if needs_auth(state):
+            try:
+                allow_signups(access_token, env[supabase.PUBLIC_KEYS[0]])
+            except Exception as error:
+                return _fail(f"Could not set up logins for the app's database: {error}")
         job_dir = Path(state["workspace_dir"])
         supabase.write_env_file(job_dir, env)
         (job_dir / DATABASE_ENV).write_text(env[supabase.MIGRATION_URL_KEY] + "\n")
