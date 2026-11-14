@@ -1,0 +1,21 @@
+INFO:     Started server process [3123]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[startup] .env loaded from /home/runner/work/prompt-to-app/prompt-to-app/backend/.env: False | LANGSMITH_TRACING=None | LANGSMITH_PROJECT=None
+INFO:     127.0.0.1:42828 - "GET /api/health HTTP/1.1" 200 OK
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+/home/runner/work/prompt-to-app/prompt-to-app/backend/.venv/lib/python3.14/site-packages/langchain_anthropic/chat_models.py:2975: UserWarning: You are attempting to use structured output via forced tool calling, which is not supported when `thinking` is enabled or on claude-sonnet-5-5. This method will raise an OutputParserException if tool calls are not generated. Consider `method='json_schema'`, disabling `thinking` where supported, or adjusting your prompt to ensure the tool is called.
+  llm = self._get_llm_for_structured_output_when_thinking_is_enabled(
+INFO:     127.0.0.1:42842 - "POST /api/build HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49834 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53830 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45226 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60106 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57600 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51574 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50566 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55980 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33670 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43032 - "GET /api/jobs/26-11-14-1794651954-ca95c28859 HTTP/1.1" 200 OK
