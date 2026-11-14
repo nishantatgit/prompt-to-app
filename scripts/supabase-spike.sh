@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# List the Supabase databases on the account. Read only.
+# Delete the database the cancelled benchmark run left behind, by exact name.
 set -uo pipefail
-curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v1/storage/stores?teamId=team_71xyHRYPaRkkn2kQ99UT0mDP" \
-  | jq -r '.stores[]? | select(.product.slug=="supabase" or .type=="integration") | "\(.name)  created \(.createdAt/1000 | strftime("%H:%M UTC"))"'
+API=https://api.vercel.com; Q="teamId=team_71xyHRYPaRkkn2kQ99UT0mDP"; auth=(-H "Authorization: Bearer $VERCEL_TOKEN")
+ID=$(curl -sS "${auth[@]}" "$API/v1/storage/stores?$Q" | jq -r '.stores[]? | select(.name=="simple-public-guestbook-ca95c2") | .id')
+[ -z "$ID" ] && { echo "not found"; exit 0; }
+echo "disconnect: $(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" -X DELETE "$API/v1/storage/stores/$ID/connections?$Q")"
+echo "delete: $(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" -X DELETE "$API/v1/storage/stores/integration/$ID?$Q")"
+sleep 5
+curl -sS "${auth[@]}" "$API/v1/storage/stores?$Q" | jq -r '.stores[]? | .name'
