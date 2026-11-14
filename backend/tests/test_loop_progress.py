@@ -65,7 +65,7 @@ class FakeGraph:
         self.chunks = chunks
 
     def stream(self, state, config, stream_mode):
-        assert stream_mode == ["updates", "custom"]
+        assert stream_mode == ["updates", "custom", "tasks"]
         yield from self.chunks
 
 
