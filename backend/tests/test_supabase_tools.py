@@ -66,7 +66,10 @@ def test_provision_creates_connects_and_returns_the_keys(vercel):
     env = supabase.provision("tok", "guestbook-abc123", "icfg_1")
 
     assert env == KEYS
+    project = next(body for m, p, body in vercel.calls if p == "/v11/projects")
+    assert project["name"] == "vyskar-guestbook-abc123"  # the project deploy_app uses
     create = next(body for m, p, body in vercel.calls if p.endswith("/integration/direct"))
+    assert create["name"] == "guestbook-abc123"
     assert create["integrationConfigurationId"] == "icfg_1"
     assert create["metadata"] == {"region": "bom1", "publicEnvVarPrefix": "VITE_"}
     connect = next(body for m, p, body in vercel.calls if p.endswith("/connections"))
@@ -251,3 +254,18 @@ def test_a_mistake_in_the_sql_is_not_retried(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match="001_bad.sql"):
         supabase.apply_migrations("postgres://x", tmp_path, connect=connect)
     assert len(attempts) == 1
+
+
+def test_the_database_and_the_deploy_use_the_same_project(vercel, monkeypatch, tmp_path):
+    from tools import vercel as vercel_tools
+
+    deployed = []
+    monkeypatch.setattr(vercel_tools, "create_deployment", lambda t, project, files: deployed.append(project) or {"id": "d1"})
+    monkeypatch.setattr(vercel_tools, "wait_until_ready", lambda t, i: {"readyState": "READY"})
+    monkeypatch.setattr(vercel_tools, "add_domain", lambda t, p, d: {})
+
+    supabase.provision("tok", "guestbook-abc123", "icfg_1")
+    vercel_tools.deploy_app("tok", tmp_path, "guestbook-abc123")
+
+    connected_to = next(b["name"] for m, p, b in vercel.calls if p == "/v11/projects")
+    assert deployed == [connected_to]
