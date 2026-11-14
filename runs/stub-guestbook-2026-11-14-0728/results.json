@@ -1,0 +1,774 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.4/x64/bin/node",
+      "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "@app11"
+    ],
+    "configFile": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/playwright.config.ts",
+    "rootDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/84f6ea24d09631bcec532289081efff497ca2554",
+        "commitHash": "84f6ea24d09631bcec532289081efff497ca2554",
+        "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43570919693"
+      },
+      "gitCommit": {
+        "shortHash": "84f6ea2",
+        "hash": "84f6ea24d09631bcec532289081efff497ca2554",
+        "subject": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+        "body": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+        "author": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794641037000
+        },
+        "committer": {
+          "name": "Claude",
+          "email": "noreply@anthropic.com",
+          "time": 1794641037000
+        },
+        "branch": "run-benchmark"
+      },
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/84f6ea24d09631bcec532289081efff497ca2554",
+            "commitHash": "84f6ea24d09631bcec532289081efff497ca2554",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43570919693"
+          },
+          "gitCommit": {
+            "shortHash": "84f6ea2",
+            "hash": "84f6ea24d09631bcec532289081efff497ca2554",
+            "subject": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+            "body": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641037000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641037000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/nishantatgit/prompt-to-app/commit/84f6ea24d09631bcec532289081efff497ca2554",
+            "commitHash": "84f6ea24d09631bcec532289081efff497ca2554",
+            "buildHref": "https://github.com/nishantatgit/prompt-to-app/actions/runs/43570919693"
+          },
+          "gitCommit": {
+            "shortHash": "84f6ea2",
+            "hash": "84f6ea24d09631bcec532289081efff497ca2554",
+            "subject": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook",
+            "body": "ci: stub guestbook with a real database and the guestbook spec [stub] ids=11 mode=loop scenario=guestbook label=stub-guestbook\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EB5upK8UsrZhkyF2rnFewi\n",
+            "author": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641037000
+            },
+            "committer": {
+              "name": "Claude",
+              "email": "noreply@anthropic.com",
+              "time": 1794641037000
+            },
+            "branch": "run-benchmark"
+          },
+          "actualWorkers": 2
+        },
+        "name": "",
+        "testDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "snapshotDir": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "screenshot": "on",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "results/latest/report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/latest/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "apps/11-guestbook.spec.ts",
+      "file": "apps/11-guestbook.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#11 guestbook | specific",
+          "file": "apps/11-guestbook.spec.ts",
+          "line": 44,
+          "column": 6,
+          "specs": [
+            {
+              "title": "has a name field, a message field and a button to sign",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5750,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: /name/i }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('textbox', { name: /name/i }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: /name/i }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('textbox', { name: /name/i }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:52:37",
+                        "location": {
+                          "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                          "column": 37,
+                          "line": 52
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 50 |\u001b[39m\n \u001b[90m 51 |\u001b[39m   test(\u001b[32m'has a name field, a message field and a button to sign'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 52 |\u001b[39m     \u001b[36mawait\u001b[39m expect(field(page\u001b[33m,\u001b[39m \u001b[33mNAME\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\n \u001b[90m    |\u001b[39m                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 53 |\u001b[39m     \u001b[36mawait\u001b[39m expect(field(page\u001b[33m,\u001b[39m \u001b[33mMESSAGE\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\n \u001b[90m 54 |\u001b[39m     \u001b[36mawait\u001b[39m expect(submitButton(page))\u001b[33m.\u001b[39mtoBeVisible()\n \u001b[90m 55 |\u001b[39m   })\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                            "column": 37,
+                            "line": 52
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: /name/i }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('textbox', { name: /name/i }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n\n\n  50 |\n  51 |   test('has a name field, a message field and a button to sign', async ({ page }) => {\n> 52 |     await expect(field(page, NAME)).toBeVisible()\n     |                                     ^\n  53 |     await expect(field(page, MESSAGE)).toBeVisible()\n  54 |     await expect(submitButton(page)).toBeVisible()\n  55 |   })\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:52:37"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:25:49.070Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-77e4e--field-and-a-button-to-sign/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-77e4e--field-and-a-button-to-sign/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-77e4e--field-and-a-button-to-sign/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                        "column": 37,
+                        "line": 52
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-40b421685220fc434aec",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 51,
+              "column": 7
+            },
+            {
+              "title": "a signed entry shows with its name and message",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30039,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                            "column": 27,
+                            "line": 39
+                          },
+                          "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n\n\n  37 |\n  38 | async function sign(page: Page, name: string, message: string) {\n> 39 |   await field(page, NAME).fill(name)\n     |                           ^\n  40 |   await field(page, MESSAGE).fill(message)\n  41 |   await submitButton(page).click()\n  42 | }\n    at sign (/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:39:27)\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:60:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:25:55.218Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-116c1-s-with-its-name-and-message/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-116c1-s-with-its-name-and-message/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-116c1-s-with-its-name-and-message/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-29595f65372d83864047",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "the entry is still there after a reload",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30042,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                            "column": 27,
+                            "line": 39
+                          },
+                          "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n\n\n  37 |\n  38 | async function sign(page: Page, name: string, message: string) {\n> 39 |   await field(page, NAME).fill(name)\n     |                           ^\n  40 |   await field(page, MESSAGE).fill(message)\n  41 |   await submitButton(page).click()\n  42 | }\n    at sign (/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:39:27)\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:68:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:26:25.612Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-a49cf--still-there-after-a-reload/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-a49cf--still-there-after-a-reload/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-a49cf--still-there-after-a-reload/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-ce41ae06215698016d7e",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 66,
+              "column": 7
+            },
+            {
+              "title": "another visitor sees the entry",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30047,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                            "column": 27,
+                            "line": 39
+                          },
+                          "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n\n\n  37 |\n  38 | async function sign(page: Page, name: string, message: string) {\n> 39 |   await field(page, NAME).fill(name)\n     |                           ^\n  40 |   await field(page, MESSAGE).fill(message)\n  41 |   await submitButton(page).click()\n  42 | }\n    at sign (/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:39:27)\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:77:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:26:55.999Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-1ec77-ther-visitor-sees-the-entry/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-1ec77-ther-visitor-sees-the-entry/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-1ec77-ther-visitor-sees-the-entry/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-8a6e8df1b06df62b522a",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "an entry without a message is not saved",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30052,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts",
+                            "column": 29,
+                            "line": 92
+                          },
+                          "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('textbox', { name: /name/i }).first()\u001b[22m\n\n\n  90 |   test('an entry without a message is not saved', async ({ page, browser }) => {\n  91 |     const name = unique('Nobody')\n> 92 |     await field(page, NAME).fill(name)\n     |                             ^\n  93 |     await submitButton(page).click()\n  94 |\n  95 |     // Give a save time to happen, then look from a fresh browser.\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/apps/11-guestbook.spec.ts:92:29"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:27:26.392Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-f437d-hout-a-message-is-not-saved/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-f437d-hout-a-message-is-not-saved/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/apps-11-guestbook--11-gues-f437d-hout-a-message-is-not-saved/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2686d82694373c0586f9-4336f4e034a37e49433d",
+              "file": "apps/11-guestbook.spec.ts",
+              "line": 90,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "common/common.spec.ts",
+      "file": "common/common.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "#11 guestbook | common",
+          "file": "common/common.spec.ts",
+          "line": 9,
+          "column": 8,
+          "specs": [
+            {
+              "title": "page loads",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 5706,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeEmpty\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('body')\nExpected: not empty\nReceived: empty\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeEmpty\" locator('body') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    14 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m       - unexpected value \"empty\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeEmpty\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('body')\nExpected: not empty\nReceived: empty\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeEmpty\" locator('body') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    14 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m       - unexpected value \"empty\"\u001b[22m\n\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts:15:46",
+                        "location": {
+                          "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                          "column": 46,
+                          "line": 15
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(url\u001b[33m!\u001b[39m)\n \u001b[90m 14 |\u001b[39m       expect(response\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m400\u001b[39m)\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeEmpty()\n \u001b[90m    |\u001b[39m                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m     })\n \u001b[90m 17 |\u001b[39m\n \u001b[90m 18 |\u001b[39m     test(\u001b[32m'no console errors'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "column": 46,
+                            "line": 15
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeEmpty\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('body')\nExpected: not empty\nReceived: empty\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeEmpty\" locator('body') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    14 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m       - unexpected value \"empty\"\u001b[22m\n\n\n  13 |       const response = await page.goto(url!)\n  14 |       expect(response?.status()).toBeLessThan(400)\n> 15 |       await expect(page.locator('body')).not.toBeEmpty()\n     |                                              ^\n  16 |     })\n  17 |\n  18 |     test('no console errors', async ({ page }) => {\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts:15:46"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:25:49.073Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-page-loads/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-page-loads/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-page-loads/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "column": 46,
+                        "line": 15
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-0c7680e3f7e4866928dc",
+              "file": "common/common.spec.ts",
+              "line": 12,
+              "column": 9
+            },
+            {
+              "title": "no console errors",
+              "ok": false,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 799,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"supabaseUrl is required.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"supabaseUrl is required.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts:28:22",
+                        "location": {
+                          "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                          "column": 22,
+                          "line": 28
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\n \u001b[90m 27 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m       expect(errors)\u001b[33m.\u001b[39mtoEqual([])\n \u001b[90m    |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m     })\n \u001b[90m 30 |\u001b[39m\n \u001b[90m 31 |\u001b[39m     test(\u001b[32m'fits a mobile screen'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                            "column": 22,
+                            "line": 28
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"supabaseUrl is required.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  26 |       await page.waitForLoadState('networkidle')\n  27 |\n> 28 |       expect(errors).toEqual([])\n     |                      ^\n  29 |     })\n  30 |\n  31 |     test('fits a mobile screen', async ({ page }) => {\n    at /home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts:28:22"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:25:55.215Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-no-console-errors/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-no-console-errors/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-no-console-errors/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/tests/common/common.spec.ts",
+                        "column": 22,
+                        "line": 28
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-b3699c7db7eb3cc4c862",
+              "file": "common/common.spec.ts",
+              "line": 18,
+              "column": 9
+            },
+            {
+              "title": "fits a mobile screen",
+              "ok": true,
+              "tags": [
+                "app11",
+                "level3"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 236,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-14T07:25:56.392Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/prompt-to-app/prompt-to-app/benchmark/results/latest/artifacts/common-common--11-guestbook-common-fits-a-mobile-screen/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c23d6735997f660ff9f5-ff4d405624308a1a0fe6",
+              "file": "common/common.spec.ts",
+              "line": 31,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-14T07:25:48.624Z",
+    "duration": 127931.39899999999,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}

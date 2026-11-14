@@ -1,0 +1,27 @@
+{
+  "label": "stub-guestbook",
+  "score": "0/1",
+  "passed": 0,
+  "total": 1,
+  "broken_greens": 1,
+  "apps": [
+    {
+      "id": 11,
+      "slug": "guestbook",
+      "result": "fail",
+      "confidence": 100,
+      "broken_green": true,
+      "tests_passed": 1,
+      "tests_run": 8,
+      "failed": [
+        "has a name field, a message field and a button to sign",
+        "a signed entry shows with its name and message",
+        "the entry is still there after a reload",
+        "another visitor sees the entry",
+        "an entry without a message is not saved",
+        "page loads",
+        "no console errors"
+      ]
+    }
+  ]
+}
