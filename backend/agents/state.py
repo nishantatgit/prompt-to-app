@@ -3,6 +3,10 @@ from typing import TypedDict
 
 class JobState(TypedDict, total=False):
     prompt: str
+    # Set when the build changes an existing app instead of making a new one.
+    app_name: str
+    change_request: str
+    applied_migrations: list[str]
 
     job_id: str
     workspace_dir: str | None

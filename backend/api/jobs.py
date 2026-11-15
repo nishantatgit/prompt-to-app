@@ -13,6 +13,7 @@ _lock = threading.Lock()
 
 STAGES = {
     "guard": "checking request",
+    "load_app": "checking request",
     "analyst": "requirements",
     "architect": "architecture",
     "setup_workspace": "setting up",

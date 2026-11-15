@@ -22,7 +22,10 @@ STOP_WORDS = {
 
 
 def app_name(state: dict) -> str:
-    """A readable, unique subdomain such as 'unit-converter-distances-b6527c'."""
+    """A readable, unique subdomain such as 'unit-converter-distances-b6527c'.
+    A change to an existing app keeps that app's name."""
+    if state.get("app_name"):
+        return state["app_name"]
     summary = (state.get("requirements") or {}).get("app_summary", "")
     words = [w for w in re.findall(r"[a-z0-9]+", summary.lower()) if w not in STOP_WORDS][:3]
     suffix = state["job_id"].rsplit("-", 1)[-1][:6]

@@ -51,7 +51,7 @@ def write_spec(job_dir: Path, state: dict, now: float | None = None) -> None:
     history.append(
         {
             "job_id": state.get("job_id", ""),
-            "prompt": state.get("prompt", ""),
+            "prompt": state.get("change_request") or state.get("prompt", ""),
             "at": time.strftime(
                 "%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() if now is None else now)
             ),

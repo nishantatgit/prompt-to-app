@@ -68,6 +68,7 @@ def make_database(
     provision=supabase.provision,
     access_token: str | None = None,
     allow_signups=supabase.allow_signups_without_confirmation,
+    existing=supabase.existing_database,
 ):
     def database(state: dict) -> dict:
         if not needs_database(state):
@@ -78,7 +79,9 @@ def make_database(
             return _fail(NO_ACCESS_TOKEN)
         name = app_name(state)
         try:
-            env = provision(token, name, config_id)
+            # A changed app keeps its database and data; others get a new one.
+            env = existing(token, name) if state.get("app_name") else None
+            env = env or provision(token, name, config_id)
         except Exception as error:
             return _fail(_provision_error(error))
         if needs_auth(state):
@@ -100,7 +103,11 @@ def make_migrations(apply=supabase.apply_migrations):
         if not needs_database(state) or not url_file.exists():
             return {}
         try:
-            applied = apply(url_file.read_text().strip(), Path(state["workspace_dir"]))
+            applied = apply(
+                url_file.read_text().strip(),
+                Path(state["workspace_dir"]),
+                skip=set(state.get("applied_migrations") or []),
+            )
         except Exception as error:
             return _fail(f"A database migration failed: {error}")
         return {"migrations_applied": applied}

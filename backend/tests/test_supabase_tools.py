@@ -329,3 +329,19 @@ def test_delete_database_disconnects_then_deletes_by_name(monkeypatch):
         ("DELETE", "/v1/storage/stores/integration/s1"),
     ]
     assert supabase.delete_database("tok", "missing") is False
+
+
+def test_migrations_that_already_ran_are_not_run_again(tmp_path):
+    folder = tmp_path / "supabase" / "migrations"
+    folder.mkdir(parents=True)
+    (folder / "001_tables.sql").write_text("create table a ();")
+    (folder / "002_more.sql").write_text("create table b ();")
+    ran = []
+    real = supabase.run_migration
+    supabase.run_migration = lambda url, sql, connect=None: ran.append(sql)
+    try:
+        applied = supabase.apply_migrations("postgres://x", tmp_path, skip={"001_tables.sql"})
+    finally:
+        supabase.run_migration = real
+    assert applied == ["002_more.sql"]
+    assert ran == ["create table b ();"]
