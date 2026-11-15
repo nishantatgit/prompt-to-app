@@ -19,3 +19,12 @@ primary_region = 'sin'
   memory = '2gb'
   cpu_kind = 'shared'
   cpus = 2
+# Paid build credits live here, in SQLite, so they survive deploys. Create
+# the volume once before deploying this:
+#   fly volumes create vyskar_data --region sin --size 1
+[mounts]
+  source = 'vyskar_data'
+  destination = '/data'
+
+[env]
+  DATA_DIR = '/data'
