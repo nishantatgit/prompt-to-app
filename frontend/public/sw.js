@@ -1,7 +1,8 @@
 // Vyskar's service worker: makes the app installable and quick to open.
 //
-// - Pages: network first, so a new release shows at once; the cached copy
-//   is only used offline.
+// - Pages: the cached copy opens at once and is refreshed in the background,
+//   so the installed app starts without waiting for the network. A new
+//   release shows from the next launch. Without a cached copy, the network.
 // - /assets/: built files have a hash in their name and never change, so
 //   they come from the cache once fetched.
 // - Everything else from this site, such as icons: the cache answers at
@@ -9,7 +10,7 @@
 // - The API is on another origin and is never cached: build status must
 //   always be live.
 
-const CACHE = 'vyskar-v2'
+const CACHE = 'vyskar-v3'
 const SHELL = ['/', '/site.webmanifest', '/favicon.svg', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -26,15 +27,18 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-async function networkFirst(request) {
-  try {
-    const response = await fetch(request)
-    const cache = await caches.open(CACHE)
-    cache.put('/', response.clone())
-    return response
-  } catch {
-    return (await caches.match('/')) || Response.error()
-  }
+// The app has one page, so every navigation is answered with '/'.
+async function cachedPageFirst(event) {
+  const cached = await caches.match('/')
+  const fresh = fetch(event.request)
+    .then(async (response) => {
+      if (response.ok) (await caches.open(CACHE)).put('/', response.clone())
+      return response
+    })
+    .catch(() => cached || Response.error())
+  if (!cached) return fresh
+  event.waitUntil(fresh) // keep the worker alive until the refresh is saved
+  return cached
 }
 
 async function cacheFirst(request) {
@@ -62,7 +66,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return
   if (url.pathname.startsWith('/api/')) return
 
-  if (request.mode === 'navigate') event.respondWith(networkFirst(request))
+  if (request.mode === 'navigate') event.respondWith(cachedPageFirst(event))
   else if (url.pathname.startsWith('/assets/')) event.respondWith(cacheFirst(request))
   else event.respondWith(staleWhileRevalidate(request))
 })
