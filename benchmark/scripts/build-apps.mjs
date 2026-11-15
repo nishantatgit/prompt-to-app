@@ -10,7 +10,7 @@
 //
 // Writes:
 //   deployments.json          the URL of each app built in this run
-//   results/latest/builds.json   status, confidence and timing per app
+//   results/latest/builds.json   status, confidence, timing and model cost per app
 
 import fs from 'node:fs'
 import path from 'node:path'
@@ -89,6 +89,9 @@ async function buildOne(app) {
     database_name: job.database_name || '',
     test_summary: job.test_summary || '',
     seconds: Math.round((Date.now() - started) / 1000),
+    // What the build cost on the model key: tokens per model and US dollars.
+    usage: job.usage ?? null,
+    cost_usd: job.usage?.cost_usd ?? null,
   }
 }
 
@@ -121,8 +124,13 @@ export async function buildAll(apps, afterEach = async () => {}) {
   writeJson('results/latest/builds.json', builds)
 
   console.table(
-    builds.map(({ id, slug, status, confidence, seconds }) => ({ id, slug, status, confidence, seconds })),
+    builds.map(({ id, slug, status, confidence, seconds, cost_usd }) => ({ id, slug, status, confidence, seconds, cost_usd })),
   )
+  const costs = builds.map((b) => b.cost_usd).filter((c) => typeof c === 'number')
+  if (costs.length) {
+    const total = costs.reduce((a, b) => a + b, 0)
+    console.log(`Model cost: $${total.toFixed(2)} for ${costs.length} builds, $${(total / costs.length).toFixed(3)} per build`)
+  }
   return builds
 }
 

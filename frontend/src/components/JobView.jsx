@@ -24,6 +24,14 @@ function formatDuration(seconds) {
   return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`
 }
 
+// The model cost, when every model used has a known price.
+function costNote(job) {
+  const usage = job.usage
+  if (!usage?.complete || usage.cost_usd == null) return ''
+  const cost = usage.cost_usd < 0.01 ? 'under $0.01' : `about $${usage.cost_usd.toFixed(2)}`
+  return ` · ${cost} ${job.trial ? 'of free credit' : 'on your AI key'}`
+}
+
 // How long each step took, once the build has ended.
 function StepTimes({ job }) {
   const stages = job?.timings?.stages ?? {}
@@ -33,6 +41,7 @@ function StepTimes({ job }) {
     <div className="mt-5 flex flex-col gap-2">
       <p className="font-mono text-xs text-dim">
         Took {formatDuration(job.timings.total_seconds)}
+        {costNote(job)}
       </p>
       <ul aria-label="Time per step" className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 font-mono text-xs">
         {shown.map((stage) => (

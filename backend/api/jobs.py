@@ -1,3 +1,4 @@
+import json
 import os
 import threading
 import time
@@ -52,7 +53,7 @@ TRIAL_FINISHED_HOOKS: list = []
 
 
 def create_job(
-    job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False
+    job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False, meter=None
 ) -> None:
     with _lock:
         _jobs[job_id] = {
@@ -63,6 +64,7 @@ def create_job(
             "reason": "",
             "builder_mode": builder_mode,
             "trial": trial,
+            "meter": meter,  # a UsageMeter: the build's tokens and cost
             "activity": [],
             # Per stage: when its first step started, how many of its steps
             # are running, and when its last step finished.
@@ -176,12 +178,36 @@ def _outcome(state: dict) -> tuple[str, str]:
     return "failed", reason
 
 
+def _log_usage(job: dict) -> None:
+    """One line per build in the server log, to price builds from real runs."""
+    meter = job.get("meter")
+    if meter is None:
+        return
+    usage = meter.summary()
+    if not usage["calls"]:
+        return
+    record = {
+        "job_id": job["job_id"],
+        "status": job["status"],
+        "trial": job.get("trial", False),
+        "seconds": timings_view(job)["total_seconds"],
+        "cost_usd": usage["cost_usd"],
+        "calls": usage["calls"],
+        "input_tokens": usage["input_tokens"],
+        "cache_read_tokens": usage["cache_read_tokens"],
+        "output_tokens": usage["output_tokens"],
+    }
+    print(f"build_usage {json.dumps(record)}", flush=True)
+
+
 def _run(graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | None = None) -> None:
     try:
         _run_graph(graph, job_id, prompt, recursion_limit, extra)
     finally:
         _finish_clock(job_id)
         job = get_job(job_id)
+        if job:
+            _log_usage(job)
         if job and job.get("trial"):
             for hook in TRIAL_FINISHED_HOOKS:
                 try:
@@ -256,4 +282,5 @@ def public_view(job: dict) -> dict:
         "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),
         "timings": timings_view(job),
+        "usage": job["meter"].summary() if job.get("meter") else None,
     }
