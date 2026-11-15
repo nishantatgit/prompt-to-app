@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
-import { getTrial, startBuild } from './lib/api.js'
+import { getTrial, getVoice, startBuild } from './lib/api.js'
 import { askToNotify, notifyBuildDone } from './lib/notify.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
@@ -22,6 +22,7 @@ export default function App() {
   const isPhone = useIsPhone()
   const [inputMode, setInputMode] = useInputMode()
   const [dictateHint, setDictateHint] = useState(false)
+  const [serverVoice, setServerVoice] = useState(false)
   const promptBox = useRef(null)
   const voice = isPhone && inputMode === 'voice'
 
@@ -41,6 +42,12 @@ export default function App() {
     return () => {
       stopped = true
     }
+  }, [])
+
+  useEffect(() => {
+    getVoice()
+      .then((v) => setServerVoice(Boolean(v.enabled)))
+      .catch(() => {})
   }, [])
 
   async function handleBuild() {
@@ -113,6 +120,7 @@ export default function App() {
             note={buildNote}
             onType={switchToTyping}
             compact={Boolean(jobId)}
+            serverVoice={serverVoice}
           />
         ) : (
           <>

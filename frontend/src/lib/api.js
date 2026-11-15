@@ -32,3 +32,17 @@ export function cancelJob(jobId) {
 export function getTrial() {
   return request("/api/trial", { headers: VISITOR });
 }
+
+// Whether the server turns speech into text (Sarvam).
+export function getVoice() {
+  return request("/api/voice");
+}
+
+// A WAV recording in, English text out.
+export function transcribe(wav) {
+  return request("/api/transcribe", {
+    method: "POST",
+    headers: { "Content-Type": "audio/wav" },
+    body: wav,
+  });
+}
