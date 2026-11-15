@@ -1,15 +1,18 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
-import { startBuild } from './lib/api.js'
+import { getTrial, startBuild } from './lib/api.js'
 import { askToNotify, notifyBuildDone } from './lib/notify.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
-  import Modal from './components/SettingsModal.jsx'
+import Modal from './components/SettingsModal.jsx'
 
 export default function App() {
   const [settings, setSettings] = useState(loadSettings)
-  const [showSettings, setShowSettings] = useState(() => !loadSettings().apiKey)
+  // Opened once the free trial is known: only when there is no key and no
+  // free build to use instead.
+  const [showSettings, setShowSettings] = useState(false)
+  const [trial, setTrial] = useState({ enabled: false, builds_left: 0 })
   const [prompt, setPrompt] = useState('')
   const [jobId, setJobId] = useState(null)
   const [running, setRunning] = useState(false)
@@ -17,10 +20,25 @@ export default function App() {
 
   const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
   const canBuild = prompt.trim() && !running
+  const freeBuild = !settings.apiKey && trial.builds_left > 0
+
+  useEffect(() => {
+    let stopped = false
+    getTrial()
+      .catch(() => ({ enabled: false, builds_left: 0 }))
+      .then((next) => {
+        if (stopped) return
+        setTrial(next)
+        if (!loadSettings().apiKey && !(next.builds_left > 0)) setShowSettings(true)
+      })
+    return () => {
+      stopped = true
+    }
+  }, [])
 
   async function handleBuild() {
     if (!canBuild) return
-    if (!settings.apiKey) {
+    if (!settings.apiKey && !freeBuild) {
       setShowSettings(true)
       return
     }
@@ -30,6 +48,7 @@ export default function App() {
     try {
       const { job_id } = await startBuild({ prompt: prompt.trim(), ...settings })
       setJobId(job_id)
+      if (freeBuild) getTrial().then(setTrial).catch(() => {})
     } catch (err) {
       setError(err.message)
       setRunning(false)
@@ -63,7 +82,6 @@ export default function App() {
       </header>
 
       <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
-        {showSettings && (<SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />)}
 
         <div>
           <h1 className="font-display text-[clamp(26px,4vw,38px)] font-bold leading-tight">
@@ -95,7 +113,11 @@ export default function App() {
           >
             {running ? 'Building...' : 'Build my app'}
           </button>
-          <span className="text-sm text-dim">Takes a few minutes. Ctrl or Cmd + Enter also works.</span>
+          <span className="text-sm text-dim">
+            {freeBuild
+              ? `Free build, no AI key needed: ${trial.builds_left} left.`
+              : 'Takes a few minutes. Ctrl or Cmd + Enter also works.'}
+          </span>
         </div>
 
         {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}

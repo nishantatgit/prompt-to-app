@@ -1,4 +1,7 @@
+import { visitorId } from "./visitor.js";
+
 const API_BASE = import.meta.env.VITE_API_URL || "";
+const VISITOR = { "X-Vyskar-Visitor": visitorId() };
 
 async function request(path, options) {
   const res = await fetch(`${API_BASE}${path}`, options);
@@ -10,7 +13,7 @@ async function request(path, options) {
 export async function startBuild({ prompt, provider, apiKey }) {
   const body = await request("/api/build", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...VISITOR },
     body: JSON.stringify({ prompt, provider, api_key: apiKey || null }),
   });
   if (!body?.job_id) throw new Error("The server did not return a job id.");
@@ -23,4 +26,9 @@ export function getJob(jobId) {
 
 export function cancelJob(jobId) {
   return request(`/api/jobs/${encodeURIComponent(jobId)}/cancel`, { method: "POST" });
+}
+
+// Whether free builds are on, and how many this browser has left.
+export function getTrial() {
+  return request("/api/trial", { headers: VISITOR });
 }

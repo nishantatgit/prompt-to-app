@@ -198,6 +198,11 @@ export default function JobView({ jobId, onDone }) {
           <a href={job.deploy_url} target="_blank" rel="noreferrer" className="break-all font-mono text-accent">
             {job.deploy_url}
           </a>
+          {job.trial && job.database_name && (
+            <p className="text-sm text-muted">
+              Free trial app: its saved data is deleted after 24 hours. Build it with your own AI key to keep it.
+            </p>
+          )}
           {job.confidence != null && (
             <p className={`font-mono text-sm ${job.confidence >= 95 ? 'text-green-400' : 'text-amber-400'}`}>
                 Confidence {job.confidence}% ({job.test_summary?.split('\n')[0]})

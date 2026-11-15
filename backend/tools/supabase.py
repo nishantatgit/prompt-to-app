@@ -229,3 +229,19 @@ def allow_signups_without_confirmation(
         if time.monotonic() > deadline:
             raise RuntimeError(f"Supabase {response.status_code}: {response.text[:300]}")
         time.sleep(5)
+
+
+def delete_database(token: str, name: str) -> bool:
+    """Disconnect and delete the database called `name`. Returns False when
+    there is none by that name. These are the calls the Vercel CLI makes for
+    `integration resource remove`."""
+    response = httpx.get(f"{API}/v1/storage/stores", params=_params(), headers=_headers(token), timeout=30)
+    _check(response)
+    store = next((s for s in response.json().get("stores", []) if s.get("name") == name), None)
+    if store is None:
+        return False
+    for path in (f"/v1/storage/stores/{store['id']}/connections", f"/v1/storage/stores/integration/{store['id']}"):
+        deleted = httpx.delete(f"{API}{path}", params=_params(), headers=_headers(token), timeout=60)
+        if deleted.status_code != 404:
+            _check(deleted)
+    return True
