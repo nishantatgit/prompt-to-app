@@ -24,6 +24,7 @@ STAGES = {
     "test_planner": "planning tests",
     "write_test": "planning tests",
     "test_executor": "testing",
+    "save_spec": "deploying",
     "deploy": "deploying",
 }
 
