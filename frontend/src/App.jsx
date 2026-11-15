@@ -3,6 +3,7 @@ import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import { startBuild } from './lib/api.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
+import InstallButton from './components/InstallButton.jsx'
   import Modal from './components/SettingsModal.jsx'
 
 export default function App() {
@@ -38,15 +39,21 @@ export default function App() {
   return (
     <div className="min-h-screen bg-ink text-fg">
       <header className="border-b border-line">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-5">
-          <span className="font-display text-xl font-bold tracking-[0.1em]">VYSKAR</span>
-          <button
-            type="button"
-            onClick={() => setShowSettings((v) => !v)}
-            className="min-h-11 rounded-full border border-wall px-4 text-sm text-muted"
-          >
-            {settings.apiKey ? `${providerLabel} key saved` : 'Add your AI key'}
-          </button>
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-4 py-5 sm:gap-4 sm:px-6">
+          <span className="font-display text-lg font-bold tracking-[0.1em] sm:text-xl">VYSKAR</span>
+          <div className="flex items-center gap-1">
+            <InstallButton />
+            <button
+              type="button"
+              onClick={() => setShowSettings((v) => !v)}
+              className="min-h-11 whitespace-nowrap rounded-full border border-wall px-4 text-sm text-muted"
+            >
+              <span className="sm:hidden">{settings.apiKey ? 'Key saved' : 'Add key'}</span>
+              <span className="hidden sm:inline">
+                {settings.apiKey ? `${providerLabel} key saved` : 'Add your AI key'}
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 

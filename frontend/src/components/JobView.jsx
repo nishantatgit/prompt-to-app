@@ -15,7 +15,7 @@ const POLL_MS = 2000
 const FINISHED = new Set(['succeeded', 'failed', 'rejected', 'cancelled'])
 
 // 12s, 1m 05s, 1h 02m.
-export function formatDuration(seconds) {
+function formatDuration(seconds) {
   if (seconds == null) return ''
   const s = Math.max(0, Math.round(seconds))
   if (s < 60) return `${s}s`
