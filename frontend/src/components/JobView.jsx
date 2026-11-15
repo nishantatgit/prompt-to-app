@@ -72,7 +72,7 @@ function LoopActivity({ job }) {
   )
 }
 
-export default function JobView({ jobId, onDone }) {
+export default function JobView({ jobId, onDone, onChange }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
   const [cancelling, setCancelling] = useState(false)
@@ -209,6 +209,15 @@ export default function JobView({ jobId, onDone }) {
             </p>
         )}
           <p className="text-sm text-muted">{job.test_summary}</p>
+          {job.editable && onChange && (
+            <button
+              type="button"
+              onClick={() => onChange(job.app_name)}
+              className="mt-1 min-h-11 self-start rounded-full border border-accent px-5 text-sm font-semibold text-accent"
+            >
+              Change this app
+            </button>
+          )}
         </div>
       )}
 

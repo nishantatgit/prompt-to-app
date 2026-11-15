@@ -10,11 +10,19 @@ async function request(path, options) {
   return body;
 }
 
-export async function startBuild({ prompt, provider, apiKey }) {
+// With app and editKey, changes that app instead of building a new one.
+// A new app's response carries its edit_key.
+export async function startBuild({ prompt, provider, apiKey, app, editKey }) {
   const body = await request("/api/build", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...VISITOR },
-    body: JSON.stringify({ prompt, provider, api_key: apiKey || null }),
+    body: JSON.stringify({
+      prompt,
+      provider,
+      api_key: apiKey || null,
+      app: app || null,
+      edit_key: editKey || null,
+    }),
   });
   if (!body?.job_id) throw new Error("The server did not return a job id.");
   return body;
