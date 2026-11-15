@@ -1,0 +1,17 @@
+projects 200
+with production: ['vyskar-browser-based-version-034eb5', 'vyskar-simple-public-guestbook-5b2749', 'vyskar-simple-pomodoro-timer-6a056a', 'vyskar-simple-notes-app-6c2805', 'vyskar-guestbook-visitors-leave-311a1a', 'vyskar-simple-tip-calculator-d04271', 'vyskar-guestbook-visitors-leave-e30173', 'vyskar-single-page-landing-325bcc', 'vyskar-browser-based-snake-40b64d', 'vyskar-simplified-playable-version-6e1ab6', 'vyskar-single-event-rsvp-2043a8', 'vyskar-simple-unit-converter-f61981', 'prompt-to-app-tmgu']
+app browser-based-version-034eb5 deployment dpl_9CZfeEvyzy3sr3boen9t3YusK53M
+tree status 200
+ directory src 
+   file .gitignore uid
+   file .oxlintrc.json uid
+   file index.html uid
+   file package.json uid
+   file playwright.config.js uid
+   directory src 
+   file vite.config.js uid
+   file yarn.lock uid
+file .gitignore 200 application/json; charset=utf8
+json keys ['data']
+written 27 ['.gitignore', '.oxlintrc.json', 'index.html', 'package.json', 'playwright.config.js', 'src/App.jsx', 'src/components/Board.jsx', 'src/components/ConfirmDialog.jsx', 'src/components/ControlPanel.jsx', 'src/components/EventLog.jsx', 'src/components/Modal.jsx', 'src/components/PlayersPanel.jsx', 'src/components/PropertyDialog.jsx', 'src/components/SetupScreen.jsx', 'src/components/Token.jsx', 'src/components/WinnerDialog.jsx', 'src/components/ui.js', 'src/index.css', 'src/lib/board.js', 'src/lib/cards.js', 'src/lib/engine.js', 'src/lib/landing.js', 'src/lib/rules.js', 'src/lib/storage.js', 'src/main.jsx', 'vite.config.js', 'yarn.lock']
+package.json parses: True
