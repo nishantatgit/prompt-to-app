@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
-import { getTrial, getVoice, startBuild } from './lib/api.js'
+import { getCredits, getTrial, getVoice, startBuild } from './lib/api.js'
 import { askToNotify, notifyBuildDone } from './lib/notify.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
 import Modal from './components/SettingsModal.jsx'
 import VoiceComposer from './components/VoiceComposer.jsx'
 import MyApps from './components/MyApps.jsx'
+import BuyBuilds from './components/BuyBuilds.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
 
@@ -25,6 +26,7 @@ export default function App() {
   // free build to use instead.
   const [showSettings, setShowSettings] = useState(false)
   const [trial, setTrial] = useState({ enabled: false, builds_left: 0 })
+  const [credits, setCredits] = useState({ enabled: false, builds_left: 0, packs: [] })
   const [prompt, setPrompt] = useState('')
   const [jobId, setJobId] = useState(null)
   const [running, setRunning] = useState(false)
@@ -43,17 +45,22 @@ export default function App() {
 
   const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
   const canBuild = prompt.trim() && !running
-  const freeBuild = !settings.apiKey && trial.builds_left > 0
+  // Without a key: bought builds first, then free ones.
+  const paidBuild = !settings.apiKey && credits.builds_left > 0
+  const freeBuild = !settings.apiKey && !paidBuild && trial.builds_left > 0
 
   useEffect(() => {
     let stopped = false
-    getTrial()
-      .catch(() => ({ enabled: false, builds_left: 0 }))
-      .then((next) => {
-        if (stopped) return
-        setTrial(next)
-        if (!loadSettings().apiKey && !(next.builds_left > 0)) setShowSettings(true)
-      })
+    Promise.all([
+      getTrial().catch(() => ({ enabled: false, builds_left: 0 })),
+      getCredits().catch(() => ({ enabled: false, builds_left: 0, packs: [] })),
+    ]).then(([nextTrial, nextCredits]) => {
+      if (stopped) return
+      setTrial(nextTrial)
+      setCredits(nextCredits)
+      const canBuild = nextTrial.builds_left > 0 || nextCredits.builds_left > 0
+      if (!loadSettings().apiKey && !canBuild) setShowSettings(true)
+    })
     return () => {
       stopped = true
     }
@@ -67,7 +74,7 @@ export default function App() {
 
   async function handleBuild() {
     if (!canBuild) return
-    if (!settings.apiKey && !freeBuild) {
+    if (!settings.apiKey && !freeBuild && !paidBuild) {
       setShowSettings(true)
       return
     }
@@ -84,6 +91,7 @@ export default function App() {
       jobInfo.current[job_id] = { editKey: edit_key || changing?.editKey, prompt: prompt.trim() }
       setJobId(job_id)
       if (freeBuild) getTrial().then(setTrial).catch(() => {})
+      if (paidBuild) getCredits().then(setCredits).catch(() => {})
     } catch (err) {
       setError(err.message)
       setRunning(false)
@@ -97,7 +105,9 @@ export default function App() {
     requestAnimationFrame(() => promptBox.current?.focus())
   }
 
-  const buildNote = freeBuild
+  const buildNote = paidBuild
+    ? `Uses 1 of your ${credits.builds_left} builds.`
+    : freeBuild
     ? `Free build, no AI key needed: ${trial.builds_left} left.`
     : isPhone
       ? 'Takes a few minutes.'
@@ -162,9 +172,17 @@ export default function App() {
               onClick={() => setShowSettings((v) => !v)}
               className="min-h-11 whitespace-nowrap rounded-full border border-wall px-4 text-sm text-muted"
             >
-              <span className="sm:hidden">{settings.apiKey ? 'Key saved' : 'Add key'}</span>
+              <span className="sm:hidden">
+                {settings.apiKey ? 'Key saved' : paidBuild ? `${credits.builds_left} builds` : credits.enabled ? 'Get builds' : 'Add key'}
+              </span>
               <span className="hidden sm:inline">
-                {settings.apiKey ? `${providerLabel} key saved` : 'Add your AI key'}
+                {settings.apiKey
+                  ? `${providerLabel} key saved`
+                  : paidBuild
+                    ? `${credits.builds_left} builds left`
+                    : credits.enabled
+                      ? 'Buy builds or add a key'
+                      : 'Add your AI key'}
               </span>
             </button>
           </div>
@@ -258,7 +276,15 @@ export default function App() {
         {!running && <MyApps apps={apps} onChange={(app) => startChange(app.name)} disabled={running} />}
       </main>
       <Modal open={showSettings} onClose={() => setShowSettings(false)} labelledBy="settings-title">
-          <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />
+          <div className="flex flex-col gap-4">
+            {credits.enabled && !settings.apiKey && (
+              <BuyBuilds
+                credits={credits}
+                onBought={(left) => setCredits((c) => ({ ...c, builds_left: left }))}
+              />
+            )}
+            <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />
+          </div>
       </Modal>
     </div>
   )

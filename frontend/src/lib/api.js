@@ -54,3 +54,25 @@ export function transcribe(wav) {
     body: wav,
   });
 }
+
+// Bought builds: whether buying is on, the packs, and this browser's balance.
+export function getCredits() {
+  return request("/api/credits", { headers: VISITOR });
+}
+
+export function createOrder(pack) {
+  return request("/api/credits/order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...VISITOR },
+    body: JSON.stringify({ pack }),
+  });
+}
+
+// Razorpay's proof of payment; the server checks it before adding builds.
+export function verifyPayment(proof) {
+  return request("/api/credits/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...VISITOR },
+    body: JSON.stringify(proof),
+  });
+}
