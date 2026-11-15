@@ -9,7 +9,7 @@
 // - The API is on another origin and is never cached: build status must
 //   always be live.
 
-const CACHE = 'vyskar-v1'
+const CACHE = 'vyskar-v2'
 const SHELL = ['/', '/site.webmanifest', '/favicon.svg', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -65,4 +65,19 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') event.respondWith(networkFirst(request))
   else if (url.pathname.startsWith('/assets/')) event.respondWith(cacheFirst(request))
   else event.respondWith(staleWhileRevalidate(request))
+})
+
+// Tapping a build notification opens the live app, or Vyskar for a failed
+// build, reusing an open Vyskar window where there is one.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const url = event.notification.data?.url || '/'
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const own = windows.find((w) => new URL(w.url).origin === self.location.origin)
+      if (url === '/' && own) return own.focus()
+      return self.clients.openWindow(url)
+    })(),
+  )
 })

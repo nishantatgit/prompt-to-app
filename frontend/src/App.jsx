@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import { startBuild } from './lib/api.js'
+import { askToNotify, notifyBuildDone } from './lib/notify.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
   import Modal from './components/SettingsModal.jsx'
@@ -25,6 +26,7 @@ export default function App() {
     }
     setError('')
     setRunning(true)
+    askToNotify()
     try {
       const { job_id } = await startBuild({ prompt: prompt.trim(), ...settings })
       setJobId(job_id)
@@ -34,7 +36,10 @@ export default function App() {
     }
   }
 
-  const handleDone = useCallback(() => setRunning(false), [])
+  const handleDone = useCallback((job) => {
+    setRunning(false)
+    notifyBuildDone(job)
+  }, [])
 
   return (
     <div className="min-h-screen bg-ink text-fg">
