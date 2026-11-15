@@ -61,6 +61,18 @@ def describe(call: dict) -> str:
     return template.format(name=call["name"], path=call["args"].get("path", "a file"))
 
 
+CHANGE_TASK = (
+    "This app already exists and its code is in the workspace. Change it to "
+    "match the architecture: read the files first, edit what must change and "
+    "keep what works. Never edit or delete a file in supabase/migrations; "
+    "add a new, later-numbered migration for any database change."
+)
+
+
+def task(state: dict) -> str:
+    return CHANGE_TASK if state.get("app_name") else "Build this app."
+
+
 def make_build_loop(
     llm,
     max_builds: int = 3,
@@ -77,7 +89,7 @@ def make_build_loop(
         architecture = json.dumps(state["architecture"], indent=2)
         messages = [
             SystemMessage(PROMPT),
-            HumanMessage(f"<architecture>\n{architecture}\n</architecture>\n\nBuild this app."),
+            HumanMessage(f"<architecture>\n{architecture}\n</architecture>\n\n{task(state)}"),
         ]
         written: list[str] = []
         builds = 0

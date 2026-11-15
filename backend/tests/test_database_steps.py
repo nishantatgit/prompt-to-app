@@ -72,7 +72,7 @@ def test_migrations_use_the_saved_connection_string(tmp_path):
     (tmp_path / DATABASE_ENV).write_text("postgres://u:p@h/db\n")
     seen = []
 
-    def apply(url, job_dir):
+    def apply(url, job_dir, skip=()):
         seen.append((url, str(job_dir)))
         return ["001_tables.sql"]
 
@@ -85,7 +85,7 @@ def test_migrations_use_the_saved_connection_string(tmp_path):
 def test_a_failed_migration_ends_the_job(tmp_path):
     (tmp_path / DATABASE_ENV).write_text("postgres://u:p@h/db\n")
 
-    def apply(url, job_dir):
+    def apply(url, job_dir, skip=()):
         raise RuntimeError("002_policies.sql: syntax error")
 
     out = make_migrations(apply=apply)(job(tmp_path))
@@ -150,7 +150,9 @@ def test_apps_without_logins_leave_confirmation_alone(tmp_path):
     def never(*args):
         raise AssertionError("only apps with logins change the auth settings")
 
-    step = make_database("tok", "icfg_1", provision=lambda *a: KEYS, access_token="x", allow_signups=never)
+    step = make_database(
+        "tok", "icfg_1", provision=lambda *a: KEYS, access_token="x", allow_signups=never
+    )
     assert step(job(tmp_path)) == {"database_name": "guestbook-visitors-abcdef"}
 
 
@@ -168,6 +170,41 @@ def test_a_failed_login_setup_ends_the_job(tmp_path):
     def refuse(token, url):
         raise RuntimeError("Supabase refused the access token (401)")
 
-    step = make_database("tok", "icfg_1", provision=lambda *a: KEYS, access_token="bad", allow_signups=refuse)
+    step = make_database(
+        "tok", "icfg_1", provision=lambda *a: KEYS, access_token="bad", allow_signups=refuse
+    )
     out = step(auth_job(tmp_path))
-    assert out["database_error"].startswith("Could not set up logins for the app's database: Supabase refused")
+    assert out["database_error"].startswith(
+        "Could not set up logins for the app's database: Supabase refused"
+    )
+
+
+def test_a_changed_app_keeps_its_database(tmp_path):
+    def never(*args):
+        raise AssertionError("a changed app must not get a second database")
+
+    state = {**job(tmp_path), "app_name": "guestbook-visitors-311a1a"}
+    out = make_database("tok", "icfg_1", provision=never, existing=lambda t, n: KEYS)(state)
+    assert out == {"database_name": "guestbook-visitors-311a1a"}
+    assert (tmp_path / DATABASE_ENV).read_text().strip() == "postgres://u:p@h/db"
+
+
+def test_a_changed_app_that_had_no_database_gets_one(tmp_path):
+    state = {**job(tmp_path), "app_name": "timer-311a1a"}
+    out = make_database("tok", "icfg_1", provision=lambda *a: KEYS, existing=lambda t, n: None)(
+        state
+    )
+    assert out == {"database_name": "timer-311a1a"}
+
+
+def test_migrations_that_already_ran_are_skipped(tmp_path):
+    seen = []
+
+    def apply(url, job_dir, skip=()):
+        seen.append(skip)
+        return []
+
+    (tmp_path / DATABASE_ENV).write_text("postgres://x\n")
+    state = {**job(tmp_path), "applied_migrations": ["001_tables.sql"]}
+    make_migrations(apply=apply)(state)
+    assert seen == [{"001_tables.sql"}]

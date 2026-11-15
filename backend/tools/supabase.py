@@ -132,6 +132,15 @@ def provision(token: str, name: str, config_id: str) -> dict[str, str]:
     return env
 
 
+def existing_database(token: str, name: str) -> dict[str, str] | None:
+    """The keys of the database already connected to an app's project, or
+    None when the app has none yet."""
+    env = read_env(token, create_project(token, project_name(name)))
+    if all(env.get(key) for key in (*PUBLIC_KEYS, MIGRATION_URL_KEY)):
+        return env
+    return None
+
+
 def write_env_file(job_dir: Path, env: dict[str, str]) -> None:
     """Only the browser keys go into the workspace, for the local build. The
     deploy step never uploads .env files."""
@@ -179,11 +188,16 @@ def run_migration(database_url: str, sql: str, connect=psycopg.connect) -> None:
             time.sleep(RETRY_PAUSE)
 
 
-def apply_migrations(database_url: str, job_dir: Path, connect=psycopg.connect) -> list[str]:
-    """Run each migration in its own transaction, in file name order. Raises
-    with the file's name when one fails, and stops there."""
+def apply_migrations(
+    database_url: str, job_dir: Path, connect=psycopg.connect, skip=()
+) -> list[str]:
+    """Run each migration in its own transaction, in file name order, except
+    those named in skip, which already ran. Raises with the file's name when
+    one fails, and stops there."""
     applied = []
     for path in migration_files(job_dir):
+        if path.name in skip:
+            continue
         try:
             run_migration(database_url, path.read_text(), connect)
         except Exception as error:

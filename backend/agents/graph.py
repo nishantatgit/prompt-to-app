@@ -14,6 +14,7 @@ from agents.builder import make_builder
 from agents.database import after_database, after_migrations, make_database, make_migrations
 from agents.deploy import make_deploy
 from agents.guard import make_guard
+from agents.load_app import after_load_app, make_load_app
 from agents.qa.test_executor import test_executor
 from agents.qa.test_writer import test_writer
 from agents.setup_workspace import make_setup_workspace
@@ -46,8 +47,8 @@ class AgentLimits:
                 raise ValueError(f"{name} must be at least 1, got {value}")
 
 
-def after_guard(state: JobState) -> Literal["analyst", "__end__"]:
-    return "analyst" if state.get("allowed", False) else END
+def after_guard(state: JobState) -> Literal["load_app", "__end__"]:
+    return "load_app" if state.get("allowed", False) else END
 
 
 def make_after_analyst(max_attempts: int):
@@ -109,6 +110,8 @@ def build_graph(
     graph = StateGraph(JobState)
 
     graph.add_node("guard", make_guard(models.guard))
+    # Changes to an existing app load it here; new apps pass straight through.
+    graph.add_node("load_app", make_load_app(workspaces_dir, vercel_token))
     graph.add_node("analyst", make_analyst(models.analyst))
     graph.add_node("architect", make_architect(models.architect))
     graph.add_node("test_planner", make_test_planner(models.test_planner))
@@ -141,6 +144,7 @@ def build_graph(
     graph.add_node("deploy", make_deploy(vercel_token))
     graph.add_edge(START, "guard")
     graph.add_conditional_edges("guard", after_guard)
+    graph.add_conditional_edges("load_app", after_load_app, ["analyst", END])
     graph.add_conditional_edges("analyst", make_after_analyst(limits.analyst_max_attempts))
     graph.add_conditional_edges("architect", make_after_architect(limits.architect_max_attempts))
     graph.add_conditional_edges(
