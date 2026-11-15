@@ -46,6 +46,7 @@ export default function SettingsPanel({ settings, onChange, onClose }) {
         <input
           id="api-key"
           type={showKey ? 'text' : 'password'}
+          data-clarity-mask="True"
           autoComplete="off"
           spellCheck="false"
           placeholder={hint}
