@@ -32,7 +32,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(routes, "check_key", lambda provider, key: None)
     monkeypatch.setattr(routes, "check_rate_limit", lambda request: None)
     monkeypatch.setattr(routes, "has_capacity", lambda: True)
-    monkeypatch.setattr(routes, "make_models", lambda provider, key, s: started.append((provider, key)))
+    monkeypatch.setattr(routes, "make_models", lambda provider, key, s, meter=None: started.append((provider, key)))
     monkeypatch.setattr(routes, "build_graph", lambda *a, **kw: None)
     monkeypatch.setattr(routes, "submit", lambda *a: None)
     monkeypatch.setattr(routes, "_sweep_trial_databases", lambda ledger: None)

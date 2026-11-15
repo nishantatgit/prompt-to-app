@@ -10,6 +10,7 @@ from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.keys import KeyRejected, check_key
 from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
+from agents.usage import UsageMeter
 from api.jobs import (
     TRIAL_FINISHED_HOOKS,
     cancel_job,
@@ -75,14 +76,16 @@ def check_edit_key(app: str, key: SecretStr | None, read=get_project_env) -> Non
         raise HTTPException(status_code=403, detail=NOT_YOURS)
 
 
-def make_models(provider: str, api_key: str, settings: Settings) -> AgentModels:
+def make_models(provider: str, api_key: str, settings: Settings, meter=None) -> AgentModels:
+    callbacks = [meter] if meter else None
+
     def llm(agent: str):
         prefix = SETTINGS_PREFIX[agent]
         if getattr(settings, f"{prefix}_provider") == provider:
             model = getattr(settings, f"{prefix}_model")
         else:
             model = DEFAULT_MODEL[provider]
-        return create_llm(provider, model, api_key)
+        return create_llm(provider, model, api_key, callbacks)
 
     return AgentModels(**{agent: llm(agent) for agent in SETTINGS_PREFIX})
 
@@ -185,10 +188,11 @@ def build(
     # After the key check, so a request without a key does not use up an attempt.
     check_rate_limit(request)
 
+    meter = UsageMeter()
     if stub_mode():
         models = AgentModels(**make_stub_models(SETTINGS_PREFIX))
     else:
-        models = make_models(provider, key, settings)
+        models = make_models(provider, key, settings, meter)
     graph = build_graph(
         models,
         limits,
@@ -199,7 +203,7 @@ def build(
         supabase_access_token=os.environ.get("SUPABASE_ACCESS_TOKEN"),
     )
     job_id = new_job_id()
-    create_job(job_id, req.prompt, settings.builder_mode, trial=trial)
+    create_job(job_id, req.prompt, settings.builder_mode, trial=trial, meter=meter)
     if trial:
         ledger.record_build(visitor_id(request), client_ip(request))
     if req.app:
