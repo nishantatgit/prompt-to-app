@@ -88,3 +88,33 @@ a:hover {
     animation: none;
   }
 }
+
+/* Voice screen. The orb follows --level (0 to 1), set from the microphone. */
+.voice-orb { --level: 0; }
+.voice-glow {
+  opacity: calc(0.12 + var(--level) * 0.4);
+  transform: scale(calc(1 + var(--level) * 0.45));
+  filter: blur(18px);
+  transition: transform 90ms linear, opacity 90ms linear;
+}
+.voice-button {
+  transform: scale(calc(1 + var(--level) * 0.08));
+  transition: transform 90ms linear;
+  box-shadow: 0 0 0 10px rgb(80 234 242 / 0.12);
+}
+.voice-button:active { transform: scale(0.95); }
+.voice-orb:not([data-live]) .voice-glow { animation: voice-breathe 3.2s ease-in-out infinite; }
+.voice-bar { transform: scaleY(0.12); transition: transform 90ms linear; }
+.voice-word { display: inline-block; white-space: pre; animation: voice-word-in 320ms ease-out both; }
+.voice-fade-in { animation: voice-word-in 400ms ease-out both; }
+.voice-dots { display: flex; gap: 6px; }
+.voice-dots i { width: 10px; height: 10px; border-radius: 9999px; background: currentColor; animation: voice-dot 900ms ease-in-out infinite; }
+.voice-dots i:nth-child(2) { animation-delay: 150ms; }
+.voice-dots i:nth-child(3) { animation-delay: 300ms; }
+@keyframes voice-word-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes voice-breathe { 0%, 100% { opacity: 0.12; transform: scale(1); } 50% { opacity: 0.28; transform: scale(1.12); } }
+@keyframes voice-dot { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-6px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .voice-glow, .voice-button, .voice-bar { transition: none; }
+  .voice-orb .voice-glow, .voice-word, .voice-fade-in, .voice-dots i { animation: none; }
+}
