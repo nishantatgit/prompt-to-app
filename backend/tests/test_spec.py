@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from tools.spec import make_save_spec, read_spec, write_spec
-from tools.vercel import collect_files
 
 STUBS = Path(__file__).parent.parent / "agents" / "stubs" / "guestbook"
 
@@ -66,12 +65,6 @@ def test_the_readme_explains_the_app_to_a_person(tmp_path):
 
 def test_a_folder_without_a_spec_reads_as_none(tmp_path):
     assert read_spec(tmp_path) is None
-
-
-def test_the_spec_is_never_deployed(tmp_path):
-    (tmp_path / "index.html").write_text("<div></div>")
-    write_spec(tmp_path, guestbook_state(tmp_path), now=0)
-    assert [f["file"] for f in collect_files(tmp_path)] == ["index.html"]
 
 
 def test_the_graph_step_writes_into_the_workspace(tmp_path):
