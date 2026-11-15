@@ -1,6 +1,6 @@
+import os
 import threading
 import time
-import os
 from concurrent.futures import ThreadPoolExecutor
 
 from agents.keys import user_error_reason
@@ -45,7 +45,14 @@ def has_capacity() -> bool:
     return active_job_count() < MAX_ACTIVE_JOBS
 
 
-def create_job(job_id: str, prompt: str, builder_mode: str = "pipeline") -> None:
+# Called with each finished job that ran on the free trial, such as to
+# schedule its database for deletion.
+TRIAL_FINISHED_HOOKS: list = []
+
+
+def create_job(
+    job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False
+) -> None:
     with _lock:
         _jobs[job_id] = {
             "job_id": job_id,
@@ -54,6 +61,7 @@ def create_job(job_id: str, prompt: str, builder_mode: str = "pipeline") -> None
             "stage": None,
             "reason": "",
             "builder_mode": builder_mode,
+            "trial": trial,
             "activity": [],
             # Per stage: when its first step started, how many of its steps
             # are running, and when its last step finished.
@@ -172,6 +180,13 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
         _run_graph(graph, job_id, prompt, recursion_limit)
     finally:
         _finish_clock(job_id)
+        job = get_job(job_id)
+        if job and job.get("trial"):
+            for hook in TRIAL_FINISHED_HOOKS:
+                try:
+                    hook(job)
+                except Exception:
+                    pass
 
 
 def _run_graph(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
@@ -226,6 +241,7 @@ def public_view(job: dict) -> dict:
         "stage": job["stage"],
         "reason": job["reason"],
         "builder_mode": job.get("builder_mode", "pipeline"),
+        "trial": job.get("trial", False),
         "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
         "database_name": state.get("database_name", ""),

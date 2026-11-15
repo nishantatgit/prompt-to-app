@@ -1,4 +1,6 @@
 import os
+import threading
+from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -8,9 +10,19 @@ from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.keys import KeyRejected, check_key
 from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
-from api.jobs import cancel_job, create_job, get_job, has_capacity, public_view, submit
-from api.limits import check_rate_limit
+from api.jobs import (
+    TRIAL_FINISHED_HOOKS,
+    cancel_job,
+    create_job,
+    get_job,
+    has_capacity,
+    public_view,
+    submit,
+)
+from api.limits import check_rate_limit, client_ip
+from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
+from tools.supabase import delete_database
 from tools.workspace import new_job_id
 
 router = APIRouter(prefix="/api")
@@ -47,6 +59,37 @@ def make_models(provider: str, api_key: str, settings: Settings) -> AgentModels:
     return AgentModels(**{agent: llm(agent) for agent in SETTINGS_PREFIX})
 
 
+TRIAL_PROVIDER = "anthropic"
+VISITOR_HEADER = "x-vyskar-visitor"
+NO_KEY = "An API key is required."
+TRIAL_USED_UP = "You have used your free builds. Add your own AI key to keep building."
+TRIAL_PAUSED = "Free builds are paused right now. Add your own AI key to build."
+
+_ledger: TrialLedger | None = None
+
+
+def trial_ledger(settings: Settings) -> TrialLedger:
+    """One ledger per process, kept next to the workspaces. On first use it
+    also starts recording the databases of finished trial apps."""
+    global _ledger
+    if _ledger is None:
+        _ledger = TrialLedger(Path(settings.workspaces_dir) / "trial-usage.json")
+        TRIAL_FINISHED_HOOKS.append(
+            lambda job: _ledger.record_database(job.get("state", {}).get("database_name", ""))
+        )
+    return _ledger
+
+
+def visitor_id(request: Request) -> str:
+    return request.headers.get(VISITOR_HEADER, "").strip()[:64]
+
+
+def _sweep_trial_databases(ledger: TrialLedger) -> None:
+    token = os.environ.get("VERCEL_TOKEN")
+    if token:
+        sweep_databases(ledger, lambda name: delete_database(token, name))
+
+
 def get_agent_limits(settings: Settings = Depends(get_settings)) -> AgentLimits:
     return AgentLimits(
         analyst_max_attempts=settings.analyst_max_attempts,
@@ -69,6 +112,9 @@ def build(
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
+    provider = req.provider
+    trial = False
+    ledger = None
     if stub_mode():
         key = ""  # canned answers, no model is called
     elif req.api_key:
@@ -76,14 +122,26 @@ def build(
     elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
         key = settings.api_key_for(req.provider)
     else:
-        raise HTTPException(status_code=400, detail="An API key is required.")
+        config = TrialConfig.from_env()
+        if not config.enabled:
+            raise HTTPException(status_code=400, detail=NO_KEY)
+        ledger = trial_ledger(settings)
+        if ledger.builds_left(config, visitor_id(request), client_ip(request)) <= 0:
+            raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
+        try:
+            key = settings.api_key_for(TRIAL_PROVIDER)
+        except ValueError:
+            raise HTTPException(status_code=503, detail=TRIAL_PAUSED) from None
+        provider, trial = TRIAL_PROVIDER, True
 
     # A bad key fails here in a second, instead of as an error mid build.
     if not stub_mode():
         try:
-            check_key(req.provider, key)
+            check_key(provider, key)
         except KeyRejected as error:
-            raise HTTPException(status_code=400, detail=str(error))
+            if trial:  # Vyskar's own key: not the visitor's problem to fix
+                raise HTTPException(status_code=503, detail=TRIAL_PAUSED) from None
+            raise HTTPException(status_code=400, detail=str(error)) from None
 
     if not has_capacity():
         raise HTTPException(
@@ -98,7 +156,7 @@ def build(
     if stub_mode():
         models = AgentModels(**make_stub_models(SETTINGS_PREFIX))
     else:
-        models = make_models(req.provider, key, settings)
+        models = make_models(provider, key, settings)
     graph = build_graph(
         models,
         limits,
@@ -109,9 +167,22 @@ def build(
         supabase_access_token=os.environ.get("SUPABASE_ACCESS_TOKEN"),
     )
     job_id = new_job_id()
-    create_job(job_id, req.prompt, settings.builder_mode)
+    create_job(job_id, req.prompt, settings.builder_mode, trial=trial)
+    if trial:
+        ledger.record_build(visitor_id(request), client_ip(request))
     submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
+    if ledger is not None:
+        # Old trial databases go now, so their slots are free for new apps.
+        threading.Thread(target=_sweep_trial_databases, args=(ledger,), daemon=True).start()
     return {"job_id": job_id}
+
+
+@router.get("/trial")
+def trial_status(request: Request, settings: Settings = Depends(get_settings)):
+    """Whether free builds are on, and how many this visitor has left."""
+    config = TrialConfig.from_env()
+    left = trial_ledger(settings).builds_left(config, visitor_id(request), client_ip(request))
+    return {"enabled": config.enabled, "builds_left": left}
 
 
 @router.get("/jobs/{job_id}")

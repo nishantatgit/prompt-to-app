@@ -306,3 +306,26 @@ def test_a_refused_access_token_is_not_retried(monkeypatch):
     with pytest.raises(RuntimeError, match="refused the access token"):
         supabase.allow_signups_without_confirmation("bad", "https://abcdefghijkl.supabase.co")
     assert len(calls) == 1
+
+
+def test_delete_database_disconnects_then_deletes_by_name(monkeypatch):
+    calls = []
+    request = httpx.Request("GET", supabase.API)
+
+    def get(url, **kw):
+        calls.append(("GET", url.replace(supabase.API, "")))
+        stores = [{"id": "s1", "name": "notes-abc"}, {"id": "s2", "name": "keep-me"}]
+        return httpx.Response(200, json={"stores": stores}, request=request)
+
+    def delete(url, **kw):
+        calls.append(("DELETE", url.replace(supabase.API, "")))
+        return httpx.Response(204, request=request)
+
+    monkeypatch.setattr(supabase.httpx, "get", get)
+    monkeypatch.setattr(supabase.httpx, "delete", delete)
+    assert supabase.delete_database("tok", "notes-abc") is True
+    assert calls[1:] == [
+        ("DELETE", "/v1/storage/stores/s1/connections"),
+        ("DELETE", "/v1/storage/stores/integration/s1"),
+    ]
+    assert supabase.delete_database("tok", "missing") is False
