@@ -102,3 +102,22 @@ def test_a_finished_trial_app_schedules_its_database_for_deletion(client):
     for hook in jobs.TRIAL_FINISHED_HOOKS:
         hook(jobs.get_job(job_id))
     assert routes._ledger.expired_databases(now=10**12) == ["notes-abc123"]
+
+
+def test_the_browser_may_send_the_visitor_header_cross_origin(monkeypatch):
+    # app.vyskar.com calls api.vyskar.com, so the browser asks first.
+    import importlib
+
+    import api.main
+
+    monkeypatch.setenv("CORS_ORIGINS", "https://app.vyskar.com")
+    app = importlib.reload(api.main).app
+    response = TestClient(app).options(
+        "/api/build",
+        headers={
+            "Origin": "https://app.vyskar.com",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type,x-vyskar-visitor",
+        },
+    )
+    assert response.status_code == 200
