@@ -176,9 +176,9 @@ def _outcome(state: dict) -> tuple[str, str]:
     return "failed", reason
 
 
-def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
+def _run(graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | None = None) -> None:
     try:
-        _run_graph(graph, job_id, prompt, recursion_limit)
+        _run_graph(graph, job_id, prompt, recursion_limit, extra)
     finally:
         _finish_clock(job_id)
         job = get_job(job_id)
@@ -190,11 +190,13 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
                     pass
 
 
-def _run_graph(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
+def _run_graph(
+    graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | None = None
+) -> None:
     if is_cancelled(job_id):
         return  # cancelled while waiting in the queue
     _update(job_id, status="running", started_at=time.time())
-    state = {"prompt": prompt, "job_id": job_id}
+    state = {**(extra or {}), "prompt": prompt, "job_id": job_id}
     config = {
         "recursion_limit": recursion_limit,
         # Long steps, such as the build loop, check this between model calls.
@@ -230,8 +232,11 @@ def _run_graph(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
         _update(job_id, status="failed", reason=reason)
 
 
-def submit(graph, job_id: str, prompt: str, recursion_limit: int) -> None:
-    _executor.submit(_run, graph, job_id, prompt, recursion_limit)
+def submit(
+    graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | None = None
+) -> None:
+    """extra: more starting state, such as the app to change."""
+    _executor.submit(_run, graph, job_id, prompt, recursion_limit, extra)
 
 
 def public_view(job: dict) -> dict:
@@ -245,6 +250,8 @@ def public_view(job: dict) -> dict:
         "trial": job.get("trial", False),
         "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
+        "app_name": state.get("deployed_name") or state.get("app_name", ""),
+        "editable": bool(state.get("editable")),
         "database_name": state.get("database_name", ""),
         "confidence": state.get("confidence"),
         "test_summary": state.get("test_summary", ""),

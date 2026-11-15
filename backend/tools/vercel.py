@@ -203,3 +203,41 @@ def download_source(token: str, deployment_id: str, dest: Path) -> list[str]:
         target.write_bytes(_file_bytes(file))
         written.append(rel.as_posix())
     return written
+
+
+def set_project_env(token: str, name: str, key: str, value: str) -> None:
+    """Set an encrypted environment variable on an app's project, replacing
+    any earlier value. Not prefixed VITE_, so it never reaches the browser."""
+    response = httpx.post(
+        f"{API}/v10/projects/{project_name(name)}/env",
+        params=_params({"upsert": "true"}),
+        headers=_headers(token),
+        json={"key": key, "value": value, "type": "encrypted", "target": ["production", "preview"]},
+        timeout=30,
+    )
+    _check(response)
+
+
+def get_project_env(token: str, name: str, key: str) -> str | None:
+    """One environment variable of an app's project, decrypted; None when the
+    project or the variable does not exist."""
+    response = httpx.get(
+        f"{API}/v10/projects/{project_name(name)}/env",
+        params=_params(),
+        headers=_headers(token),
+        timeout=30,
+    )
+    if response.status_code == 404:
+        return None
+    _check(response)
+    match = next((e for e in response.json().get("envs", []) if e.get("key") == key), None)
+    if match is None:
+        return None
+    one = httpx.get(
+        f"{API}/v1/projects/{project_name(name)}/env/{match['id']}",
+        params=_params(),
+        headers=_headers(token),
+        timeout=30,
+    )
+    _check(one)
+    return one.json().get("value")

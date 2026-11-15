@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, Field, SecretStr
 
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.keys import KeyRejected, check_key
@@ -22,7 +22,9 @@ from api.jobs import (
 from api.limits import check_rate_limit, client_ip
 from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
+from tools import edit_key
 from tools.supabase import delete_database
+from tools.vercel import get_project_env
 from tools.workspace import new_job_id
 
 router = APIRouter(prefix="/api")
@@ -45,6 +47,32 @@ class BuildRequest(BaseModel):
     prompt: str
     provider: Literal["anthropic", "openai"]
     api_key: SecretStr | None = None
+    # To change an existing app instead of building a new one: its name, and
+    # the edit key the browser got when the app was first built.
+    app: str | None = Field(default=None, pattern=r"^[a-z0-9][a-z0-9-]{0,49}$")
+    edit_key: SecretStr | None = None
+
+
+CANNOT_CHANGE = "Vyskar can't change this app right now."
+NOT_YOURS = "This app can only be changed from the browser that built it."
+NOT_CHANGEABLE = (
+    "This app was built before apps could be changed. Build it again to make it changeable."
+)
+
+
+def check_edit_key(app: str, key: SecretStr | None, read=get_project_env) -> None:
+    """Allow a change only with the app's own edit key."""
+    token = os.environ.get("VERCEL_TOKEN")
+    if not token:
+        raise HTTPException(status_code=503, detail=CANNOT_CHANGE)
+    try:
+        stored = read(token, app, edit_key.ENV_KEY)
+    except Exception:
+        raise HTTPException(status_code=503, detail=CANNOT_CHANGE) from None
+    if stored is None:
+        raise HTTPException(status_code=404, detail=NOT_CHANGEABLE)
+    if key is None or not edit_key.matches(key.get_secret_value(), stored):
+        raise HTTPException(status_code=403, detail=NOT_YOURS)
 
 
 def make_models(provider: str, api_key: str, settings: Settings) -> AgentModels:
@@ -112,6 +140,10 @@ def build(
     limits: AgentLimits = Depends(get_agent_limits),
     settings: Settings = Depends(get_settings),
 ):
+    # Checked first: someone else's app is refused before any other work.
+    if req.app:
+        check_edit_key(req.app, req.edit_key)
+
     provider = req.provider
     trial = False
     ledger = None
@@ -170,11 +202,17 @@ def build(
     create_job(job_id, req.prompt, settings.builder_mode, trial=trial)
     if trial:
         ledger.record_build(visitor_id(request), client_ip(request))
-    submit(graph, job_id, req.prompt, settings.graph_recursion_limit)
+    if req.app:
+        extra, new_key = {"app_name": req.app}, None
+    else:
+        new_key = edit_key.new_key()
+        extra = {"edit_key_hash": edit_key.hash_key(new_key)}
+    submit(graph, job_id, req.prompt, settings.graph_recursion_limit, extra)
     if ledger is not None:
         # Old trial databases go now, so their slots are free for new apps.
         threading.Thread(target=_sweep_trial_databases, args=(ledger,), daemon=True).start()
-    return {"job_id": job_id}
+    # The only time the key is sent: the browser keeps it to change the app later.
+    return {"job_id": job_id, "edit_key": new_key}
 
 
 @router.get("/trial")
