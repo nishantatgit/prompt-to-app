@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "slug": "portfolio",
+    "job_id": "26-11-15-1794713449-8694c9a8a6",
+    "status": "failed",
+    "reason": "no credit: Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again.",
+    "deploy_url": "",
+    "confidence": null,
+    "database_name": "",
+    "test_summary": "",
+    "seconds": 291
+  },
+  {
+    "id": 2,
+    "slug": "bakery-landing",
+    "status": "error",
+    "reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again.",
+    "deploy_url": ""
+  },
+  {
+    "id": 3,
+    "slug": "tip-calculator",
+    "status": "error",
+    "reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again.",
+    "deploy_url": ""
+  },
+  {
+    "id": 4,
+    "slug": "pomodoro-timer",
+    "status": "error",
+    "reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again.",
+    "deploy_url": ""
+  },
+  {
+    "id": 5,
+    "slug": "unit-converter",
+    "status": "error",
+    "reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again.",
+    "deploy_url": ""
+  }
+]

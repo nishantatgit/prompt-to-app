@@ -1,0 +1,64 @@
+{
+  "label": "loop-level1",
+  "score": "0/5",
+  "passed": 0,
+  "total": 5,
+  "broken_greens": 0,
+  "apps": [
+    {
+      "id": 1,
+      "slug": "portfolio",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "no credit: Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again."
+    },
+    {
+      "id": 2,
+      "slug": "bakery-landing",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again."
+    },
+    {
+      "id": 3,
+      "slug": "tip-calculator",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again."
+    },
+    {
+      "id": 4,
+      "slug": "pomodoro-timer",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again."
+    },
+    {
+      "id": 5,
+      "slug": "unit-converter",
+      "result": "not built",
+      "confidence": null,
+      "broken_green": false,
+      "tests_passed": 0,
+      "tests_run": 0,
+      "failed": [],
+      "build_reason": "Your Anthropic account has no credit left. Add credit at console.anthropic.com/settings/billing, then build again."
+    }
+  ]
+}
