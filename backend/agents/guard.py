@@ -6,6 +6,8 @@ from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, model_validator
 
+from agents.llm import structured
+
 GUARD_PROMPT = (Path(__file__).parent / "prompts" / "guard.md").read_text()
 
 PROMPT = ChatPromptTemplate.from_messages(
@@ -35,7 +37,7 @@ class GuardResult(BaseModel):
 
 
 def make_guard(llm: BaseChatModel):
-    chain = PROMPT | llm.with_structured_output(GuardResult, include_raw=True)
+    chain = PROMPT | structured(llm, GuardResult)
 
     def guard(state: dict) -> dict:
         out = chain.invoke({"prompt": state["prompt"]})
