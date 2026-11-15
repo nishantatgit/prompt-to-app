@@ -1,0 +1,2 @@
+databases: simple-notes-app-6c2805, single-event-rsvp-2043a8
+SUPABASE_ACCESS_TOKEN: not set on GitHub
