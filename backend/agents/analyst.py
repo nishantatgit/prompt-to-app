@@ -7,6 +7,8 @@ from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field, model_validator
 
+from agents.llm import structured
+
 ANALYST_PROMPT = (Path(__file__).parent / "prompts" / "analyst.md").read_text()
 
 PROMPT = ChatPromptTemplate.from_messages(
@@ -85,7 +87,7 @@ def check_against_prompt(reqs: Requirements, prompt: str) -> list[str]:
 
 
 def make_analyst(llm: BaseChatModel):
-    chain = PROMPT | llm.with_structured_output(Requirements, include_raw=True)
+    chain = PROMPT | structured(llm, Requirements)
 
     def analyst(state: dict) -> dict:
         attempts = state.get("analyst_attempts", 0) + 1
