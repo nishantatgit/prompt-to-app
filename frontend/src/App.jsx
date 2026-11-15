@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import { getTrial, startBuild } from './lib/api.js'
@@ -6,6 +6,8 @@ import { askToNotify, notifyBuildDone } from './lib/notify.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
 import Modal from './components/SettingsModal.jsx'
+import VoiceComposer from './components/VoiceComposer.jsx'
+import { useInputMode, useIsPhone } from './lib/inputMode.js'
 
 export default function App() {
   const [settings, setSettings] = useState(loadSettings)
@@ -17,6 +19,11 @@ export default function App() {
   const [jobId, setJobId] = useState(null)
   const [running, setRunning] = useState(false)
   const [error, setError] = useState('')
+  const isPhone = useIsPhone()
+  const [inputMode, setInputMode] = useInputMode()
+  const [dictateHint, setDictateHint] = useState(false)
+  const promptBox = useRef(null)
+  const voice = isPhone && inputMode === 'voice'
 
   const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
   const canBuild = prompt.trim() && !running
@@ -55,6 +62,19 @@ export default function App() {
     }
   }
 
+  function switchToTyping({ dictate = false }) {
+    setInputMode('type')
+    setDictateHint(dictate)
+    // Focus after the text box appears; on a phone this opens the keyboard.
+    requestAnimationFrame(() => promptBox.current?.focus())
+  }
+
+  const buildNote = freeBuild
+    ? `Free build, no AI key needed: ${trial.builds_left} left.`
+    : isPhone
+      ? 'Takes a few minutes.'
+      : 'Takes a few minutes. Ctrl or Cmd + Enter also works.'
+
   const handleDone = useCallback((job) => {
     setRunning(false)
     notifyBuildDone(job)
@@ -83,42 +103,72 @@ export default function App() {
 
       <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
 
-        <div>
-          <h1 className="font-display text-[clamp(26px,4vw,38px)] font-bold leading-tight">
-            What should your senior engineer build?
-          </h1>
-          <p className="mt-3 text-muted">
-            Describe the app in plain English. Vyskar writes the requirements, builds it, tests it and puts it online.
-          </p>
-        </div>
+        {voice ? (
+          <VoiceComposer
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            onBuild={handleBuild}
+            canBuild={canBuild}
+            running={running}
+            note={buildNote}
+            onType={switchToTyping}
+            compact={Boolean(jobId)}
+          />
+        ) : (
+          <>
+            <div>
+              <h1 className="font-display text-[clamp(26px,4vw,38px)] font-bold leading-tight">
+                What should your senior engineer build?
+              </h1>
+              <p className="mt-3 text-muted">
+                Describe the app in plain English. Vyskar writes the requirements, builds it, tests it and puts it online.
+              </p>
+            </div>
 
-        <label htmlFor="prompt" className="sr-only">Describe your app</label>
-        <textarea
-          id="prompt"
-          className="h-36 w-full rounded-2xl border border-wall bg-card p-4 text-fg placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-accent"
-          placeholder="e.g. A to-do list where I can add, complete, delete and filter tasks"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleBuild()
-          }}
-        />
+            <label htmlFor="prompt" className="sr-only">Describe your app</label>
+            {dictateHint && (
+              <p className="rounded-lg border border-line bg-card p-4 text-sm text-muted">
+                Voice isn't available here yet. Tap the mic on your keyboard to dictate
+                instead.
+              </p>
+            )}
+            <textarea
+              ref={promptBox}
+              id="prompt"
+              className="h-36 w-full rounded-2xl border border-wall bg-card p-4 text-fg placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-accent"
+              placeholder="e.g. A to-do list where I can add, complete, delete and filter tasks"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleBuild()
+              }}
+            />
 
-        <div className="flex flex-wrap items-center gap-4">
-          <button
-            type="button"
-            onClick={handleBuild}
-            disabled={!canBuild}
-            className="min-h-11 rounded-full bg-accent px-7 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {running ? 'Building...' : 'Build my app'}
-          </button>
-          <span className="text-sm text-dim">
-            {freeBuild
-              ? `Free build, no AI key needed: ${trial.builds_left} left.`
-              : 'Takes a few minutes. Ctrl or Cmd + Enter also works.'}
-          </span>
-        </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                type="button"
+                onClick={handleBuild}
+                disabled={!canBuild}
+                className="min-h-11 rounded-full bg-accent px-7 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {running ? 'Building...' : 'Build my app'}
+              </button>
+              <span className="text-sm text-dim">{buildNote}</span>
+              {isPhone && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDictateHint(false)
+                    setInputMode('voice')
+                  }}
+                  className="min-h-11 text-sm text-muted underline underline-offset-4"
+                >
+                  Speak instead
+                </button>
+              )}
+            </div>
+          </>
+        )}
 
         {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}
 
