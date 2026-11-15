@@ -7,6 +7,10 @@ class JobState(TypedDict, total=False):
     app_name: str
     change_request: str
     applied_migrations: list[str]
+    # SHA-256 of the new app's edit key, saved on its Vercel project.
+    edit_key_hash: str
+    deployed_name: str
+    editable: bool
 
     job_id: str
     workspace_dir: str | None
