@@ -1,0 +1,77 @@
+{
+  "summary": "A notes app with email and password login; each user's notes are private, enforced by row level security",
+  "assumptions": ["Notes are plain text up to 2000 characters"],
+  "coverage": [
+    { "requirement_id": "R1", "feature_ids": ["F1"] },
+    { "requirement_id": "R2", "feature_ids": ["F2"] },
+    { "requirement_id": "R3", "feature_ids": ["F3"] }
+  ],
+  "storage": "supabase",
+  "needs_backend": false,
+  "needs_database": true,
+  "needs_auth": true,
+  "env_vars": [
+    { "name": "VITE_SUPABASE_URL", "used_by": "frontend", "secret": false, "purpose": "The Supabase project URL" },
+    { "name": "VITE_SUPABASE_ANON_KEY", "used_by": "frontend", "secret": false, "purpose": "The public anon key" }
+  ],
+  "ui_elements": [
+    { "kind": "input", "label": "Email", "purpose": "Account email" },
+    { "kind": "input", "label": "Password", "purpose": "Account password" },
+    { "kind": "button", "label": "Sign up", "purpose": "Creates an account and logs in" },
+    { "kind": "button", "label": "Log in", "purpose": "Logs in to an existing account" },
+    { "kind": "button", "label": "Log out", "purpose": "Ends the session" },
+    { "kind": "input", "label": "New note", "purpose": "Text of the note to add" },
+    { "kind": "button", "label": "Add note", "purpose": "Saves the note" },
+    { "kind": "list", "label": "Your notes", "purpose": "The logged in user's notes, newest first" }
+  ],
+  "features": [
+    {
+      "id": "F1",
+      "name": "Sign up and log in",
+      "requirement_ids": ["R1"],
+      "description": "Email and password forms; signing up logs the user in at once",
+      "acceptance_criteria": [
+        { "id": "F1-AC1", "statement": "A new user signs up and sees the notes screen with a Log out button", "priority": "P1" }
+      ]
+    },
+    {
+      "id": "F2",
+      "name": "Write notes",
+      "requirement_ids": ["R2"],
+      "description": "Add a note and see it in the list, kept after a reload",
+      "acceptance_criteria": [
+        { "id": "F2-AC1", "statement": "An added note appears in Your notes and is still there after a reload", "priority": "P1" }
+      ]
+    },
+    {
+      "id": "F3",
+      "name": "Private notes",
+      "requirement_ids": ["R3"],
+      "description": "Each user only ever sees their own notes",
+      "acceptance_criteria": [
+        { "id": "F3-AC1", "statement": "A second user does not see the first user's notes", "priority": "P1" }
+      ]
+    }
+  ],
+  "functions": [],
+  "tables": [
+    {
+      "name": "notes",
+      "columns": [
+        { "name": "id", "type": "bigint", "nullable": false, "notes": "identity primary key" },
+        { "name": "user_id", "type": "uuid", "nullable": false, "notes": "default auth.uid(), references auth.users" },
+        { "name": "created_at", "type": "timestamptz", "nullable": false, "notes": "default now()" },
+        { "name": "body", "type": "text", "nullable": false, "notes": "1 to 2000 characters" }
+      ],
+      "access_rules": ["Owners can read, add, change and delete their own notes", "Nobody else can see or change them"]
+    }
+  ],
+  "api_routes": [],
+  "risks": [{ "risk": "A user seeing another user's notes", "mitigation": "Row level security on user_id = auth.uid()" }],
+  "files": [
+    { "path": "src/App.jsx", "owner": "frontend", "purpose": "Login and notes screens" },
+    { "path": "src/lib/supabase.js", "owner": "frontend", "purpose": "The Supabase client" },
+    { "path": "supabase/migrations/001_notes.sql", "owner": "database", "purpose": "The notes table and its owner only rules" }
+  ],
+  "visual_design": "A calm, plain page: a centred login card, then a single column of notes."
+}

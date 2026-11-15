@@ -5,6 +5,7 @@ const STAGES = [
   'checking request',
   'requirements',
   'architecture',
+  'setting up',
   'building',
   'planning tests',
   'testing',
@@ -12,6 +13,38 @@ const STAGES = [
 ]
 const POLL_MS = 2000
 const FINISHED = new Set(['succeeded', 'failed', 'rejected', 'cancelled'])
+
+// 12s, 1m 05s, 1h 02m.
+export function formatDuration(seconds) {
+  if (seconds == null) return ''
+  const s = Math.max(0, Math.round(seconds))
+  if (s < 60) return `${s}s`
+  const m = Math.floor(s / 60)
+  if (m < 60) return `${m}m ${String(s % 60).padStart(2, '0')}s`
+  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`
+}
+
+// How long each step took, once the build has ended.
+function StepTimes({ job }) {
+  const stages = job?.timings?.stages ?? {}
+  const shown = STAGES.filter((stage) => stages[stage])
+  if (!shown.length) return null
+  return (
+    <div className="mt-5 flex flex-col gap-2">
+      <p className="font-mono text-xs text-dim">
+        Took {formatDuration(job.timings.total_seconds)}
+      </p>
+      <ul aria-label="Time per step" className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 font-mono text-xs">
+        {shown.map((stage) => (
+          <li key={stage} className="contents">
+            <span className="text-muted">{stage}</span>
+            <span className="text-right tabular-nums text-dim">{formatDuration(stages[stage].seconds)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 function failureHeading(job) {
   if (job.status === 'rejected') return 'Vyskar could not build this request.'
@@ -117,16 +150,22 @@ export default function JobView({ jobId, onDone }) {
           {STAGES.map((stage, i) => {
             const done = i < reached
             const current = i === reached
+            const time = job?.timings?.stages?.[stage]
             return (
               <li key={stage} className="py-1.5">
                 <div className="flex items-center gap-3">
                   <span
                     aria-hidden="true"
-                    className={`h-2.5 w-2.5 rounded-full ${
+                    className={`h-2.5 w-2.5 shrink-0 rounded-full ${
                       done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
                     }`}
                   />
-                  <span className={done || current ? 'text-fg' : 'text-dim'}>{stage}</span>
+                  <span className={`min-w-0 flex-1 ${done || current ? 'text-fg' : 'text-dim'}`}>{stage}</span>
+                  {time && (
+                    <span className={`tabular-nums text-xs ${time.running ? 'text-muted' : 'text-dim'}`}>
+                      {formatDuration(time.seconds)}
+                    </span>
+                  )}
                 </div>
                 {stage === 'building' && <LoopActivity job={job} />}
               </li>
@@ -179,6 +218,8 @@ export default function JobView({ jobId, onDone }) {
           )}
         </div>
       )}
+
+      {finished && <StepTimes job={job} />}
 
       {error && <p className="mt-4 text-sm text-accent">{error}</p>}
     </section>

@@ -32,6 +32,27 @@ When storage is "supabase":
 - The browser only ever uses the anon key. Secret keys are read in api/*.py
   from environment variables, never written into any file.
 
+When needs_auth is true:
+- Users sign up and log in with email and password through Supabase Auth:
+  supabase.auth.signUp, signInWithPassword and signOut. Read the session
+  with supabase.auth.getSession() on load and follow changes with
+  supabase.auth.onAuthStateChange, unsubscribing on unmount.
+- Vyskar turns off email confirmation, so signUp returns a session and the
+  user is logged in at once. Never show "check your email".
+- The forms have labelled fields "Email" and "Password" and buttons
+  "Sign up" and "Log in", with a way to switch between them. A logged in user
+  sees a "Log out" button. Wrong passwords and taken emails show the error
+  from Supabase in words a person understands.
+- A logged out visitor sees the login form and only what the access rules
+  make public; a logged in user sees their own data.
+- Tables that belong to a user have
+  user_id uuid not null default auth.uid() references auth.users on delete cascade.
+  Their policies check ownership, such as
+  create policy "Owners read their notes" on notes for select to authenticated using (user_id = auth.uid());
+  with matching insert (with check), update and delete policies, and grants
+  to authenticated only. Never send user_id from the browser; the default
+  fills it in.
+
 When needs_backend is true:
 - api/index.py is a FastAPI app with the architecture's routes, and
   requirements.txt lists fastapi, pydantic and supabase. Vercel runs it as a

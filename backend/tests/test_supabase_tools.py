@@ -269,3 +269,40 @@ def test_the_database_and_the_deploy_use_the_same_project(vercel, monkeypatch, t
 
     connected_to = next(b["name"] for m, p, b in vercel.calls if p == "/v11/projects")
     assert deployed == [connected_to]
+
+
+def test_project_ref_comes_from_the_url():
+    assert supabase.project_ref("https://abcdefghijkl.supabase.co") == "abcdefghijkl"
+
+
+def test_signups_without_confirmation_patch_the_auth_config(monkeypatch):
+    calls = []
+    request = httpx.Request("PATCH", "https://api.supabase.com")
+    replies = iter([httpx.Response(404, request=request), httpx.Response(200, json={}, request=request)])
+
+    def patch(url, **kw):
+        calls.append((url, kw["json"], kw["headers"]["Authorization"]))
+        return next(replies)
+
+    monkeypatch.setattr(supabase.httpx, "patch", patch)
+    monkeypatch.setattr(supabase.time, "sleep", lambda s: None)
+    supabase.allow_signups_without_confirmation("sbp_x", "https://abcdefghijkl.supabase.co")
+    assert calls[-1] == (
+        "https://api.supabase.com/v1/projects/abcdefghijkl/config/auth",
+        {"mailer_autoconfirm": True},
+        "Bearer sbp_x",
+    )
+    assert len(calls) == 2  # a new project's 404 is retried
+
+
+def test_a_refused_access_token_is_not_retried(monkeypatch):
+    request = httpx.Request("PATCH", "https://api.supabase.com")
+    calls = []
+    monkeypatch.setattr(
+        supabase.httpx,
+        "patch",
+        lambda url, **kw: calls.append(1) or httpx.Response(401, text="unauthorized", request=request),
+    )
+    with pytest.raises(RuntimeError, match="refused the access token"):
+        supabase.allow_signups_without_confirmation("bad", "https://abcdefghijkl.supabase.co")
+    assert len(calls) == 1

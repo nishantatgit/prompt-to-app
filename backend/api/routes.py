@@ -106,6 +106,7 @@ def build(
         vercel_token=os.environ.get("VERCEL_TOKEN"),
         builder_mode=settings.builder_mode,
         supabase_config_id=os.environ.get("VERCEL_SUPABASE_CONFIG_ID"),
+        supabase_access_token=os.environ.get("SUPABASE_ACCESS_TOKEN"),
     )
     job_id = new_job_id()
     create_job(job_id, req.prompt, settings.builder_mode)

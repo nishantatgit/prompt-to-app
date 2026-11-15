@@ -1,0 +1,51 @@
+{
+  "strategy": "End to end tests sign up real users on the app's database: signing up logs in, notes are saved, and a second user cannot see the first user's notes.",
+  "unit_cases": [],
+  "api_cases": [],
+  "data_access_cases": [
+    {
+      "id": "D1",
+      "description": "An owner reads their notes",
+      "table": "notes",
+      "as_user": "user_a",
+      "operation": "select",
+      "expect": "allowed"
+    },
+    {
+      "id": "D2",
+      "description": "Another user cannot read them",
+      "table": "notes",
+      "as_user": "user_b",
+      "operation": "select",
+      "expect": "denied"
+    },
+    {
+      "id": "D3",
+      "description": "Visitors cannot read notes",
+      "table": "notes",
+      "as_user": "anonymous",
+      "operation": "select",
+      "expect": "denied"
+    }
+  ],
+  "e2e_tests": [
+    {
+      "id": "E1",
+      "criterion_id": "F1-AC1",
+      "description": "Signing up logs the user in",
+      "code": "import { test, expect } from '@playwright/test'\n\nasync function signUp(page, tag) {\n  await page.goto('/')\n  await page.getByLabel('Email').fill(`vyskar.test+${Date.now()}${tag}@gmail.com`)\n  await page.getByLabel('Password').fill('Test-password-123')\n  await page.getByRole('button', { name: 'Sign up' }).click()\n  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible()\n}\n\ntest('signs up and logs in', async ({ page }) => {\n  await signUp(page, 'a')\n  await expect(page.getByLabel('New note')).toBeVisible()\n})\n"
+    },
+    {
+      "id": "E2",
+      "criterion_id": "F2-AC1",
+      "description": "A note is saved and survives a reload",
+      "code": "import { test, expect } from '@playwright/test'\n\nasync function signUp(page, tag) {\n  await page.goto('/')\n  await page.getByLabel('Email').fill(`vyskar.test+${Date.now()}${tag}@gmail.com`)\n  await page.getByLabel('Password').fill('Test-password-123')\n  await page.getByRole('button', { name: 'Sign up' }).click()\n  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible()\n}\n\ntest('saves a note', async ({ page }) => {\n  const note = `Buy oat milk ${Date.now()}`\n  const notes = page.getByRole('list', { name: 'Your notes' })\n  await signUp(page, 'b')\n  await page.getByLabel('New note').fill(note)\n  await page.getByRole('button', { name: 'Add note' }).click()\n  await expect(notes.getByText(note)).toBeVisible()\n  await page.reload()\n  await expect(notes.getByText(note)).toBeVisible()\n})\n"
+    },
+    {
+      "id": "E3",
+      "criterion_id": "F3-AC1",
+      "description": "A second user does not see the first user's note",
+      "code": "import { test, expect } from '@playwright/test'\n\nasync function signUp(page, tag) {\n  await page.goto('/')\n  await page.getByLabel('Email').fill(`vyskar.test+${Date.now()}${tag}@gmail.com`)\n  await page.getByLabel('Password').fill('Test-password-123')\n  await page.getByRole('button', { name: 'Sign up' }).click()\n  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible()\n}\n\ntest('keeps notes private', async ({ page }) => {\n  const note = `Private plan ${Date.now()}`\n  const notes = page.getByRole('list', { name: 'Your notes' })\n  await signUp(page, 'c')\n  await page.getByLabel('New note').fill(note)\n  await page.getByRole('button', { name: 'Add note' }).click()\n  await expect(notes.getByText(note)).toBeVisible()\n  await page.getByRole('button', { name: 'Log out' }).click()\n  await signUp(page, 'd')\n  await expect(page.getByLabel('New note')).toBeVisible()\n  await expect(page.getByText(note)).toHaveCount(0)\n})\n"
+    }
+  ]
+}
