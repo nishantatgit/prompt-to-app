@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Read only: does the live frontend have the Cancel button?
-for host in app.vyskar.com; do
-  JS=$(curl -sS -m 20 "https://$host/" | grep -o 'src="/assets/[^"]*\.js"' | head -1 | cut -d'"' -f2)
-  B=$(curl -sS -m 20 "https://$host$JS")
-  echo "$host bundle $JS"
-  for s in "Cancel build" "Waiting for a free builder" "Build steps"; do printf "  %-28s %s\n" "$s" "$(echo "$B" | grep -c "$s")"; done
-  curl -sSI -m 20 "https://$host/" | grep -iE "^(age|last-modified|x-vercel-id|date):"
-done
+# Read only: databases on the account, and whether the Supabase token works.
+set -uo pipefail
+curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v1/storage/stores?teamId=team_71xyHRYPaRkkn2kQ99UT0mDP" | jq -r '"databases: " + ([.stores[]?.name] | join(", "))'
+if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then echo "SUPABASE_ACCESS_TOKEN: not set on GitHub"; exit 0; fi
+echo "SUPABASE_ACCESS_TOKEN: projects call $(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" https://api.supabase.com/v1/projects)"
