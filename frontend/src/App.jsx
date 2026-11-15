@@ -7,7 +7,17 @@ import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
 import Modal from './components/SettingsModal.jsx'
 import VoiceComposer from './components/VoiceComposer.jsx'
+import MyApps from './components/MyApps.jsx'
+import { loadApps, rememberApp } from './lib/myApps.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
+
+const CHANGE_EXAMPLES = [
+  'add a dark mode',
+  'make the buttons bigger',
+  'let me delete items',
+  'add a search box at the top',
+  'show the total at the bottom',
+]
 
 export default function App() {
   const [settings, setSettings] = useState(loadSettings)
@@ -24,6 +34,11 @@ export default function App() {
   const [dictateHint, setDictateHint] = useState(false)
   const [serverVoice, setServerVoice] = useState(false)
   const promptBox = useRef(null)
+  const [apps, setApps] = useState(loadApps)
+  // The app being changed, or null when building a new one.
+  const [changing, setChanging] = useState(null)
+  // Per job: the edit key and prompt, to remember the app once it is live.
+  const jobInfo = useRef({})
   const voice = isPhone && inputMode === 'voice'
 
   const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
@@ -60,7 +75,13 @@ export default function App() {
     setRunning(true)
     askToNotify()
     try {
-      const { job_id } = await startBuild({ prompt: prompt.trim(), ...settings })
+      const { job_id, edit_key } = await startBuild({
+        prompt: prompt.trim(),
+        ...settings,
+        app: changing?.name,
+        editKey: changing?.editKey,
+      })
+      jobInfo.current[job_id] = { editKey: edit_key || changing?.editKey, prompt: prompt.trim() }
       setJobId(job_id)
       if (freeBuild) getTrial().then(setTrial).catch(() => {})
     } catch (err) {
@@ -85,7 +106,49 @@ export default function App() {
   const handleDone = useCallback((job) => {
     setRunning(false)
     notifyBuildDone(job)
+    const info = job && jobInfo.current[job.job_id]
+    if (job?.status === 'succeeded' && job.app_name && info) {
+      setApps(
+        rememberApp({
+          name: job.app_name,
+          url: job.deploy_url,
+          editKey: job.editable ? info.editKey : null,
+          prompt: info.prompt,
+        }),
+      )
+      setChanging(null)
+    }
   }, [])
+
+  function startChange(name) {
+    const app = loadApps().find((a) => a.name === name)
+    if (!app?.editKey) return
+    setChanging(app)
+    setPrompt('')
+    setJobId(null)
+    setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (!voice) requestAnimationFrame(() => promptBox.current?.focus())
+  }
+
+  const changeBanner = changing && (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-line bg-card px-4 py-3 text-sm">
+      <span className="text-muted">
+        Changing{' '}
+        <a href={changing.url} target="_blank" rel="noreferrer" className="font-mono text-accent">
+          {changing.name}
+        </a>
+      </span>
+      <button
+        type="button"
+        onClick={() => setChanging(null)}
+        disabled={running}
+        className="min-h-11 text-muted underline underline-offset-4 disabled:opacity-50"
+      >
+        Build a new app instead
+      </button>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-ink text-fg">
@@ -110,8 +173,12 @@ export default function App() {
 
       <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
 
+        {changeBanner}
         {voice ? (
           <VoiceComposer
+            title={changing ? 'What should change?' : undefined}
+            buildLabel={changing ? 'Change my app' : undefined}
+            examples={changing ? CHANGE_EXAMPLES : undefined}
             prompt={prompt}
             onPromptChange={setPrompt}
             onBuild={handleBuild}
@@ -126,10 +193,12 @@ export default function App() {
           <>
             <div>
               <h1 className="font-display text-[clamp(26px,4vw,38px)] font-bold leading-tight">
-                What should your senior engineer build?
+                {changing ? 'What should change?' : 'What should your senior engineer build?'}
               </h1>
               <p className="mt-3 text-muted">
-                Describe the app in plain English. Vyskar writes the requirements, builds it, tests it and puts it online.
+                {changing
+                  ? 'Describe the change. Vyskar updates the app at the same address and keeps its data.'
+                  : 'Describe the app in plain English. Vyskar writes the requirements, builds it, tests it and puts it online.'}
               </p>
             </div>
 
@@ -144,7 +213,11 @@ export default function App() {
               ref={promptBox}
               id="prompt"
               className="h-36 w-full rounded-2xl border border-wall bg-card p-4 text-fg placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-accent"
-              placeholder="e.g. A to-do list where I can add, complete, delete and filter tasks"
+              placeholder={
+                changing
+                  ? 'e.g. Add a dark mode and make the buttons bigger'
+                  : 'e.g. A to-do list where I can add, complete, delete and filter tasks'
+              }
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
@@ -159,7 +232,7 @@ export default function App() {
                 disabled={!canBuild}
                 className="min-h-11 rounded-full bg-accent px-7 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {running ? 'Building...' : 'Build my app'}
+                {running ? 'Building...' : changing ? 'Change my app' : 'Build my app'}
               </button>
               <span className="text-sm text-dim">{buildNote}</span>
               {isPhone && (
@@ -180,7 +253,9 @@ export default function App() {
 
         {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}
 
-        {jobId && <JobView key={jobId} jobId={jobId} onDone={handleDone} />}
+        {jobId && <JobView key={jobId} jobId={jobId} onDone={handleDone} onChange={startChange} />}
+
+        {!running && <MyApps apps={apps} onChange={(app) => startChange(app.name)} disabled={running} />}
       </main>
       <Modal open={showSettings} onClose={() => setShowSettings(false)} labelledBy="settings-title">
           <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />

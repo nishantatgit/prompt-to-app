@@ -42,17 +42,17 @@ function clock(seconds) {
 }
 
 // Rotates through example apps while the mic waits.
-function Examples() {
+function Examples({ examples = EXAMPLES }) {
   const [index, setIndex] = useState(0)
   useEffect(() => {
-    const timer = setInterval(() => setIndex((i) => (i + 1) % EXAMPLES.length), 3200)
+    const timer = setInterval(() => setIndex((i) => (i + 1) % examples.length), 3200)
     return () => clearInterval(timer)
-  }, [])
+  }, [examples])
   return (
     <p className="text-muted">
       Try saying{' '}
       <span key={index} className="voice-fade-in block text-fg">
-        “{EXAMPLES[index]}”
+        “{examples[index % examples.length]}”
       </span>
     </p>
   )
@@ -87,6 +87,9 @@ export default function VoiceComposer({
   note,
   onType,
   serverVoice = false,
+  title = 'What should we build?',
+  buildLabel = 'Build my app',
+  examples,
   compact = false, // once a build has started, so its progress shows below
 }) {
   const [phase, setPhase] = useState('idle') // idle, listening, transcribing, review
@@ -199,7 +202,7 @@ export default function VoiceComposer({
       className={`flex flex-col items-center justify-center gap-7 text-center ${compact ? '' : 'min-h-[calc(100svh-12rem)]'}`}
     >
       <h1 className="font-display text-[26px] font-bold leading-tight">
-        {listening ? 'Listening...' : transcribing ? 'Got it' : reviewing ? 'Build this?' : 'What should we build?'}
+        {listening ? 'Listening...' : transcribing ? 'Got it' : reviewing ? `${buildLabel.replace(' my app', '')} this?` : title}
       </h1>
 
       {!reviewing && (
@@ -265,7 +268,7 @@ export default function VoiceComposer({
         ) : transcribing ? (
           <p className="text-muted">Writing down what you said...</p>
         ) : (
-          <Examples />
+          <Examples examples={examples} />
         )}
         {error && <p className="mt-3 text-sm text-accent">{error}</p>}
       </div>
@@ -278,7 +281,7 @@ export default function VoiceComposer({
             disabled={!canBuild}
             className="min-h-12 rounded-full bg-accent px-7 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {running ? 'Building...' : 'Build my app'}
+            {running ? 'Building...' : buildLabel}
           </button>
           <div className="grid grid-cols-2 gap-3">
             <button type="button" onClick={start} disabled={running} className="min-h-11 rounded-full border border-wall text-sm text-muted disabled:opacity-50">
