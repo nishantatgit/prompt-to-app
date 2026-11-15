@@ -8,7 +8,8 @@ spec/
   history.json       every prompt that shaped the app, oldest first
 
 The JSON files are what a later build loads to change the app; README.md
-says the same for a person reading the repo. Deploys skip the spec folder.
+says the same for a person reading the repo. The spec is deployed with the
+code, so Vercel keeps it; only the built dist folder is served.
 """
 
 import json

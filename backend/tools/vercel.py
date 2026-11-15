@@ -1,15 +1,16 @@
 import base64
+import os
 import time
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import httpx
 
 API = "https://api.vercel.com"
-SKIP_DIRS = {"node_modules", "dist", "tests", "test-results", "playwright-report", ".git", "spec"}
+# The spec folder is deployed with the code: Vercel keeps a deployment's source
+# for Vyskar to download when the app is changed later, and serves only dist.
+SKIP_DIRS = {"node_modules", "dist", "tests", "test-results", "playwright-report", ".git"}
 SKIP_FILES = {"playwright-results.json", "test-report.json"}
 DONE_STATES = {"READY", "ERROR", "CANCELED"}
-
-import os
 
 
 def _params(extra: dict | None = None) -> dict:
@@ -134,3 +135,71 @@ def deploy_app(token: str, job_dir: Path, name: str, root_domain: str = "vyskar.
     domain = f"{name}.{root_domain}"
     add_domain(token, project, domain)
     return f"https://{domain}"
+
+
+def production_deployment(token: str, name: str) -> str | None:
+    """The id of the deployment live at an app's address, or None when the
+    app has never been deployed."""
+    response = httpx.get(
+        f"{API}/v9/projects/{project_name(name)}",
+        params=_params(),
+        headers=_headers(token),
+        timeout=30,
+    )
+    if response.status_code == 404:
+        return None
+    _check(response)
+    production = (response.json().get("targets") or {}).get("production") or {}
+    return production.get("id")
+
+
+def _source_files(tree: list[dict], parent: PurePosixPath | None = None):
+    parent = parent or PurePosixPath()
+    for entry in tree:
+        path = parent / entry["name"]
+        if entry["type"] == "directory":
+            yield from _source_files(entry.get("children") or [], path)
+        elif entry["type"] == "file":
+            yield path, entry["uid"]
+
+
+def _file_bytes(response: httpx.Response) -> bytes:
+    """File contents come as JSON holding base64; take raw bytes otherwise."""
+    if response.headers.get("content-type", "").startswith("application/json"):
+        body = response.json()
+        if isinstance(body, dict) and "data" in body:
+            return base64.b64decode(body["data"])
+    return response.content
+
+
+def download_source(token: str, deployment_id: str, dest: Path) -> list[str]:
+    """Write a deployment's source files into dest, as they were uploaded.
+    Returns the paths written."""
+    response = httpx.get(
+        f"{API}/v6/deployments/{deployment_id}/files",
+        params=_params(),
+        headers=_headers(token),
+        timeout=30,
+    )
+    _check(response)
+    tree = response.json()
+    # Vercel puts uploaded files under a "src" folder.
+    if len(tree) == 1 and tree[0]["name"] == "src" and tree[0]["type"] == "directory":
+        tree = tree[0].get("children") or []
+    written = []
+    dest = Path(dest)
+    for rel, uid in _source_files(tree):
+        if rel.is_absolute() or ".." in rel.parts:
+            continue
+        file = httpx.get(
+            f"{API}/v8/deployments/{deployment_id}/files/{uid}",
+            params=_params(),
+            headers=_headers(token),
+            timeout=30,
+        )
+        _check(file)
+        target = dest / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(_file_bytes(file))
+        written.append(rel.as_posix())
+    return written
