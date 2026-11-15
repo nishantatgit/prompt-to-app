@@ -1,5 +1,5 @@
-import re
 import json
+import re
 from pathlib import Path, PurePosixPath
 from typing import Literal
 
@@ -7,6 +7,8 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field, model_validator
+
+from agents.llm import structured
 from schemas.architect import (
     ApiRoute,
     Coverage,
@@ -279,7 +281,7 @@ def validate_coverage_matches_features(architecture: dict) -> list[str]:
 
 
 def make_architect(llm: BaseChatModel):
-    chain = PROMPT | llm.with_structured_output(Architecture, include_raw=True)
+    chain = PROMPT | structured(llm, Architecture)
 
     def architect(state: dict) -> dict:
         attempts = state.get("architect_attempts", 0) + 1

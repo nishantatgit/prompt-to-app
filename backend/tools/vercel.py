@@ -5,7 +5,7 @@ from pathlib import Path
 import httpx
 
 API = "https://api.vercel.com"
-SKIP_DIRS = {"node_modules", "dist", "tests", "test-results", "playwright-report", ".git"}
+SKIP_DIRS = {"node_modules", "dist", "tests", "test-results", "playwright-report", ".git", "spec"}
 SKIP_FILES = {"playwright-results.json", "test-report.json"}
 DONE_STATES = {"READY", "ERROR", "CANCELED"}
 

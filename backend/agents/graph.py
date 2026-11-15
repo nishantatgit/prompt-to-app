@@ -5,20 +5,21 @@ from typing import Literal, TypedDict
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph import END, START, StateGraph
 
-from agents.state import JobState
+from agents.after_build_check import make_after_build_check
 from agents.analyst import make_analyst
 from agents.architect import make_architect
-from agents.guard import make_guard
-from agents.test_planner import make_test_planner
-from agents.setup_workspace import make_setup_workspace
-from agents.builder import make_builder
-from agents.build_loop import make_build_loop
 from agents.build_check import build_check
-from agents.after_build_check import make_after_build_check
-from agents.qa.test_writer import test_writer
-from agents.qa.test_executor import test_executor
-from agents.deploy import make_deploy
+from agents.build_loop import make_build_loop
+from agents.builder import make_builder
 from agents.database import after_database, after_migrations, make_database, make_migrations
+from agents.deploy import make_deploy
+from agents.guard import make_guard
+from agents.qa.test_executor import test_executor
+from agents.qa.test_writer import test_writer
+from agents.setup_workspace import make_setup_workspace
+from agents.state import JobState
+from agents.test_planner import make_test_planner
+from tools.spec import make_save_spec
 
 
 @dataclass
@@ -134,6 +135,9 @@ def build_graph(
     graph.add_node("build_done", build_done)
     graph.add_node("write_test", test_writer)
     graph.add_node("test_executor", test_executor)
+    # The plan is saved next to the code before deploy, so the app can be
+    # changed later from its spec.
+    graph.add_node("save_spec", make_save_spec())
     graph.add_node("deploy", make_deploy(vercel_token))
     graph.add_edge(START, "guard")
     graph.add_conditional_edges("guard", after_guard)
@@ -156,6 +160,7 @@ def build_graph(
         )
     graph.add_edge(["build_done", "write_test"], "test_executor")
     # Deploy always runs; without a token it records why it skipped.
-    graph.add_edge("test_executor", "deploy")
+    graph.add_edge("test_executor", "save_spec")
+    graph.add_edge("save_spec", "deploy")
     graph.add_edge("deploy", END)
     return graph.compile()

@@ -1,12 +1,13 @@
+import re
 from collections import defaultdict
 from pathlib import Path
-import re
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 
 from agents.architect import Architecture
+from agents.llm import structured
 from schemas.test_planner import TestPlan
 
 FORBIDDEN_LOCATORS = {
@@ -149,7 +150,7 @@ def check_against(plan: TestPlan, arch: Architecture) -> list[str]:
 
 
 def make_test_planner(llm: BaseChatModel):
-    chain = PROMPT | llm.with_structured_output(TestPlan, include_raw=True)
+    chain = PROMPT | structured(llm, TestPlan)
 
     def test_planner(state: dict) -> dict:
         attempts = state.get("test_planner_attempts", 0) + 1
