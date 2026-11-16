@@ -20,6 +20,7 @@ from api.jobs import (
     public_view,
     submit,
 )
+from api.credits import CreditConfig, credit_store
 from api.limits import check_rate_limit, client_ip
 from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
@@ -95,6 +96,7 @@ VISITOR_HEADER = "x-vyskar-visitor"
 NO_KEY = "An API key is required."
 TRIAL_USED_UP = "You have used your free builds. Add your own AI key to keep building."
 TRIAL_PAUSED = "Free builds are paused right now. Add your own AI key to build."
+PAID_PAUSED = "Builds are paused for a moment. Your credits are safe; try again soon."
 
 _ledger: TrialLedger | None = None
 
@@ -149,13 +151,22 @@ def build(
 
     provider = req.provider
     trial = False
+    paid = False
     ledger = None
+    credits = CreditConfig.from_env()
     if stub_mode():
         key = ""  # canned answers, no model is called
     elif req.api_key:
         key = req.api_key.get_secret_value()
     elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
         key = settings.api_key_for(req.provider)
+    elif credits.enabled and credit_store(settings).balance(visitor_id(request)) > 0:
+        # Bought builds run on Vyskar's own key, like free ones.
+        try:
+            key = settings.api_key_for(TRIAL_PROVIDER)
+        except ValueError:
+            raise HTTPException(status_code=503, detail=PAID_PAUSED) from None
+        provider, paid = TRIAL_PROVIDER, True
     else:
         config = TrialConfig.from_env()
         if not config.enabled:
@@ -174,8 +185,10 @@ def build(
         try:
             check_key(provider, key)
         except KeyRejected as error:
-            if trial:  # Vyskar's own key: not the visitor's problem to fix
-                raise HTTPException(status_code=503, detail=TRIAL_PAUSED) from None
+            if trial or paid:  # Vyskar's own key: not the visitor's problem to fix
+                raise HTTPException(
+                    status_code=503, detail=PAID_PAUSED if paid else TRIAL_PAUSED
+                ) from None
             raise HTTPException(status_code=400, detail=str(error)) from None
 
     if not has_capacity():
@@ -203,6 +216,9 @@ def build(
         supabase_access_token=os.environ.get("SUPABASE_ACCESS_TOKEN"),
     )
     job_id = new_job_id()
+    # A credit is spent only once the build is sure to start.
+    if paid and not credit_store(settings).use(visitor_id(request), job_id):
+        raise HTTPException(status_code=400, detail=NO_KEY)
     create_job(job_id, req.prompt, settings.builder_mode, trial=trial, meter=meter)
     if trial:
         ledger.record_build(visitor_id(request), client_ip(request))
