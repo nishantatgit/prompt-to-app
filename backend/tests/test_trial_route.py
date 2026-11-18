@@ -59,6 +59,7 @@ def test_a_visitor_without_a_key_gets_free_builds_on_vyskars_key(client):
         "builds_left": 2,
         "own_keys": True,
         "bonus_available": True,
+        "bonus_builds": 2,
     }
     response = build(client)
     assert response.status_code == 202

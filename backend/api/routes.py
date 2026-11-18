@@ -260,6 +260,7 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
         "own_keys": own_keys_allowed(),
         # Feedback earns more builds once; the app offers it when none are left.
         "bonus_available": config.enabled and not ledger.bonus_used(visitor),
+        "bonus_builds": int(os.getenv("FEEDBACK_BONUS_BUILDS", "2")),
     }
 
 
