@@ -154,7 +154,9 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
         </p>
       )}
 
-      {!finished && !error && job?.status !== 'queued' && <BuildAnimation stage={reached} />}
+      {((!finished && !error && job?.status !== 'queued') || job?.status === 'succeeded') && (
+        <BuildAnimation stage={reached} done={job?.status === 'succeeded'} />
+      )}
 
       {!finished && !error && (
         <ol className="mt-5 flex flex-col gap-1 font-mono text-sm">
