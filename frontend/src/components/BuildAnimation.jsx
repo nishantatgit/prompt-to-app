@@ -53,16 +53,11 @@ function AppShot({ sketch }) {
         <span><b /> <i /></span>
         <span><b /> <i /></span>
       </div>
-      <div className="dev-chart">
-        {[45, 70, 38, 88, 60, 96, 74].map((h, i) => (
-          <span key={i} style={{ height: `${h}%` }} />
-        ))}
-      </div>
       <div className="dev-list">
-        {[0, 1, 2].map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <div key={i} className="dev-row">
             <span className="dev-dot" />
-            <span className="dev-line" style={{ width: `${[62, 48, 56][i]}%` }} />
+            <span className="dev-line" style={{ width: `${[62, 48, 56, 44][i]}%` }} />
             <span className="dev-toggle" />
           </div>
         ))}
