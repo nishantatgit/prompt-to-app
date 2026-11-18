@@ -32,7 +32,9 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(routes, "check_key", lambda provider, key: None)
     monkeypatch.setattr(routes, "check_rate_limit", lambda request: None)
     monkeypatch.setattr(routes, "has_capacity", lambda: True)
-    monkeypatch.setattr(routes, "make_models", lambda provider, key, s, meter=None: started.append((provider, key)))
+    monkeypatch.setattr(
+        routes, "make_models", lambda provider, key, s, meter=None: started.append((provider, key))
+    )
     monkeypatch.setattr(routes, "build_graph", lambda *a, **kw: None)
     monkeypatch.setattr(routes, "submit", lambda *a: None)
     monkeypatch.setattr(routes, "_sweep_trial_databases", lambda ledger: None)
@@ -55,6 +57,8 @@ def test_a_visitor_without_a_key_gets_free_builds_on_vyskars_key(client):
     assert client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json() == {
         "enabled": True,
         "builds_left": 2,
+        "own_keys": True,
+        "bonus_available": True,
     }
     response = build(client)
     assert response.status_code == 202
@@ -62,7 +66,10 @@ def test_a_visitor_without_a_key_gets_free_builds_on_vyskars_key(client):
     assert client.started == [("anthropic", "sk-ant-vyskar")]
     job = jobs.public_view(jobs.get_job(response.json()["job_id"]))
     assert job["trial"] is True
-    assert client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json()["builds_left"] == 1
+    assert (
+        client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json()["builds_left"]
+        == 1
+    )
 
 
 def test_free_builds_run_out(client):
@@ -78,7 +85,8 @@ def test_with_the_trial_off_a_key_is_required(client, monkeypatch):
     response = build(client)
     assert response.status_code == 400
     assert response.json()["detail"] == routes.NO_KEY
-    assert client.get("/api/trial").json() == {"enabled": False, "builds_left": 0}
+    status = client.get("/api/trial").json()
+    assert (status["enabled"], status["builds_left"]) == (False, 0)
 
 
 def test_without_a_server_key_free_builds_pause(client):
@@ -93,7 +101,10 @@ def test_your_own_key_is_never_counted_as_a_trial(client):
     assert response.status_code == 202
     assert client.started == [("openai", "sk-own")]
     assert jobs.public_view(jobs.get_job(response.json()["job_id"]))["trial"] is False
-    assert client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json()["builds_left"] == 2
+    assert (
+        client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json()["builds_left"]
+        == 2
+    )
 
 
 def test_a_finished_trial_app_schedules_its_database_for_deletion(client):

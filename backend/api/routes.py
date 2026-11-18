@@ -96,17 +96,27 @@ VISITOR_HEADER = "x-vyskar-visitor"
 NO_KEY = "An API key is required."
 TRIAL_USED_UP = "You have used your free builds. Add your own AI key to keep building."
 TRIAL_PAUSED = "Free builds are paused right now. Add your own AI key to build."
+OWN_KEYS_OFF = "Vyskar builds on its own AI now, no key needed."
+
+
+def own_keys_allowed() -> bool:
+    """Whether people may build with their own AI key. Off with ALLOW_OWN_KEYS=false."""
+    return os.getenv("ALLOW_OWN_KEYS", "true").lower() != "false"
+
+
 PAID_PAUSED = "Builds are paused for a moment. Your credits are safe; try again soon."
 
 _ledger: TrialLedger | None = None
 
 
 def trial_ledger(settings: Settings) -> TrialLedger:
-    """One ledger per process, kept next to the workspaces. On first use it
-    also starts recording the databases of finished trial apps."""
+    """One ledger per process, on Fly's volume (DATA_DIR) so a deploy keeps
+    the counts, else next to the workspaces. On first use it also starts
+    recording the databases of finished trial apps."""
     global _ledger
     if _ledger is None:
-        _ledger = TrialLedger(Path(settings.workspaces_dir) / "trial-usage.json")
+        folder = os.getenv("DATA_DIR") or settings.workspaces_dir
+        _ledger = TrialLedger(Path(folder) / "trial-usage.json")
         TRIAL_FINISHED_HOOKS.append(
             lambda job: _ledger.record_database(job.get("state", {}).get("database_name", ""))
         )
@@ -156,6 +166,8 @@ def build(
     credits = CreditConfig.from_env()
     if stub_mode():
         key = ""  # canned answers, no model is called
+    elif req.api_key and not own_keys_allowed():
+        raise HTTPException(status_code=400, detail=OWN_KEYS_OFF)
     elif req.api_key:
         key = req.api_key.get_secret_value()
     elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
@@ -239,8 +251,16 @@ def build(
 def trial_status(request: Request, settings: Settings = Depends(get_settings)):
     """Whether free builds are on, and how many this visitor has left."""
     config = TrialConfig.from_env()
-    left = trial_ledger(settings).builds_left(config, visitor_id(request), client_ip(request))
-    return {"enabled": config.enabled, "builds_left": left}
+    ledger = trial_ledger(settings)
+    visitor = visitor_id(request)
+    left = ledger.builds_left(config, visitor, client_ip(request))
+    return {
+        "enabled": config.enabled,
+        "builds_left": left,
+        "own_keys": own_keys_allowed(),
+        # Feedback earns more builds once; the app offers it when none are left.
+        "bonus_available": config.enabled and not ledger.bonus_used(visitor),
+    }
 
 
 @router.get("/jobs/{job_id}")
