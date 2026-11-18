@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cancelJob, getJob } from '../lib/api.js'
 import FeedbackForm from './FeedbackForm.jsx'
+import BuildAnimation from './BuildAnimation.jsx'
 
 const STAGES = [
   'checking request',
@@ -86,7 +87,9 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
   const [cancelling, setCancelling] = useState(false)
-  const furthest = useRef(-1)
+  // Building and test planning run in parallel, so the stage can move back
+  // and forth. Progress shows the furthest stage reached.
+  const [reached, setReached] = useState(-1)
 
   async function handleCancel() {
     setCancelling(true)
@@ -110,6 +113,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
         const next = await getJob(jobId)
         if (stopped) return
         setJob(next)
+        setReached((r) => Math.max(r, STAGES.indexOf(next.stage)))
         setError('')
         if (FINISHED.has(next.status)) {
           onDone?.(next)
@@ -134,11 +138,6 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
     }
   }, [jobId, onDone])
 
-  // Building and test planning run in parallel, so the stage can move back and forth.
-  // Progress shows the furthest stage reached.
-  const index = STAGES.indexOf(job?.stage)
-  if (index > furthest.current) furthest.current = index
-  const reached = furthest.current
   const finished = job && FINISHED.has(job.status)
 
   return (
@@ -154,6 +153,8 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
           one finishes.
         </p>
       )}
+
+      {!finished && !error && job?.status !== 'queued' && <BuildAnimation stage={reached} />}
 
       {!finished && !error && (
         <ol className="mt-5 flex flex-col gap-1 font-mono text-sm">
