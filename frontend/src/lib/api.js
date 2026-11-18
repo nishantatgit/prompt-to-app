@@ -76,3 +76,26 @@ export function verifyPayment(proof) {
     body: JSON.stringify(proof),
   });
 }
+
+// Feedback, optionally about one build. Real feedback on free builds can
+// earn more builds once; the reply says how many.
+export function sendFeedback({ jobId, rating, message, email }) {
+  return request("/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...VISITOR },
+    body: JSON.stringify({
+      job_id: jobId || null,
+      rating: rating || null,
+      message: message || "",
+      email: email || null,
+    }),
+  });
+}
+
+export function joinWaitlist(email) {
+  return request("/api/waitlist", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...VISITOR },
+    body: JSON.stringify({ email }),
+  });
+}
