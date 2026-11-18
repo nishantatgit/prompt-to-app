@@ -68,6 +68,14 @@ jobs:
             --ks-pass "pass:$KEY_PASSWORD" --key-pass "pass:$KEY_PASSWORD" --out vyskar.apk aligned.apk
           "$BT/apksigner" verify vyskar.apk && echo "APK signature verified"
 
+      - name: Check the app
+        run: |
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$BT/aapt2" dump badging vyskar.apk | grep -E "^(package|application-label|sdkVersion|targetSdkVersion|launchable-activity)"
+          echo "Opens:"
+          "$BT/aapt2" dump xmltree --file AndroidManifest.xml vyskar.apk | grep -oE "https://app\.vyskar\.com[^\"]*" | sort -u
+          "$BT/aapt2" dump badging vyskar.apk | grep -q "package: name='com.vyskar.app'"
+
       - uses: actions/upload-artifact@v4
         with:
           name: vyskar-android
