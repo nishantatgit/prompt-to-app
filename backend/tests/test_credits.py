@@ -179,9 +179,9 @@ def test_buying_a_pack(client, monkeypatch):
     assert [p["id"] for p in status["packs"]] == ["starter", "maker"]
     order, proof = buy(client, monkeypatch)
     assert order["amount"] == 49900 and order["key_id"] == "rzp_test_key"
-    assert client.post("/api/credits/verify", json=proof).json() == {"builds_left": 5}
+    assert client.post("/api/credits/verify", json=proof).json()["builds_left"] == 5
     # Reporting the same payment again adds nothing.
-    assert client.post("/api/credits/verify", json=proof).json() == {"builds_left": 5}
+    assert client.post("/api/credits/verify", json=proof).json()["builds_left"] == 5
 
 
 def test_packs_and_prices_come_from_settings(client, monkeypatch):
@@ -236,3 +236,41 @@ def test_your_own_key_never_spends_credits(client, monkeypatch):
 def test_without_credits_or_a_key_a_build_is_refused(client):
     response = client.post("/api/build", json={"prompt": "A timer", "provider": "openai"})
     assert response.status_code == 400
+
+
+# Restoring bought builds in another browser
+
+
+def test_builds_move_to_a_new_browser_with_the_payment_id(tmp_path):
+    store = CreditStore(tmp_path / "credits.db")
+    store.add_order("order_1", "old-browser", "starter", 5, 49900)
+    store.record_payment("pay_1", "order_1")
+    store.use("old-browser", "job-1")
+    assert store.restore("pay_1", "new-browser") == 4
+    assert store.balance("old-browser") == 0
+    assert store.restore("pay_1", "new-browser") == 4  # again: nothing changes
+    assert store.restore("pay_unknown", "new-browser") is None
+
+
+def test_restoring_over_the_api(client, monkeypatch):
+    _, proof = buy(client, monkeypatch)
+    assert client.post("/api/credits/verify", json=proof).json() == {
+        "builds_left": 5,
+        "payment_id": "pay_1",
+    }
+    other = TestClient(client.app, headers={"X-Vyskar-Visitor": "visitor-2"})
+    assert other.get("/api/credits").json()["builds_left"] == 0
+    assert other.post("/api/credits/restore", json={"payment_id": "pay_1"}).json() == {
+        "builds_left": 5
+    }
+    assert client.get("/api/credits").json()["builds_left"] == 0
+    assert other.post("/api/credits/restore", json={"payment_id": "pay_nope"}).status_code == 404
+    assert other.post("/api/credits/restore", json={"payment_id": "order_1"}).status_code == 422
+
+
+def test_restore_tries_are_limited(client, monkeypatch):
+    monkeypatch.setattr(credits, "RESTORE_PER_HOUR", 2)
+    credits._restore_hits.clear()
+    for _ in range(2):
+        assert client.post("/api/credits/restore", json={"payment_id": "pay_x1"}).status_code == 404
+    assert client.post("/api/credits/restore", json={"payment_id": "pay_x1"}).status_code == 429

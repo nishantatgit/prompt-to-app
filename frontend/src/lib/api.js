@@ -76,3 +76,12 @@ export function verifyPayment(proof) {
     body: JSON.stringify(proof),
   });
 }
+
+// Bring bought builds to this browser with the payment ID from the receipt.
+export function restoreBuilds(paymentId) {
+  return request("/api/credits/restore", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...VISITOR },
+    body: JSON.stringify({ payment_id: paymentId }),
+  });
+}

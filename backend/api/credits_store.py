@@ -96,3 +96,29 @@ class CreditStore:
             except Exception:
                 self._db.execute("rollback")
                 raise
+
+    def restore(self, payment_id: str, visitor: str) -> int | None:
+        """Move every build bought by the payer of payment_id, used and
+        unused, to visitor (a new browser or device). Returns the new
+        balance, or None when there is no such payment."""
+        if not visitor:
+            return None
+        with self._lock:
+            row = self._db.execute(
+                "select visitor from payments where payment_id = ?", (payment_id,)
+            ).fetchone()
+            if row is None:
+                return None
+            old = row[0]
+            if old != visitor:
+                self._db.execute("begin immediate")
+                try:
+                    for table in ("orders", "payments", "uses"):
+                        self._db.execute(
+                            f"update {table} set visitor = ? where visitor = ?", (visitor, old)
+                        )
+                    self._db.execute("commit")
+                except Exception:
+                    self._db.execute("rollback")
+                    raise
+        return self.balance(visitor)
