@@ -80,6 +80,18 @@ def test_real_feedback_earns_more_free_builds_once(client):
     assert client.get("/api/trial").json()["builds_left"] == 4
 
 
+def test_no_bonus_is_offered_when_it_is_set_to_zero(client, monkeypatch):
+    monkeypatch.setenv("FREE_TRIAL_BUILDS", "1")
+    monkeypatch.setenv("FEEDBACK_BONUS_BUILDS", "0")
+    trial = client.get("/api/trial").json()
+    # Otherwise the used-up screen says "get 0 more builds".
+    assert trial["bonus_available"] is False
+    assert trial["builds_left"] == 1
+    message = "The app looked great but the delete button did nothing for me."
+    assert client.post("/api/feedback", json={"message": message}).json()["bonus_builds"] == 0
+    assert client.get("/api/trial").json()["builds_left"] == 1
+
+
 def test_a_thumbs_up_alone_earns_nothing(client):
     assert client.post("/api/feedback", json={"rating": "up"}).json()["bonus_builds"] == 0
     assert client.post("/api/feedback", json={"message": "ok"}).json()["bonus_builds"] == 0

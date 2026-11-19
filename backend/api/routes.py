@@ -254,13 +254,15 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
     ledger = trial_ledger(settings)
     visitor = visitor_id(request)
     left = ledger.builds_left(config, visitor, client_ip(request))
+    bonus_builds = int(os.getenv("FEEDBACK_BONUS_BUILDS", "2"))
     return {
         "enabled": config.enabled,
         "builds_left": left,
         "own_keys": own_keys_allowed(),
         # Feedback earns more builds once; the app offers it when none are left.
-        "bonus_available": config.enabled and not ledger.bonus_used(visitor),
-        "bonus_builds": int(os.getenv("FEEDBACK_BONUS_BUILDS", "2")),
+        # FEEDBACK_BONUS_BUILDS=0 turns the offer off.
+        "bonus_available": config.enabled and bonus_builds > 0 and not ledger.bonus_used(visitor),
+        "bonus_builds": bonus_builds,
     }
 
 
