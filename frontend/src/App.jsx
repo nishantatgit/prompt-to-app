@@ -9,6 +9,7 @@ import Modal from './components/SettingsModal.jsx'
 import VoiceComposer from './components/VoiceComposer.jsx'
 import MyApps from './components/MyApps.jsx'
 import BuyBuilds from './components/BuyBuilds.jsx'
+import { inAndroidApp } from './lib/platform.js'
 import BuildsPanel from './components/BuildsPanel.jsx'
 import Questions from './components/Questions.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
@@ -21,6 +22,12 @@ const CHANGE_EXAMPLES = [
   'add a search box at the top',
   'show the total at the bottom',
 ]
+
+// Google Play's billing rules: inside the Android app nothing can be bought,
+// though builds bought on the web still work there.
+function loadCredits() {
+  return getCredits().then((c) => (inAndroidApp ? { ...c, enabled: false, packs: [] } : c))
+}
 
 export default function App() {
   const [settings, setSettings] = useState(loadSettings)
@@ -62,7 +69,7 @@ export default function App() {
     let stopped = false
     Promise.all([
       getTrial().catch(() => ({ enabled: false, builds_left: 0 })),
-      getCredits().catch(() => ({ enabled: false, builds_left: 0, packs: [] })),
+      loadCredits().catch(() => ({ enabled: false, builds_left: 0, packs: [] })),
     ]).then(([nextTrial, nextCredits]) => {
       if (stopped) return
       setTrial(nextTrial)
@@ -118,7 +125,7 @@ export default function App() {
       jobInfo.current[job_id] = { editKey: edit_key || changing?.editKey, prompt: prompt.trim() }
       setJobId(job_id)
       if (freeBuild) refreshTrial()
-      if (paidBuild) getCredits().then(setCredits).catch(() => {})
+      if (paidBuild) loadCredits().then(setCredits).catch(() => {})
     } catch (err) {
       setError(err.message)
       setRunning(false)
@@ -343,6 +350,7 @@ export default function App() {
               <BuildsPanel
                 trial={trial}
                 credits={credits}
+                paidAllowed={!inAndroidApp}
                 bonusBuilds={trial.bonus_builds ?? 2}
                 onBonus={refreshTrial}
               />

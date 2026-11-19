@@ -4,7 +4,7 @@ import FeedbackForm from './FeedbackForm.jsx'
 
 // Free builds left, or, when they are used up: feedback for more, and a
 // way to get paid builds (the packs when buying is on, else an email list).
-export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus }) {
+export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paidAllowed = true }) {
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
   const [error, setError] = useState('')
@@ -48,7 +48,7 @@ export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus }) {
         </div>
       )}
 
-      {!credits.enabled && (
+      {paidAllowed && !credits.enabled && (
         <div className="flex flex-col gap-2 border-t border-line pt-5">
           <p className="text-sm text-muted">Want more builds? Paid packs are coming soon.</p>
           {joined ? (

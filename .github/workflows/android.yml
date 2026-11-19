@@ -1,0 +1,85 @@
+name: Android app
+
+# Builds the Play Store app (a Trusted Web Activity for app.vyskar.com).
+# Run by hand from the Actions tab; see android/README.md.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Generate the Android project
+        run: |
+          yarn install --non-interactive
+          node generate.mjs build/project
+
+      - name: Signing key
+        env:
+          KEY_BASE64: ${{ secrets.ANDROID_UPLOAD_KEY_BASE64 }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEY_BASE64" ]; then
+            echo "$KEY_BASE64" | base64 -d > upload-key.jks
+            echo "KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+            echo "::notice::Signed with the upload key from secrets."
+          else
+            # A throwaway key: the APK installs, but Play Console won't take it.
+            keytool -genkeypair -keystore upload-key.jks -alias upload -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass throwaway -keypass throwaway -dname "CN=Vyskar test"
+            echo "KEY_PASSWORD=throwaway" >> "$GITHUB_ENV"
+            echo "::warning::No ANDROID_UPLOAD_KEY_BASE64 secret: signed with a throwaway key, not for Play Console."
+          fi
+          keytool -list -v -keystore upload-key.jks -alias upload -storepass "$KEY_PASSWORD" \
+            | grep "SHA256:" | sed 's/^\s*//' > fingerprints.txt
+          cat fingerprints.txt
+
+      - name: Build
+        working-directory: android/build/project
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease assembleRelease
+
+      - name: Sign
+        run: |
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          OUT=build/project/app/build/outputs
+          jarsigner -keystore upload-key.jks -storepass "$KEY_PASSWORD" -keypass "$KEY_PASSWORD" \
+            -signedjar vyskar.aab "$OUT/bundle/release/app-release.aab" upload
+          "$BT/zipalign" -f 4 "$OUT/apk/release/app-release-unsigned.apk" aligned.apk
+          "$BT/apksigner" sign --ks upload-key.jks --ks-key-alias upload \
+            --ks-pass "pass:$KEY_PASSWORD" --key-pass "pass:$KEY_PASSWORD" --out vyskar.apk aligned.apk
+          "$BT/apksigner" verify vyskar.apk && echo "APK signature verified"
+
+      - name: Check the app
+        run: |
+          BT="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$BT/aapt2" dump badging vyskar.apk | grep -E "^(package|application-label|sdkVersion|targetSdkVersion|launchable-activity)"
+          echo "Opens:"
+          grep -E "hostName|launchUrl" build/project/app/build.gradle | sed 's/^ *//'
+          "$BT/aapt2" dump badging vyskar.apk | grep -q "package: name='com.vyskar.app'"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vyskar-android
+          path: |
+            android/vyskar.aab
+            android/vyskar.apk
+            android/fingerprints.txt
