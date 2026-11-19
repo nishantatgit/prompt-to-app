@@ -12,7 +12,7 @@ async function request(path, options) {
 
 // With app and editKey, changes that app instead of building a new one.
 // A new app's response carries its edit_key.
-export async function startBuild({ prompt, provider, apiKey, app, editKey }) {
+export async function startBuild({ prompt, provider, apiKey, app, editKey, answers }) {
   const body = await request("/api/build", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...VISITOR },
@@ -22,6 +22,7 @@ export async function startBuild({ prompt, provider, apiKey, app, editKey }) {
       api_key: apiKey || null,
       app: app || null,
       edit_key: editKey || null,
+      answers: answers || [],
     }),
   });
   if (!body?.job_id) throw new Error("The server did not return a job id.");
@@ -98,4 +99,24 @@ export function joinWaitlist(email) {
     headers: { "Content-Type": "application/json", ...VISITOR },
     body: JSON.stringify({ email }),
   });
+}
+
+// One or two questions worth asking before building, often none. Never
+// holds up a build: a slow or failed answer means no questions.
+export async function getQuestions({ prompt, provider, apiKey }, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const body = await request("/api/clarify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...VISITOR },
+      body: JSON.stringify({ prompt, provider, api_key: apiKey || null }),
+      signal: controller.signal,
+    });
+    return Array.isArray(body?.questions) ? body.questions : [];
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
 }
