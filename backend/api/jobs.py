@@ -1,10 +1,10 @@
-import json
 import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
 from agents.keys import user_error_reason
+from api.events import log_event
 
 MAX_CONCURRENT_JOBS = 2
 
@@ -123,9 +123,13 @@ def _step_started(job_id: str, node: str) -> None:
     if stage is None:
         return
     with _lock:
-        timing = _jobs[job_id]["timings"].setdefault(stage, {"started": time.time(), "running": 0})
+        timings = _jobs[job_id]["timings"]
+        first = stage not in timings
+        timing = timings.setdefault(stage, {"started": time.time(), "running": 0})
         timing["running"] += 1
         timing["finished"] = None
+    if first:
+        log_event("build_stage", job_id, stage=stage, node=node)
 
 
 def _step_finished(job_id: str, node: str) -> None:
@@ -182,8 +186,28 @@ def _outcome(state: dict) -> tuple[str, str]:
     return "failed", reason
 
 
+# Long failure reasons, such as a build log, are cut to keep log lines small.
+MAX_LOGGED_REASON = 300
+
+
+def _log_finish(job: dict) -> None:
+    """One build_finish line per build: how it ended and where time went."""
+    timings = timings_view(job)
+    log_event(
+        "build_finish",
+        job["job_id"],
+        status=job["status"],
+        reason=(job.get("reason") or "")[:MAX_LOGGED_REASON],
+        builder_mode=job.get("builder_mode", "pipeline"),
+        trial=job.get("trial", False),
+        seconds=timings["total_seconds"],
+        stages={stage: t["seconds"] for stage, t in timings["stages"].items()},
+        deploy_url=(job.get("state") or {}).get("deploy_url", ""),
+    )
+
+
 def _log_usage(job: dict) -> None:
-    """One line per build in the server log, to price builds from real runs."""
+    """One build_cost line per build, to price builds from real runs."""
     meter = job.get("meter")
     if meter is None:
         return
@@ -191,7 +215,6 @@ def _log_usage(job: dict) -> None:
     if not usage["calls"]:
         return
     record = {
-        "job_id": job["job_id"],
         "status": job["status"],
         "trial": job.get("trial", False),
         "seconds": timings_view(job)["total_seconds"],
@@ -201,7 +224,7 @@ def _log_usage(job: dict) -> None:
         "cache_read_tokens": usage["cache_read_tokens"],
         "output_tokens": usage["output_tokens"],
     }
-    print(f"build_usage {json.dumps(record)}", flush=True)
+    log_event("build_cost", job["job_id"], **record)
 
 
 def _run(graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | None = None) -> None:
@@ -211,6 +234,7 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | No
         _finish_clock(job_id)
         job = get_job(job_id)
         if job:
+            _log_finish(job)
             _log_usage(job)
         if job and job.get("trial"):
             for hook in TRIAL_FINISHED_HOOKS:
@@ -232,6 +256,15 @@ def _run_graph(
     if is_cancelled(job_id):
         return  # cancelled while waiting in the queue
     _update(job_id, status="running", started_at=time.time())
+    job = get_job(job_id) or {}
+    log_event(
+        "build_start",
+        job_id,
+        builder_mode=job.get("builder_mode", "pipeline"),
+        trial=job.get("trial", False),
+        change=bool((extra or {}).get("app_name")),
+        prompt_chars=len(prompt),
+    )
     state = {**(extra or {}), "prompt": prompt, "job_id": job_id}
     config = {
         "recursion_limit": recursion_limit,

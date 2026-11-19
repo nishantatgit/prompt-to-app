@@ -1,3 +1,5 @@
+import json
+
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage
 from langchain_core.outputs import ChatGeneration, ChatResult, LLMResult
@@ -77,8 +79,9 @@ def test_the_job_shows_and_logs_its_cost(capsys):
     view = jobs.public_view(job)
     assert view["usage"]["calls"] == 1 and view["usage"]["cost_usd"] > 0
     jobs._log_usage(job)
-    line = capsys.readouterr().out
-    assert line.startswith("build_usage {") and '"job_id": "j-usage"' in line
+    record = json.loads(capsys.readouterr().out)
+    assert record["event"] == "build_cost" and record["job_id"] == "j-usage"
+    assert record["calls"] == 1 and record["cost_usd"] > 0
 
 
 def test_jobs_without_a_meter_show_no_usage():
