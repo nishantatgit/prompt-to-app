@@ -48,5 +48,7 @@ class JobState(TypedDict, total=False):
 
     deploy_url: str
     deploy_error: str
+    # A photo of the live app, taken after deploy.
+    screenshot_path: str
 
     errors: list[str]

@@ -151,6 +151,13 @@ a:hover {
 }
 .dev-done .dev-gloss { animation: dev-gloss 1.4s 500ms ease-in-out both; }
 
+/* The real app, from the server's photo of it, fades in over the drawing */
+.dev-shot {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top;
+  opacity: 0; transition: opacity 1.4s ease-in-out 300ms;
+}
+.dev-shot-in { opacity: 1; }
+
 /* The app in the photo */
 .dev-app { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; padding: 0 0 12px; background: #fbf8ff; }
 .dev-hero { position: relative; height: 72px; padding: 14px; background: linear-gradient(135deg, #7c3aed, #ec4899 60%, #f59e0b); }
