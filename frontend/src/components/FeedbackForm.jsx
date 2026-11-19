@@ -94,14 +94,18 @@ export default function FeedbackForm({ jobId, bonus = 0, withRating = true, with
             className="w-full resize-y rounded-xl border border-wall bg-ink p-3 text-base text-fg placeholder:text-dim"
           />
           {withEmail && (
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email, if you'd like a reply (optional)"
-              autoComplete="email"
-              className="min-h-11 w-full rounded-xl border border-wall bg-ink px-3 text-base text-fg placeholder:text-dim"
-            />
+            <>
+              <label className="sr-only" htmlFor={`feedback-email-${jobId || 'general'}`}>Email, optional</label>
+              <input
+                id={`feedback-email-${jobId || 'general'}`}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email, if you'd like a reply (optional)"
+                autoComplete="email"
+                className="min-h-11 w-full rounded-xl border border-wall bg-ink px-3 text-base text-fg placeholder:text-dim"
+              />
+            </>
           )}
           {bonus > 0 && (
             <p className={`text-xs ${long ? 'text-accent' : 'text-dim'}`}>

@@ -65,6 +65,19 @@ function failureHeading(job) {
   return 'The app did not pass its checks.'
 }
 
+// One short line for screen readers, changing only when the build moves
+// on, so the timers ticking every poll are not read out.
+function announcement(job, reached, error) {
+  if (error) return error
+  if (!job) return 'Starting the build.'
+  if (job.status === 'queued') return 'Waiting for a free builder.'
+  if (job.status === 'succeeded') return 'Your app is live.'
+  if (job.status === 'cancelled') return 'Build cancelled.'
+  if (job.status === 'failed' || job.status === 'rejected') return failureHeading(job)
+  if (reached >= 0) return `Step ${reached + 1} of ${STAGES.length}: ${STAGES[reached]}.`
+  return 'Starting the build.'
+}
+
 // The build loop's latest steps, such as "Writing src/App.jsx" or "Build 1 failed,
 // fixing it". Only loop jobs have them; pipeline jobs show the steps alone.
 const ACTIVITY_SHOWN = 6
@@ -141,7 +154,8 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
   const finished = job && FINISHED.has(job.status)
 
   return (
-    <section aria-live="polite" className="rounded-2xl border border-line bg-card p-6">
+    <section aria-label="Build progress" className="rounded-2xl border border-line bg-card p-6">
+      <p role="status" className="sr-only">{announcement(job, reached, error)}</p>
       <div className="flex items-center justify-between font-mono text-xs text-dim">
         <span>job {jobId}</span>
         <span className={job?.status === 'succeeded' ? 'text-accent' : ''}>{job?.status || 'starting'}</span>
@@ -165,7 +179,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
             const current = i === reached
             const time = job?.timings?.stages?.[stage]
             return (
-              <li key={stage} className="py-1.5">
+              <li key={stage} className="py-1.5" aria-current={current ? 'step' : undefined}>
                 <div className="flex items-center gap-3">
                   <span
                     aria-hidden="true"
@@ -208,7 +222,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
       {job?.status === 'succeeded' && (
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">Your app is live.</p>
-          <a href={job.deploy_url} target="_blank" rel="noreferrer" className="break-all font-mono text-accent">
+          <a href={job.deploy_url} target="_blank" rel="noreferrer" className="flex min-h-11 items-center self-start break-all font-mono text-accent">
             {job.deploy_url}
           </a>
           {job.trial && job.database_name && (

@@ -183,12 +183,12 @@ export default function App() {
 
   const changeBanner = changing && (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-line bg-card px-4 py-3 text-sm">
-      <span className="text-muted">
+      <p className="text-muted">
         Changing{' '}
         <a href={changing.url} target="_blank" rel="noreferrer" className="font-mono text-accent">
           {changing.name}
         </a>
-      </span>
+      </p>
       <button
         type="button"
         onClick={() => setChanging(null)}
@@ -323,7 +323,7 @@ export default function App() {
 
         {asking && (
           <p className="voice-fade-in text-sm text-muted" role="status">
-            Reading your idea<span className="ba-dots"><i>.</i><i>.</i><i>.</i></span>
+            Reading your idea<span className="ba-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
           </p>
         )}
 
