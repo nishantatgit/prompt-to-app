@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { cancelJob, getJob } from '../lib/api.js'
+import FeedbackForm from './FeedbackForm.jsx'
 
 const STAGES = [
   'checking request',
@@ -81,7 +82,7 @@ function LoopActivity({ job }) {
   )
 }
 
-export default function JobView({ jobId, onDone, onChange }) {
+export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, onBonus }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
   const [cancelling, setCancelling] = useState(false)
@@ -243,6 +244,12 @@ export default function JobView({ jobId, onDone, onChange }) {
       )}
 
       {finished && <StepTimes job={job} />}
+
+      {(job?.status === 'succeeded' || job?.status === 'failed') && (
+        <div className="mt-5 border-t border-line pt-5">
+          <FeedbackForm jobId={jobId} bonus={feedbackBonus} onBonus={onBonus} />
+        </div>
+      )}
 
       {error && <p className="mt-4 text-sm text-accent">{error}</p>}
     </section>

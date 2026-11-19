@@ -10,6 +10,7 @@ import Modal from './components/SettingsModal.jsx'
 import VoiceComposer from './components/VoiceComposer.jsx'
 import MyApps from './components/MyApps.jsx'
 import BuyBuilds from './components/BuyBuilds.jsx'
+import BuildsPanel from './components/BuildsPanel.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
 
@@ -46,9 +47,13 @@ export default function App() {
 
   const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
   const canBuild = prompt.trim() && !running
+  // With own keys switched off, a key saved earlier is not used.
+  const ownKeys = trial.own_keys !== false
+  const apiKey = ownKeys ? settings.apiKey : ''
   // Without a key: bought builds first, then free ones.
-  const paidBuild = !settings.apiKey && credits.builds_left > 0
-  const freeBuild = !settings.apiKey && !paidBuild && trial.builds_left > 0
+  const paidBuild = !apiKey && credits.builds_left > 0
+  const freeBuild = !apiKey && !paidBuild && trial.builds_left > 0
+  const refreshTrial = () => getTrial().then(setTrial).catch(() => {})
 
   useEffect(() => {
     let stopped = false
@@ -60,7 +65,8 @@ export default function App() {
       setTrial(nextTrial)
       setCredits(nextCredits)
       const canBuild = nextTrial.builds_left > 0 || nextCredits.builds_left > 0
-      if (!loadSettings().apiKey && !canBuild) setShowSettings(true)
+      const savedKey = nextTrial.own_keys !== false && loadSettings().apiKey
+      if (!savedKey && !canBuild) setShowSettings(true)
     })
     return () => {
       stopped = true
@@ -75,7 +81,7 @@ export default function App() {
 
   async function handleBuild() {
     if (!canBuild) return
-    if (!settings.apiKey && !freeBuild && !paidBuild) {
+    if (!apiKey && !freeBuild && !paidBuild) {
       setShowSettings(true)
       return
     }
@@ -86,6 +92,7 @@ export default function App() {
       const { job_id, edit_key } = await startBuild({
         prompt: prompt.trim(),
         ...settings,
+        apiKey,
         app: changing?.name,
         editKey: changing?.editKey,
       })
@@ -93,7 +100,7 @@ export default function App() {
       setJobId(job_id)
       // Once notifications are allowed, the server can push when it's done.
       asked.then(() => watchBuild(job_id))
-      if (freeBuild) getTrial().then(setTrial).catch(() => {})
+      if (freeBuild) refreshTrial()
       if (paidBuild) getCredits().then(setCredits).catch(() => {})
     } catch (err) {
       setError(err.message)
@@ -176,16 +183,28 @@ export default function App() {
               className="min-h-11 whitespace-nowrap rounded-full border border-wall px-4 text-sm text-muted"
             >
               <span className="sm:hidden">
-                {settings.apiKey ? 'Key saved' : paidBuild ? `${credits.builds_left} builds` : credits.enabled ? 'Get builds' : 'Add key'}
+                {apiKey
+                  ? 'Key saved'
+                  : paidBuild
+                    ? `${credits.builds_left} builds`
+                    : freeBuild
+                      ? `${trial.builds_left} free`
+                      : ownKeys && !credits.enabled
+                        ? 'Add key'
+                        : 'Get builds'}
               </span>
               <span className="hidden sm:inline">
-                {settings.apiKey
+                {apiKey
                   ? `${providerLabel} key saved`
                   : paidBuild
                     ? `${credits.builds_left} builds left`
-                    : credits.enabled
-                      ? 'Buy builds or add a key'
-                      : 'Add your AI key'}
+                    : freeBuild
+                      ? `${trial.builds_left} free builds`
+                      : !ownKeys
+                        ? 'Get more builds'
+                        : credits.enabled
+                          ? 'Buy builds or add a key'
+                          : 'Add your AI key'}
               </span>
             </button>
           </div>
@@ -274,19 +293,42 @@ export default function App() {
 
         {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}
 
-        {jobId && <JobView key={jobId} jobId={jobId} onDone={handleDone} onChange={startChange} />}
+        {jobId && (
+          <JobView
+            key={jobId}
+            jobId={jobId}
+            onDone={handleDone}
+            onChange={startChange}
+            feedbackBonus={!apiKey && trial.bonus_available ? (trial.bonus_builds ?? 2) : 0}
+            onBonus={refreshTrial}
+          />
+        )}
 
         {!running && <MyApps apps={apps} onChange={(app) => startChange(app.name)} disabled={running} />}
       </main>
-      <Modal open={showSettings} onClose={() => setShowSettings(false)} labelledBy="settings-title">
+      <Modal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        labelledBy={!apiKey && (trial.enabled || !ownKeys) ? 'builds-title' : 'settings-title'}
+      >
           <div className="flex flex-col gap-4">
-            {credits.enabled && !settings.apiKey && (
+            {!apiKey && (trial.enabled || !ownKeys) && (
+              <BuildsPanel
+                trial={trial}
+                credits={credits}
+                bonusBuilds={trial.bonus_builds ?? 2}
+                onBonus={refreshTrial}
+              />
+            )}
+            {credits.enabled && !apiKey && (
               <BuyBuilds
                 credits={credits}
                 onBought={(left) => setCredits((c) => ({ ...c, builds_left: left }))}
               />
             )}
-            <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />
+            {ownKeys && (
+              <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setShowSettings(false)} />
+            )}
           </div>
       </Modal>
     </div>
