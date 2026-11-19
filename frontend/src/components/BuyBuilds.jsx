@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createOrder, verifyPayment } from '../lib/api.js'
+import { createOrder, restoreBuilds, verifyPayment } from '../lib/api.js'
 import { pay } from '../lib/razorpay.js'
 
 const rupees = (n) => `₹${n.toLocaleString('en-IN')}`
@@ -9,6 +9,23 @@ export default function BuyBuilds({ credits, onBought }) {
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+  const [paymentId, setPaymentId] = useState('')
+  const [restoring, setRestoring] = useState(false)
+  const [restoreId, setRestoreId] = useState('')
+
+  async function restore(e) {
+    e.preventDefault()
+    setError('')
+    setDone('')
+    try {
+      const { builds_left } = await restoreBuilds(restoreId.trim())
+      setDone(`Restored. You have ${builds_left} builds.`)
+      setRestoring(false)
+      onBought(builds_left)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   async function buy(pack) {
     setBusy(pack.id)
@@ -23,8 +40,9 @@ export default function BuyBuilds({ credits, onBought }) {
         description: `${pack.builds} app builds`,
       })
       if (!proof) return // closed the window
-      const { builds_left } = await verifyPayment(proof)
+      const { builds_left, payment_id } = await verifyPayment(proof)
       setDone(`Paid. You have ${builds_left} builds.`)
+      setPaymentId(payment_id || proof.razorpay_payment_id)
       onBought(builds_left)
     } catch (err) {
       setError(err.message)
@@ -58,8 +76,40 @@ export default function BuyBuilds({ credits, onBought }) {
           </button>
         ))}
       </div>
-      <p className="mt-3 text-xs text-dim">UPI, cards and netbanking, through Razorpay. Builds are saved in this browser.</p>
+      <p className="mt-3 text-xs text-dim">UPI, cards and netbanking, through Razorpay.</p>
       {done && <p className="mt-3 text-sm text-accent">{done}</p>}
+      {paymentId && (
+        <p className="mt-2 text-sm text-muted">
+          Keep your payment ID <span className="select-all font-mono text-fg">{paymentId}</span>. It
+          brings these builds to another phone or browser. It's also in your Razorpay receipt.
+        </p>
+      )}
+      {restoring ? (
+        <form onSubmit={restore} className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <label htmlFor="restore-id" className="sr-only">Payment ID</label>
+          <input
+            id="restore-id"
+            required
+            value={restoreId}
+            onChange={(e) => setRestoreId(e.target.value)}
+            placeholder="pay_..."
+            autoComplete="off"
+            spellCheck={false}
+            className="min-h-11 flex-1 rounded-xl border border-wall bg-ink px-3 font-mono text-base text-fg placeholder:text-dim"
+          />
+          <button type="submit" className="min-h-11 rounded-full border border-wall px-5 text-sm text-fg">
+            Restore
+          </button>
+        </form>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setRestoring(true)}
+          className="mt-3 min-h-11 text-sm text-muted underline underline-offset-4"
+        >
+          Bought builds before? Restore them with your payment ID
+        </button>
+      )}
       {error && <p className="mt-3 text-sm text-accent">{error}</p>}
     </section>
   )

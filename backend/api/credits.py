@@ -8,13 +8,16 @@ so prices change without a code change. The defaults are placeholders.
 
 import json
 import os
+import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from api.credits_store import CreditStore
+from api.limits import client_ip
 from config import Settings, get_settings
 from tools import razorpay
 
@@ -157,7 +160,11 @@ def verify_payment(
             detail="Payment received; your builds will appear in a minute.",
         ) from None
     store.record_payment(proof.razorpay_payment_id, proof.razorpay_order_id)
-    return {"builds_left": store.balance(order["visitor"])}
+    return {
+        "builds_left": store.balance(order["visitor"]),
+        # Shown to keep: it restores these builds in another browser.
+        "payment_id": proof.razorpay_payment_id,
+    }
 
 
 @router.post("/razorpay/webhook")
@@ -177,3 +184,38 @@ async def razorpay_webhook(request: Request, settings: Settings = Depends(get_se
         if order and payment.get("amount") == order["amount"]:
             store.record_payment(payment["id"], payment["order_id"])
     return {"ok": True}
+
+
+RESTORE_PER_HOUR = 10
+_restore_hits: dict[str, list[float]] = {}
+_restore_lock = threading.Lock()
+
+
+class RestoreRequest(BaseModel):
+    payment_id: str = Field(max_length=40, pattern=r"^pay_[A-Za-z0-9]+$")
+
+
+@router.post("/credits/restore")
+def restore_builds(
+    req: RestoreRequest, request: Request, settings: Settings = Depends(get_settings)
+):
+    """Bring bought builds to this browser with the payment ID from the
+    Razorpay receipt. Few tries per hour: payment IDs can't be guessed."""
+    _config_or_503()
+    ip = client_ip(request)
+    now = time.monotonic()
+    with _restore_lock:
+        hits = [t for t in _restore_hits.get(ip, []) if now - t < 3600]
+        if len(hits) >= RESTORE_PER_HOUR:
+            raise HTTPException(status_code=429, detail="Too many tries. Try again in an hour.")
+        _restore_hits[ip] = [*hits, now]
+    visitor = visitor_of(request)
+    if not visitor:
+        raise HTTPException(status_code=400, detail="Reload the page and try again.")
+    balance = credit_store(settings).restore(req.payment_id.strip(), visitor)
+    if balance is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No builds found for that payment ID. Check your Razorpay receipt.",
+        )
+    return {"builds_left": balance}

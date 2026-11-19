@@ -78,6 +78,15 @@ export function verifyPayment(proof) {
   });
 }
 
+// Bring bought builds to this browser with the payment ID from the receipt.
+export function restoreBuilds(paymentId) {
+  return request("/api/credits/restore", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...VISITOR },
+    body: JSON.stringify({ payment_id: paymentId }),
+  });
+}
+
 // Feedback, optionally about one build. Real feedback on free builds can
 // earn more builds once; the reply says how many.
 export function sendFeedback({ jobId, rating, message, email }) {
