@@ -118,3 +118,77 @@ a:hover {
   .voice-glow, .voice-button, .voice-bar { transition: none; }
   .voice-orb .voice-glow, .voice-word, .voice-fade-in, .voice-dots i { animation: none; }
 }
+
+
+/* Build animation: an instant photo of the app develops as Vyskar builds.
+   --blur, --gray, --sepia, --contrast, --bright, --grain and --sketch are
+   set from how developed it is (BuildAnimation.jsx). */
+.dev-print {
+  width: 232px; padding: 12px 12px 40px; border-radius: 6px;
+  background: #f4efe6; box-shadow: 0 18px 40px rgb(0 0 0 / 0.45), 0 2px 0 rgb(255 255 255 / 0.4) inset;
+  transform: rotate(-2deg);
+}
+.dev-done .dev-print { animation: dev-lift 900ms cubic-bezier(.2,.9,.3,1.1) both; }
+.dev-photo {
+  position: relative; height: 248px; overflow: hidden; border-radius: 2px; background: #1b1016;
+}
+.dev-photo > .dev-app {
+  filter: blur(var(--blur)) grayscale(var(--gray)) sepia(var(--sepia)) contrast(var(--contrast)) brightness(var(--bright));
+  transition: filter 1.2s linear;
+}
+.dev-sketch-layer { position: absolute; inset: 0; opacity: var(--sketch); transition: opacity 1.5s linear; }
+.dev-grain {
+  position: absolute; inset: -20%; opacity: var(--grain); mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: dev-grain 0.6s steps(3) infinite; transition: opacity 1.5s linear;
+}
+.dev-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.dev-done .dev-flash { animation: dev-flash 900ms ease-out both; }
+.dev-gloss {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.55) 50%, transparent 65%);
+  transform: translateX(-100%);
+}
+.dev-done .dev-gloss { animation: dev-gloss 1.4s 500ms ease-in-out both; }
+
+/* The app in the photo */
+.dev-app { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; padding: 0 0 12px; background: #fbf8ff; }
+.dev-hero { position: relative; height: 72px; padding: 14px; background: linear-gradient(135deg, #7c3aed, #ec4899 60%, #f59e0b); }
+.dev-avatar { position: absolute; right: 14px; top: 14px; width: 26px; height: 26px; border-radius: 50%; background: #fde68a; box-shadow: 0 0 0 2px #fff; }
+.dev-title { display: block; width: 58%; height: 11px; border-radius: 6px; background: #fff; }
+.dev-sub { display: block; width: 38%; height: 7px; margin-top: 8px; border-radius: 4px; background: rgb(255 255 255 / 0.7); }
+.dev-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 12px; margin-top: -26px; }
+.dev-stats span { display: flex; flex-direction: column; gap: 5px; padding: 8px; border-radius: 10px; background: #fff; box-shadow: 0 4px 10px rgb(76 29 149 / 0.15); }
+.dev-stats b { display: block; width: 70%; height: 9px; border-radius: 4px; background: #4c1d95; }
+.dev-stats i { display: block; width: 45%; height: 5px; border-radius: 3px; background: #c4b5fd; }
+.dev-stats span:nth-child(2) b { background: #db2777; }
+.dev-stats span:nth-child(3) b { background: #0d9488; }
+.dev-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 12px 0; }
+.dev-row { display: flex; align-items: center; gap: 8px; padding: 9px 8px; border-radius: 8px; background: #fff; }
+.dev-dot { width: 14px; height: 14px; border-radius: 50%; background: #34d399; flex: none; }
+.dev-row:nth-child(2) .dev-dot { background: #fbbf24; }
+.dev-row:nth-child(3) .dev-dot { background: #60a5fa; }
+.dev-row:nth-child(4) .dev-dot { background: #f472b6; }
+.dev-line { height: 6px; border-radius: 3px; background: #ddd6fe; }
+.dev-toggle { margin-left: auto; width: 22px; height: 12px; border-radius: 6px; background: #7c3aed; flex: none; }
+
+/* The same app as a pencil sketch on paper */
+.dev-sketch { background: #efe9dc; }
+.dev-sketch * { background: transparent !important; box-shadow: none !important; border: 1.5px solid #6b6156; }
+.dev-sketch .dev-hero { border-width: 0 0 1.5px; border-style: dashed; }
+.dev-sketch .dev-stats, .dev-sketch .dev-list, .dev-sketch .dev-stats * > *, .dev-sketch .dev-row > * { border-color: #8a8073; }
+.dev-sketch .dev-stats, .dev-sketch .dev-list { border: 0; }
+
+@keyframes dev-grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-6%, 4%); } 66% { transform: translate(5%, -5%); } 100% { transform: translate(0, 0); } }
+@keyframes dev-flash { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+@keyframes dev-gloss { 0% { opacity: 1; transform: translateX(-100%); } 100% { opacity: 1; transform: translateX(100%); } }
+@keyframes dev-lift { 0% { transform: rotate(-2deg) scale(0.97); } 60% { transform: rotate(0deg) scale(1.04); } 100% { transform: rotate(0deg) scale(1); } }
+.dev-caption { animation: voice-word-in 400ms ease-out both; }
+.ba-dots i { font-style: normal; animation: dev-blink 1.4s infinite; }
+.ba-dots i:nth-child(2) { animation-delay: 200ms; }
+.ba-dots i:nth-child(3) { animation-delay: 400ms; }
+@keyframes dev-blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .dev *, .dev { animation: none !important; transition: none !important; }
+  .dev-grain { display: none; }
+}
