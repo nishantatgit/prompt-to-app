@@ -2,8 +2,9 @@
 // finishes while Vyskar is in the background, a notification says so.
 //
 // This works while the page or the installed app is still running in the
-// background. Notifying a phone whose app has been closed needs Web Push
-// from the server, which comes later.
+// background. When Vyskar has been closed, push.js has the server send a
+// Web Push instead. Both use the job id as the tag, so a device that gets
+// both shows one notification.
 
 export function notificationsSupported() {
   return typeof window !== 'undefined' && 'Notification' in window

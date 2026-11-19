@@ -76,3 +76,17 @@ export function verifyPayment(proof) {
     body: JSON.stringify(proof),
   });
 }
+
+// Whether the server sends push notifications, and the key to subscribe with.
+export function getPush() {
+  return request("/api/push");
+}
+
+// Have the server push this browser when the job finishes.
+export function watchJobWithPush(jobId, subscription) {
+  return request("/api/push/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ job_id: jobId, subscription }),
+  });
+}

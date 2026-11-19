@@ -3,6 +3,7 @@ import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import { getCredits, getTrial, getVoice, startBuild } from './lib/api.js'
 import { askToNotify, notifyBuildDone } from './lib/notify.js'
+import { watchBuild } from './lib/push.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
 import Modal from './components/SettingsModal.jsx'
@@ -80,7 +81,7 @@ export default function App() {
     }
     setError('')
     setRunning(true)
-    askToNotify()
+    const asked = askToNotify()
     try {
       const { job_id, edit_key } = await startBuild({
         prompt: prompt.trim(),
@@ -90,6 +91,8 @@ export default function App() {
       })
       jobInfo.current[job_id] = { editKey: edit_key || changing?.editKey, prompt: prompt.trim() }
       setJobId(job_id)
+      // Once notifications are allowed, the server can push when it's done.
+      asked.then(() => watchBuild(job_id))
       if (freeBuild) getTrial().then(setTrial).catch(() => {})
       if (paidBuild) getCredits().then(setCredits).catch(() => {})
     } catch (err) {

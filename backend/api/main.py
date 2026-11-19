@@ -16,11 +16,13 @@ from fastapi import FastAPI  # noqa: E402
 from api.routes import router  # noqa: E402
 from api.voice import router as voice_router  # noqa: E402
 from api.credits import router as credits_router  # noqa: E402
+from api.push import router as push_router  # noqa: E402
 
 app = FastAPI()
 app.include_router(router)
 app.include_router(voice_router)
 app.include_router(credits_router)
+app.include_router(push_router)
 
 app.add_middleware(
     CORSMiddleware,
