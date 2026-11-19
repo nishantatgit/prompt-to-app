@@ -21,7 +21,7 @@ const LOOP = 8000;
 const FINAL = 5000; // the still frame shown when motion is reduced
 
 const C = {
-  accent: "#50eaf2",
+  accent: "#07bf07",
   fg: "#f1effa",
   muted: "#b4b1d6",
   dim: "#9e9bc4",
