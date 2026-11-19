@@ -30,5 +30,6 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(","),
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "X-Vyskar-Visitor"],
+    # Authorization: the admin page at app.vyskar.com/admin sends ADMIN_TOKEN.
+    allow_headers=["Content-Type", "X-Vyskar-Visitor", "Authorization"],
 )

@@ -133,3 +133,23 @@ def test_the_browser_may_send_the_visitor_header_cross_origin(monkeypatch):
         },
     )
     assert response.status_code == 200
+
+
+def test_the_admin_page_may_send_its_token_cross_origin(monkeypatch):
+    # app.vyskar.com/admin reads api.vyskar.com/api/admin/feedback with a bearer token.
+    import importlib
+
+    import api.main
+
+    monkeypatch.setenv("CORS_ORIGINS", "https://app.vyskar.com")
+    app = importlib.reload(api.main).app
+    response = TestClient(app).options(
+        "/api/admin/feedback",
+        headers={
+            "Origin": "https://app.vyskar.com",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "authorization",
+        },
+    )
+    assert response.status_code == 200
+    assert "authorization" in response.headers["access-control-allow-headers"].lower()
