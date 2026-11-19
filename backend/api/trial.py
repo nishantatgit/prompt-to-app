@@ -62,6 +62,7 @@ class TrialLedger:
         data.setdefault("ips", {})
         data.setdefault("days", {})
         data.setdefault("databases", [])
+        data.setdefault("bonus", {})  # visitor: extra builds, earned once by feedback
         return data
 
     def _save(self) -> None:
@@ -81,14 +82,30 @@ class TrialLedger:
             used = self._data["visitors"].get(visitor, 0)
             by_ip = self._data["ips"].get(ip, 0)
             today = self._data["days"].get(_today(now), 0)
+            bonus = self._data["bonus"].get(visitor, 0)
         return max(
             0,
             min(
-                config.builds_per_person - used,
-                config.builds_per_person * IP_MULTIPLIER - by_ip,
+                config.builds_per_person + bonus - used,
+                config.builds_per_person * IP_MULTIPLIER + bonus - by_ip,
                 config.daily_cap - today,
             ),
         )
+
+    def bonus_used(self, visitor: str) -> bool:
+        with self._lock:
+            return visitor in self._data["bonus"]
+
+    def grant_bonus(self, visitor: str, builds: int) -> bool:
+        """Extra free builds, once per visitor. False when already given."""
+        if not visitor or builds <= 0:
+            return False
+        with self._lock:
+            if visitor in self._data["bonus"]:
+                return False
+            self._data["bonus"][visitor] = builds
+            self._save()
+            return True
 
     def record_build(self, visitor: str, ip: str, now: float | None = None) -> None:
         now = time.time() if now is None else now
