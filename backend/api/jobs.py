@@ -51,6 +51,10 @@ def has_capacity() -> bool:
 # schedule its database for deletion.
 TRIAL_FINISHED_HOOKS: list = []
 
+# Called with every finished job, whatever paid for it, such as to push a
+# notification to the browser that started it.
+JOB_FINISHED_HOOKS: list = []
+
 
 def create_job(
     job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False, meter=None
@@ -210,6 +214,12 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | No
             _log_usage(job)
         if job and job.get("trial"):
             for hook in TRIAL_FINISHED_HOOKS:
+                try:
+                    hook(job)
+                except Exception:
+                    pass
+        if job:
+            for hook in JOB_FINISHED_HOOKS:
                 try:
                     hook(job)
                 except Exception:

@@ -3,6 +3,7 @@ import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import { getCredits, getQuestions, getTrial, getVoice, startBuild } from './lib/api.js'
 import { askToNotify, notifyBuildDone } from './lib/notify.js'
+import { watchBuild } from './lib/push.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
 import InstallButton from './components/InstallButton.jsx'
 import Modal from './components/SettingsModal.jsx'
@@ -50,6 +51,7 @@ export default function App() {
   const [changing, setChanging] = useState(null)
   // Per job: the edit key and prompt, to remember the app once it is live.
   const jobInfo = useRef({})
+  const notifyAsked = useRef(null) // the notification question, asked on the Build click
   // Questions asked before building: null when none are showing.
   const [questions, setQuestions] = useState(null)
   const [asking, setAsking] = useState(false)
@@ -96,7 +98,9 @@ export default function App() {
       return
     }
     setError('')
-    askToNotify()
+    // Asked on the click, the only moment browsers allow it; the push
+    // subscription waits for the answer once the build has started.
+    notifyAsked.current = askToNotify()
     // A new app may get a question or two first; changes go straight on.
     if (!changing) {
       setAsking(true)
@@ -124,6 +128,8 @@ export default function App() {
       })
       jobInfo.current[job_id] = { editKey: edit_key || changing?.editKey, prompt: prompt.trim() }
       setJobId(job_id)
+      // Once notifications are allowed, the server can push when it's done.
+      Promise.resolve(notifyAsked.current).then(() => watchBuild(job_id))
       if (freeBuild) refreshTrial()
       if (paidBuild) loadCredits().then(setCredits).catch(() => {})
     } catch (err) {

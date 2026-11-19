@@ -71,6 +71,33 @@ self.addEventListener('fetch', (event) => {
   else event.respondWith(staleWhileRevalidate(request))
 })
 
+// A Web Push from the server: a build finished while Vyskar may be closed.
+// Browsers require every push to show a notification, so one is always
+// shown; it is silent when Vyskar is open on screen. The job id is the tag,
+// so it replaces the page's own notification for the same build.
+self.addEventListener('push', (event) => {
+  let message = {}
+  try {
+    message = event.data ? event.data.json() : {}
+  } catch {
+    // Not JSON: fall back to a plain message below.
+  }
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const watching = windows.some((w) => w.visibilityState === 'visible')
+      await self.registration.showNotification(message.title || 'Your build finished', {
+        body: message.body || 'Tap to see it.',
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: message.tag || undefined,
+        silent: watching,
+        data: { url: message.url || '/' },
+      })
+    })(),
+  )
+})
+
 // Tapping a build notification opens the live app, or Vyskar for a failed
 // build, reusing an open Vyskar window where there is one.
 self.addEventListener('notificationclick', (event) => {
