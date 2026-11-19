@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import JobView from './components/JobView.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
-import { getCredits, getTrial, getVoice, startBuild } from './lib/api.js'
+import { getCredits, getQuestions, getTrial, getVoice, startBuild } from './lib/api.js'
 import { askToNotify, notifyBuildDone } from './lib/notify.js'
 import { watchBuild } from './lib/push.js'
 import { PROVIDERS, loadSettings } from './lib/settings.js'
@@ -11,6 +11,7 @@ import VoiceComposer from './components/VoiceComposer.jsx'
 import MyApps from './components/MyApps.jsx'
 import BuyBuilds from './components/BuyBuilds.jsx'
 import BuildsPanel from './components/BuildsPanel.jsx'
+import Questions from './components/Questions.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
 
@@ -43,10 +44,14 @@ export default function App() {
   const [changing, setChanging] = useState(null)
   // Per job: the edit key and prompt, to remember the app once it is live.
   const jobInfo = useRef({})
+  const notifyAsked = useRef(null) // the notification question, asked on the Build click
+  // Questions asked before building: null when none are showing.
+  const [questions, setQuestions] = useState(null)
+  const [asking, setAsking] = useState(false)
   const voice = isPhone && inputMode === 'voice'
 
   const providerLabel = PROVIDERS.find((p) => p.id === settings.provider)?.label
-  const canBuild = prompt.trim() && !running
+  const canBuild = prompt.trim() && !running && !asking && !questions
   // With own keys switched off, a key saved earlier is not used.
   const ownKeys = trial.own_keys !== false
   const apiKey = ownKeys ? settings.apiKey : ''
@@ -86,8 +91,25 @@ export default function App() {
       return
     }
     setError('')
+    // Asked on the click, the only moment browsers allow it; the push
+    // subscription waits for the answer once the build has started.
+    notifyAsked.current = askToNotify()
+    // A new app may get a question or two first; changes go straight on.
+    if (!changing) {
+      setAsking(true)
+      const asked = await getQuestions({ prompt: prompt.trim(), provider: settings.provider, apiKey })
+      setAsking(false)
+      if (asked.length) {
+        setQuestions(asked)
+        return
+      }
+    }
+    await launch([])
+  }
+
+  async function launch(answers) {
+    setQuestions(null)
     setRunning(true)
-    const asked = askToNotify()
     try {
       const { job_id, edit_key } = await startBuild({
         prompt: prompt.trim(),
@@ -95,11 +117,12 @@ export default function App() {
         apiKey,
         app: changing?.name,
         editKey: changing?.editKey,
+        answers,
       })
       jobInfo.current[job_id] = { editKey: edit_key || changing?.editKey, prompt: prompt.trim() }
       setJobId(job_id)
       // Once notifications are allowed, the server can push when it's done.
-      asked.then(() => watchBuild(job_id))
+      Promise.resolve(notifyAsked.current).then(() => watchBuild(job_id))
       if (freeBuild) refreshTrial()
       if (paidBuild) getCredits().then(setCredits).catch(() => {})
     } catch (err) {
@@ -226,7 +249,7 @@ export default function App() {
             running={running}
             note={buildNote}
             onType={switchToTyping}
-            compact={Boolean(jobId)}
+            compact={Boolean(jobId) || Boolean(questions)}
             serverVoice={serverVoice}
           />
         ) : (
@@ -289,6 +312,16 @@ export default function App() {
               )}
             </div>
           </>
+        )}
+
+        {asking && (
+          <p className="voice-fade-in text-sm text-muted" role="status">
+            Reading your idea<span className="ba-dots"><i>.</i><i>.</i><i>.</i></span>
+          </p>
+        )}
+
+        {questions && (
+          <Questions questions={questions} onDone={launch} onSkip={() => launch([])} running={running} />
         )}
 
         {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}
