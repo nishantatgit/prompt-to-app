@@ -1,16 +1,19 @@
 import os
 import threading
+import time
 from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, SecretStr
 
+from agents import clarifier
 from agents.graph import AgentLimits, AgentModels, build_graph
 from agents.keys import KeyRejected, check_key
 from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
 from agents.usage import UsageMeter
+from api.credits import CreditConfig, credit_store
 from api.jobs import (
     TRIAL_FINISHED_HOOKS,
     cancel_job,
@@ -20,7 +23,6 @@ from api.jobs import (
     public_view,
     submit,
 )
-from api.credits import CreditConfig, credit_store
 from api.limits import check_rate_limit, client_ip
 from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
@@ -53,6 +55,16 @@ class BuildRequest(BaseModel):
     # the edit key the browser got when the app was first built.
     app: str | None = Field(default=None, pattern=r"^[a-z0-9][a-z0-9-]{0,49}$")
     edit_key: SecretStr | None = None
+    # Answers to the questions from /api/clarify, added to the request.
+    answers: list["Answer"] = Field(default_factory=list, max_length=clarifier.MAX_QUESTIONS)
+
+
+class Answer(BaseModel):
+    question: str = Field(max_length=300)
+    answer: str = Field(max_length=200)
+
+
+BuildRequest.model_rebuild()
 
 
 CANNOT_CHANGE = "Vyskar can't change this app right now."
@@ -96,17 +108,27 @@ VISITOR_HEADER = "x-vyskar-visitor"
 NO_KEY = "An API key is required."
 TRIAL_USED_UP = "You have used your free builds. Add your own AI key to keep building."
 TRIAL_PAUSED = "Free builds are paused right now. Add your own AI key to build."
+OWN_KEYS_OFF = "Vyskar builds on its own AI now, no key needed."
+
+
+def own_keys_allowed() -> bool:
+    """Whether people may build with their own AI key. Off with ALLOW_OWN_KEYS=false."""
+    return os.getenv("ALLOW_OWN_KEYS", "true").lower() != "false"
+
+
 PAID_PAUSED = "Builds are paused for a moment. Your credits are safe; try again soon."
 
 _ledger: TrialLedger | None = None
 
 
 def trial_ledger(settings: Settings) -> TrialLedger:
-    """One ledger per process, kept next to the workspaces. On first use it
-    also starts recording the databases of finished trial apps."""
+    """One ledger per process, on Fly's volume (DATA_DIR) so a deploy keeps
+    the counts, else next to the workspaces. On first use it also starts
+    recording the databases of finished trial apps."""
     global _ledger
     if _ledger is None:
-        _ledger = TrialLedger(Path(settings.workspaces_dir) / "trial-usage.json")
+        folder = os.getenv("DATA_DIR") or settings.workspaces_dir
+        _ledger = TrialLedger(Path(folder) / "trial-usage.json")
         TRIAL_FINISHED_HOOKS.append(
             lambda job: _ledger.record_database(job.get("state", {}).get("database_name", ""))
         )
@@ -156,6 +178,8 @@ def build(
     credits = CreditConfig.from_env()
     if stub_mode():
         key = ""  # canned answers, no model is called
+    elif req.api_key and not own_keys_allowed():
+        raise HTTPException(status_code=400, detail=OWN_KEYS_OFF)
     elif req.api_key:
         key = req.api_key.get_secret_value()
     elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
@@ -219,7 +243,8 @@ def build(
     # A credit is spent only once the build is sure to start.
     if paid and not credit_store(settings).use(visitor_id(request), job_id):
         raise HTTPException(status_code=400, detail=NO_KEY)
-    create_job(job_id, req.prompt, settings.builder_mode, trial=trial, meter=meter)
+    prompt = clarifier.with_answers(req.prompt, [a.model_dump() for a in req.answers])
+    create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter)
     if trial:
         ledger.record_build(visitor_id(request), client_ip(request))
     if req.app:
@@ -227,7 +252,7 @@ def build(
     else:
         new_key = edit_key.new_key()
         extra = {"edit_key_hash": edit_key.hash_key(new_key)}
-    submit(graph, job_id, req.prompt, settings.graph_recursion_limit, extra)
+    submit(graph, job_id, prompt, settings.graph_recursion_limit, extra)
     if ledger is not None:
         # Old trial databases go now, so their slots are free for new apps.
         threading.Thread(target=_sweep_trial_databases, args=(ledger,), daemon=True).start()
@@ -239,8 +264,17 @@ def build(
 def trial_status(request: Request, settings: Settings = Depends(get_settings)):
     """Whether free builds are on, and how many this visitor has left."""
     config = TrialConfig.from_env()
-    left = trial_ledger(settings).builds_left(config, visitor_id(request), client_ip(request))
-    return {"enabled": config.enabled, "builds_left": left}
+    ledger = trial_ledger(settings)
+    visitor = visitor_id(request)
+    left = ledger.builds_left(config, visitor, client_ip(request))
+    return {
+        "enabled": config.enabled,
+        "builds_left": left,
+        "own_keys": own_keys_allowed(),
+        # Feedback earns more builds once; the app offers it when none are left.
+        "bonus_available": config.enabled and not ledger.bonus_used(visitor),
+        "bonus_builds": int(os.getenv("FEEDBACK_BONUS_BUILDS", "2")),
+    }
 
 
 @router.get("/jobs/{job_id}")
@@ -258,3 +292,58 @@ def cancel_build(job_id: str):
     if not cancel_job(job_id):
         raise HTTPException(status_code=409, detail="This build has already finished.")
     return public_view(get_job(job_id))
+
+
+class ClarifyRequest(BaseModel):
+    prompt: str = Field(max_length=4000)
+    provider: Literal["anthropic", "openai"]
+    api_key: SecretStr | None = None
+    app: str | None = None
+
+
+CLARIFY_PER_HOUR = 30
+_clarify_hits: dict[str, list[float]] = {}
+_clarify_lock = threading.Lock()
+
+
+def _clarify_allowed(ip: str) -> bool:
+    now = time.monotonic()
+    with _clarify_lock:
+        hits = [t for t in _clarify_hits.get(ip, []) if now - t < 3600]
+        allowed = len(hits) < CLARIFY_PER_HOUR
+        if allowed:
+            hits.append(now)
+        _clarify_hits[ip] = hits
+        return allowed
+
+
+@router.post("/clarify")
+def clarify(req: ClarifyRequest, request: Request, settings: Settings = Depends(get_settings)):
+    """Up to two questions before building, only when they matter. Uses no
+    build. Any problem means no questions, so it never stands in the way."""
+    none = {"questions": []}
+    if stub_mode() or req.app or not req.prompt.strip():
+        return none  # changes to an app go straight to building
+    provider = req.provider
+    try:
+        if req.api_key and own_keys_allowed():
+            key = req.api_key.get_secret_value()
+        elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
+            key = settings.api_key_for(provider)
+        else:
+            visitor, ip = visitor_id(request), client_ip(request)
+            credits = CreditConfig.from_env()
+            paid = credits.enabled and credit_store(settings).balance(visitor) > 0
+            free = trial_ledger(settings).builds_left(TrialConfig.from_env(), visitor, ip) > 0
+            if not (paid or free):
+                return none
+            provider, key = TRIAL_PROVIDER, settings.api_key_for(TRIAL_PROVIDER)
+    except Exception:
+        return none
+    if not _clarify_allowed(client_ip(request)):
+        return none
+    if settings.guard_provider == provider:
+        model = settings.guard_model
+    else:
+        model = DEFAULT_MODEL[provider]
+    return {"questions": clarifier.ask(create_llm(provider, model, key), req.prompt)}
