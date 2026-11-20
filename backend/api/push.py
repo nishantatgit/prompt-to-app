@@ -26,7 +26,7 @@ from urllib.parse import urlsplit
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
-from api.jobs import JOB_FINISHED_HOOKS, get_job
+from api.jobs import FINISHED_STATUSES, JOB_FINISHED_HOOKS, get_job
 from config import Settings, get_settings
 
 router = APIRouter(prefix="/api")
@@ -250,12 +250,22 @@ class WatchRequest(BaseModel):
 @router.post("/push/subscribe")
 def subscribe(req: WatchRequest, settings: Settings = Depends(get_settings)):
     """Push this browser a notification when the job finishes."""
-    if not PushConfig.from_env().enabled:
+    config = PushConfig.from_env()
+    if not config.enabled:
         raise HTTPException(status_code=503, detail="Push notifications aren't on.")
     if get_job(req.job_id) is None:
         raise HTTPException(status_code=404, detail="job not found")
     sub = req.subscription
-    push_store(settings).watch(req.job_id, sub.endpoint, sub.keys.p256dh, sub.keys.auth)
+    store = push_store(settings)
+    store.watch(req.job_id, sub.endpoint, sub.keys.p256dh, sub.keys.auth)
+    # The browser subscribes after the person allows notifications, which can
+    # take a while. If the build finished in the meantime, its finish hook
+    # found no watchers, so the watch would never be pushed or cleared: push
+    # it now. take_watchers removes the watch under a lock, so the hook and
+    # this call never both send it.
+    job = get_job(req.job_id)
+    if job and job["status"] in FINISHED_STATUSES:
+        push_job_finished(job, store, config, send=_send)
     return {"ok": True}
 
 

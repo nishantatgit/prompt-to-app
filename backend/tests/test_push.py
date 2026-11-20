@@ -245,3 +245,48 @@ def test_subscribing_while_push_is_off_fails(client, monkeypatch):
         json={"job_id": "watched-job-3", "subscription": browser_subscription()},
     )
     assert response.status_code == 503
+
+
+def finish(job_id, status, **state):
+    jobs._update(job_id, status=status, state=state)
+
+
+def test_a_build_that_finished_before_subscribing_is_pushed_at_once(client, monkeypatch):
+    recorder = Recorder()
+    monkeypatch.setattr(push, "_send", recorder)
+    jobs.create_job("quick-job", "a timer")
+    finish("quick-job", "succeeded", deploy_url="https://timer.vercel.app", confidence=100)
+    response = client.post(
+        "/api/push/subscribe",
+        json={"job_id": "quick-job", "subscription": browser_subscription()},
+    )
+    assert response.status_code == 200
+    assert len(recorder.sent) == 1
+    assert recorder.sent[0][1]["url"] == "https://timer.vercel.app"
+    assert push._store.take_watchers("quick-job") == []  # nothing left behind
+
+
+def test_a_cancelled_build_leaves_no_watch_behind(client, monkeypatch):
+    recorder = Recorder()
+    monkeypatch.setattr(push, "_send", recorder)
+    jobs.create_job("cancelled-job", "a timer")
+    jobs.cancel_job("cancelled-job")
+    client.post(
+        "/api/push/subscribe",
+        json={"job_id": "cancelled-job", "subscription": browser_subscription()},
+    )
+    assert recorder.sent == []
+    assert push._store.take_watchers("cancelled-job") == []
+
+
+def test_a_running_build_is_not_pushed_on_subscribe(client, monkeypatch):
+    recorder = Recorder()
+    monkeypatch.setattr(push, "_send", recorder)
+    jobs.create_job("running-job", "a timer")
+    jobs._update("running-job", status="running")
+    client.post(
+        "/api/push/subscribe",
+        json={"job_id": "running-job", "subscription": browser_subscription()},
+    )
+    assert recorder.sent == []
+    assert len(push._store.take_watchers("running-job")) == 1
