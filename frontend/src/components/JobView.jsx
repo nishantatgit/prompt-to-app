@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { cancelJob, getJob } from '../lib/api.js'
+import { cancelJob, getJob, screenshotUrl } from '../lib/api.js'
 import FeedbackForm from './FeedbackForm.jsx'
 import BuildAnimation from './BuildAnimation.jsx'
 
@@ -155,7 +155,11 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
       )}
 
       {((!finished && !error && job?.status !== 'queued') || job?.status === 'succeeded') && (
-        <BuildAnimation stage={reached} done={job?.status === 'succeeded'} />
+        <BuildAnimation
+          stage={reached}
+          done={job?.status === 'succeeded'}
+          shot={screenshotUrl(job)}
+        />
       )}
 
       {!finished && !error && (

@@ -7,6 +7,10 @@ import { useEffect, useState } from 'react'
 // stage: index in JobView's STAGES (-1 before the first); done: the build
 // succeeded. Between stages it keeps creeping toward the next stage's level,
 // so it never stands still.
+//
+// shot: a photo of the real, live app, taken by the server after deploy.
+// When the build succeeds, the drawing crossfades into it once it has loaded.
+// Without one, or if it fails to load, the photo ends on the drawing.
 
 const LEVELS = [0.06, 0.16, 0.28, 0.4, 0.52, 0.68, 0.82, 0.93]
 const CREEP_MS = 40000 // time to drift most of the way to the next level
@@ -66,7 +70,23 @@ function AppShot({ sketch }) {
   )
 }
 
-export default function BuildAnimation({ stage, done = false }) {
+// The real app, faded in over the drawing once its image has loaded.
+function LiveShot({ src }) {
+  const [state, setState] = useState('loading')
+  if (state === 'failed') return null
+  return (
+    <img
+      src={src}
+      alt=""
+      decoding="async"
+      onLoad={() => setState('loaded')}
+      onError={() => setState('failed')}
+      className={`dev-shot ${state === 'loaded' ? 'dev-shot-in' : ''}`}
+    />
+  )
+}
+
+export default function BuildAnimation({ stage, done = false, shot = '' }) {
   const d = useDevelopment(stage, done)
   const caption = done ? 'Your app is live' : CAPTIONS[Math.max(0, stage)]
   // Every look is derived from how developed the photo is, 0 to 1.
@@ -88,6 +108,7 @@ export default function BuildAnimation({ stage, done = false }) {
           <div className="dev-sketch-layer">
             <AppShot sketch />
           </div>
+          {done && shot && <LiveShot key={shot} src={shot} />}
           <div className="dev-grain" />
           <div className="dev-flash" />
           <div className="dev-gloss" />

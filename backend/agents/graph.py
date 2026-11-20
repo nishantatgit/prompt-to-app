@@ -17,6 +17,7 @@ from agents.guard import make_guard
 from agents.load_app import after_load_app, make_load_app
 from agents.qa.test_executor import test_executor
 from agents.qa.test_writer import test_writer
+from agents.screenshot import make_screenshot
 from agents.setup_workspace import make_setup_workspace
 from agents.state import JobState
 from agents.test_planner import make_test_planner
@@ -106,6 +107,7 @@ def build_graph(
     builder_mode: BuilderMode = "pipeline",
     supabase_config_id: str | None = None,
     supabase_access_token: str | None = None,
+    screenshots_dir: Path | None = None,
 ):
     graph = StateGraph(JobState)
 
@@ -142,6 +144,8 @@ def build_graph(
     # changed later from its spec.
     graph.add_node("save_spec", make_save_spec())
     graph.add_node("deploy", make_deploy(vercel_token))
+    # A photo of the live app ends the build animation. Off without a folder.
+    graph.add_node("screenshot", make_screenshot(screenshots_dir))
     graph.add_edge(START, "guard")
     graph.add_conditional_edges("guard", after_guard)
     graph.add_conditional_edges("load_app", after_load_app, ["analyst", END])
@@ -166,5 +170,6 @@ def build_graph(
     # Deploy always runs; without a token it records why it skipped.
     graph.add_edge("test_executor", "save_spec")
     graph.add_edge("save_spec", "deploy")
-    graph.add_edge("deploy", END)
+    graph.add_edge("deploy", "screenshot")
+    graph.add_edge("screenshot", END)
     return graph.compile()
