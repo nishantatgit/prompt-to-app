@@ -23,16 +23,15 @@ export default function MyApps({ apps, onChange, disabled }) {
       </h2>
       <ul className="flex flex-col divide-y divide-line rounded-2xl border border-line bg-card">
         {shown.map((app) => (
-          <li key={app.name} className="flex items-center gap-3 px-4 py-3">
-            <div className="min-w-0 flex-1">
-              <a href={app.url} target="_blank" rel="noreferrer" className="block truncate font-mono text-sm text-accent">
-                {app.name}
-              </a>
-              <p className="truncate text-xs text-dim">
+          <li key={app.name} className="flex items-center gap-3 px-4 py-2">
+            {/* The whole name and prompt is the link, so it is big enough to tap. */}
+            <a href={app.url} target="_blank" rel="noreferrer" className="flex min-h-11 min-w-0 flex-1 flex-col justify-center py-1">
+              <span className="block truncate font-mono text-sm text-accent">{app.name}</span>
+              <span className="block truncate text-xs text-dim">
                 {app.prompt ? `${app.prompt} · ` : ''}
                 {ago(app.updatedAt)}
-              </p>
-            </div>
+              </span>
+            </a>
             {app.editKey && (
               <button
                 type="button"

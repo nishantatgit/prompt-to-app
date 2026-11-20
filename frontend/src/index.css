@@ -31,6 +31,13 @@
   summary {
     cursor: pointer;
   }
+
+  /* A clear aqua ring for keyboard focus. The browser's own ring is dark
+     and hard to see on the plum background. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
 
 html {
@@ -150,6 +157,13 @@ a:hover {
   transform: translateX(-100%);
 }
 .dev-done .dev-gloss { animation: dev-gloss 1.4s 500ms ease-in-out both; }
+
+/* The real app, from the server's photo of it, fades in over the drawing */
+.dev-shot {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top;
+  opacity: 0; transition: opacity 1.4s ease-in-out 300ms;
+}
+.dev-shot-in { opacity: 1; }
 
 /* The app in the photo */
 .dev-app { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; padding: 0 0 12px; background: #fbf8ff; }

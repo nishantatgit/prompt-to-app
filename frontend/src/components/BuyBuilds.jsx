@@ -65,10 +65,12 @@ export default function BuyBuilds({ credits, onBought }) {
             type="button"
             onClick={() => buy(pack)}
             disabled={Boolean(busy)}
-            aria-label={`Buy ${pack.builds} builds for ${rupees(pack.price_inr)}`}
             className="flex min-h-11 flex-col items-start gap-1 rounded-xl border border-wall p-4 text-left hover:border-accent disabled:opacity-60"
           >
-            <span className="font-display text-xl font-bold">{pack.builds} builds</span>
+            <span className="font-display text-xl font-bold">
+              <span className="sr-only">Buy </span>
+              {pack.builds} builds
+            </span>
             <span className="text-accent">{rupees(pack.price_inr)}</span>
             <span className="text-xs text-dim">
               {busy === pack.id ? 'Opening payment...' : `${rupees(Math.round(pack.price_inr / pack.builds))} per build`}

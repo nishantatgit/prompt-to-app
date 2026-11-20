@@ -3,6 +3,7 @@ import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 from agents.keys import user_error_reason
 
@@ -28,6 +29,7 @@ STAGES = {
     "test_executor": "testing",
     "save_spec": "deploying",
     "deploy": "deploying",
+    "screenshot": "deploying",
 }
 
 # The job view shows the build loop's latest steps; older ones are dropped.
@@ -293,4 +295,18 @@ def public_view(job: dict) -> dict:
         "test_summary": state.get("test_summary", ""),
         "timings": timings_view(job),
         "usage": job["meter"].summary() if job.get("meter") else None,
+        # Shown once the build has succeeded, so the photo never appears early.
+        "screenshot_url": (
+            f"/api/jobs/{job['job_id']}/screenshot"
+            if job["status"] == "succeeded" and screenshot_file(job)
+            else ""
+        ),
     }
+
+
+def screenshot_file(job: dict) -> Path | None:
+    """The photo of the job's live app, when one was taken."""
+    path = job["state"].get("screenshot_path")
+    if path and Path(path).is_file():
+        return Path(path)
+    return None

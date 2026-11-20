@@ -33,6 +33,11 @@ export function getJob(jobId) {
   return request(`/api/jobs/${encodeURIComponent(jobId)}`);
 }
 
+// The photo of a finished build's live app, or '' when there is none.
+export function screenshotUrl(job) {
+  return job?.screenshot_url ? `${API_BASE}${job.screenshot_url}` : "";
+}
+
 export function cancelJob(jobId) {
   return request(`/api/jobs/${encodeURIComponent(jobId)}/cancel`, { method: "POST" });
 }

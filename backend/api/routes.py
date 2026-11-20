@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, SecretStr
 
 from agents import clarifier
@@ -21,6 +22,7 @@ from api.jobs import (
     get_job,
     has_capacity,
     public_view,
+    screenshot_file,
     submit,
 )
 from api.limits import check_rate_limit, client_ip
@@ -135,6 +137,14 @@ def trial_ledger(settings: Settings) -> TrialLedger:
     return _ledger
 
 
+def screenshots_dir(settings: Settings) -> Path | None:
+    """Where photos of finished apps go: Fly's volume (DATA_DIR), else next to
+    the workspaces. None, so no photos, with APP_SCREENSHOTS=false."""
+    if os.getenv("APP_SCREENSHOTS", "true").lower() == "false":
+        return None
+    return Path(os.getenv("DATA_DIR") or settings.workspaces_dir) / "screenshots"
+
+
 def visitor_id(request: Request) -> str:
     return request.headers.get(VISITOR_HEADER, "").strip()[:64]
 
@@ -238,6 +248,7 @@ def build(
         builder_mode=settings.builder_mode,
         supabase_config_id=os.environ.get("VERCEL_SUPABASE_CONFIG_ID"),
         supabase_access_token=os.environ.get("SUPABASE_ACCESS_TOKEN"),
+        screenshots_dir=screenshots_dir(settings),
     )
     job_id = new_job_id()
     # A credit is spent only once the build is sure to start.
@@ -285,6 +296,18 @@ def get_job_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="job not found")
     return public_view(job)
+
+
+@router.get("/jobs/{job_id}/screenshot")
+def get_job_screenshot(job_id: str):
+    """The photo of a finished build's live app, for the end of its animation."""
+    job = get_job(job_id)
+    path = screenshot_file(job) if job and job["status"] == "succeeded" else None
+    if path is None:
+        raise HTTPException(status_code=404, detail="no screenshot")
+    return FileResponse(
+        path, media_type="image/jpeg", headers={"Cache-Control": "private, max-age=86400"}
+    )
 
 
 @router.post("/jobs/{job_id}/cancel")
