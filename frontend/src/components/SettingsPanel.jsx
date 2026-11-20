@@ -23,7 +23,7 @@ export default function SettingsPanel({ settings, onChange, onClose }) {
 
   return (
     <form onSubmit={handleSave} className="rounded-2xl border border-line bg-card p-6">
-      <h2  id="settings-title" className="font-display text-lg font-bold">Your AI key</h2>
+      <h2 id="settings-title" className="font-display text-lg font-bold">Your AI key</h2>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Vyskar runs on your own Anthropic or OpenAI key. It stays in this browser and is sent only to run
         your build. It is never stored on our server.
@@ -71,7 +71,7 @@ export default function SettingsPanel({ settings, onChange, onClose }) {
           Cancel
         </button>
         {settings.apiKey && (
-          <button type="button" onClick={handleForget} className="ml-auto text-sm text-dim underline">
+          <button type="button" onClick={handleForget} className="ml-auto min-h-11 text-sm text-dim underline">
             Forget my key
           </button>
         )}
