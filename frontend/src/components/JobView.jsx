@@ -65,10 +65,15 @@ function failureHeading(job) {
   return 'The app did not pass its checks.'
 }
 
+// Shown under the steps while polling can't reach Vyskar. The build keeps
+// running on the server, so the steps stay and polling carries on.
+const OFFLINE_NOTE = "Can't reach Vyskar right now. Your build keeps going, and this page catches up once it's back."
+
 // One short line for screen readers, changing only when the build moves
 // on, so the timers ticking every poll are not read out.
-function announcement(job, reached, error) {
+function announcement(job, reached, error, offline) {
   if (error) return error
+  if (offline) return OFFLINE_NOTE
   if (!job) return 'Starting the build.'
   if (job.status === 'queued') return 'Waiting for a free builder.'
   if (job.status === 'succeeded') return 'Your app is live.'
@@ -99,6 +104,7 @@ function LoopActivity({ job }) {
 export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, onBonus }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
+  const [offline, setOffline] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   // Building and test planning run in parallel, so the stage can move back
   // and forth. Progress shows the furthest stage reached.
@@ -128,6 +134,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
         setJob(next)
         setReached((r) => Math.max(r, STAGES.indexOf(next.stage)))
         setError('')
+        setOffline(false)
         if (FINISHED.has(next.status)) {
           onDone?.(next)
           return
@@ -139,7 +146,13 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
           onDone?.(null)
           return
         }
-        setError(err.message)
+        if (err.unreachable) {
+          // A dropped connection or a restarting server: keep the steps on
+          // screen and try again on the next poll.
+          setOffline(true)
+        } else {
+          setError(err.message)
+        }
       }
       if (!stopped) timer = setTimeout(poll, POLL_MS)
     }
@@ -155,7 +168,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
 
   return (
     <section aria-label="Build progress" className="rounded-2xl border border-line bg-card p-6">
-      <p role="status" className="sr-only">{announcement(job, reached, error)}</p>
+      <p role="status" className="sr-only">{announcement(job, reached, error, offline)}</p>
       <div className="flex items-center justify-between font-mono text-xs text-dim">
         <span>job {jobId}</span>
         <span className={job?.status === 'succeeded' ? 'text-accent' : ''}>{job?.status || 'starting'}</span>
@@ -271,6 +284,8 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
           <FeedbackForm jobId={jobId} bonus={feedbackBonus} onBonus={onBonus} />
         </div>
       )}
+
+      {offline && !finished && !error && <p className="mt-4 text-sm text-muted">{OFFLINE_NOTE}</p>}
 
       {error && <p className="mt-4 text-sm text-accent">{error}</p>}
     </section>

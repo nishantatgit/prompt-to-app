@@ -1,13 +1,30 @@
-import { errorMessage } from "./errors.js";
+import { SERVER_AWAY, UNREACHABLE, errorMessage } from "./errors.js";
 import { visitorId } from "./visitor.js";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const VISITOR = { "X-Vyskar-Visitor": visitorId() };
 
+// An error with `unreachable` set means Vyskar could not be reached for now,
+// so asking again later may work, such as when polling a build.
+function unreachable(message) {
+  const error = new Error(message);
+  error.unreachable = true;
+  return error;
+}
+
 async function request(path, options) {
-  const res = await fetch(`${API_BASE}${path}`, options);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, options);
+  } catch (error) {
+    if (error?.name === "AbortError") throw error;
+    throw unreachable(UNREACHABLE);
+  }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(errorMessage(body, res.status));
+  if (!res.ok) {
+    const message = errorMessage(body, res.status);
+    throw message === SERVER_AWAY ? unreachable(message) : new Error(message);
+  }
   return body;
 }
 
