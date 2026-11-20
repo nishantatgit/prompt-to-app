@@ -128,6 +128,12 @@ def test_only_the_admin_reads_feedback(client, monkeypatch):
     )
 
 
+def test_a_non_ascii_token_is_refused_not_a_crash(client):
+    # Starlette reads header bytes as latin-1, so this arrives as "Bearer café".
+    headers = {"Authorization": "Bearer café".encode("latin-1")}
+    assert client.get("/api/admin/feedback", headers=headers).status_code == 401
+
+
 def test_own_keys_can_be_switched_off(client, monkeypatch):
     payload = {"prompt": "A timer", "provider": "anthropic", "api_key": "sk-own"}
     assert client.post("/api/build", json=payload).status_code == 202

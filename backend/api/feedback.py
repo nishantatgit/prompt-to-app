@@ -190,6 +190,8 @@ def read_feedback(
 ):
     token = os.getenv("ADMIN_TOKEN", "")
     given = authorization.removeprefix("Bearer ").strip()
-    if not token or not hmac.compare_digest(given, token):
+    # Compared as bytes: compare_digest raises on non-ASCII text, which would
+    # turn a mistyped or pasted token into a 500 instead of a 401.
+    if not token or not hmac.compare_digest(given.encode(), token.encode()):
         raise HTTPException(status_code=401, detail="Not allowed.")
     return {"feedback": feedback_store(settings).all()}
