@@ -1,3 +1,4 @@
+import { errorMessage } from "./errors.js";
 import { visitorId } from "./visitor.js";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -6,7 +7,7 @@ const VISITOR = { "X-Vyskar-Visitor": visitorId() };
 async function request(path, options) {
   const res = await fetch(`${API_BASE}${path}`, options);
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body?.detail || `Server returned ${res.status}`);
+  if (!res.ok) throw new Error(errorMessage(body, res.status));
   return body;
 }
 
