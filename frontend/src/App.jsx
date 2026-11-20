@@ -14,6 +14,7 @@ import { inAndroidApp } from './lib/platform.js'
 import BuildsPanel from './components/BuildsPanel.jsx'
 import Questions from './components/Questions.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
+import { MAX_PROMPT_CHARS } from './lib/prompt.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
 
 const CHANGE_EXAMPLES = [
@@ -289,6 +290,7 @@ export default function App() {
                   : 'e.g. A to-do list where I can add, complete, delete and filter tasks'
               }
               value={prompt}
+              maxLength={MAX_PROMPT_CHARS}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleBuild()

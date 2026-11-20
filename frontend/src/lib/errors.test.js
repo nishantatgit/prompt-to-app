@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { errorMessage } from './errors'
+import { MAX_PROMPT_CHARS } from './prompt'
 import { restoreBuilds, sendFeedback } from './api'
 
 // The body FastAPI sends when RestoreRequest's pattern rejects payment_id.
@@ -44,6 +45,18 @@ describe('errorMessage', () => {
     const text = errorMessage(body, 422)
     expect(text).not.toMatch(/object/)
     expect(text).toMatch(/wasn't accepted/)
+  })
+
+  it('says a description is too long, with the limit', () => {
+    const body = { detail: [{ type: 'string_too_long', loc: ['body', 'prompt'], msg: 'too long' }] }
+    expect(errorMessage(body, 422)).toBe(
+      `That description is too long. Keep it under ${MAX_PROMPT_CHARS} characters.`,
+    )
+  })
+
+  it('asks for a description when it was blank', () => {
+    const body = { detail: [{ type: 'string_too_short', loc: ['body', 'prompt'], msg: 'too short' }] }
+    expect(errorMessage(body, 422)).toBe('Describe your app first, then build it.')
   })
 
   it('falls back to the status when there is no detail', () => {

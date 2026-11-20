@@ -184,3 +184,29 @@ def test_the_admin_page_may_send_its_token_cross_origin(monkeypatch):
     )
     assert response.status_code == 200
     assert "authorization" in response.headers["access-control-allow-headers"].lower()
+
+
+def test_a_description_over_the_limit_is_refused_before_any_build(client):
+    response = build(client, prompt="x" * (routes.MAX_PROMPT_CHARS + 1))
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "prompt"]
+    assert client.started == []
+    # Refused requests do not use up a free build.
+    left = client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json()
+    assert left["builds_left"] == 2
+
+
+def test_a_blank_description_is_refused(client):
+    for blank in ["", "   ", "\n\t "]:
+        response = build(client, prompt=blank)
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["type"] == "string_too_short"
+    assert client.started == []
+
+
+def test_a_description_at_the_limit_builds_and_is_trimmed(client):
+    prompt = "  " + "x" * routes.MAX_PROMPT_CHARS + "  "
+    response = build(client, prompt=prompt)
+    assert response.status_code == 202
+    job = jobs.get_job(response.json()["job_id"])
+    assert job["prompt"] == "x" * routes.MAX_PROMPT_CHARS
