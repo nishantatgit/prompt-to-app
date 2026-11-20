@@ -1,3 +1,4 @@
+import math
 import os
 import threading
 import time
@@ -20,18 +21,33 @@ def client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+def wait_message(seconds: int) -> str:
+    # Rounded up, so the visitor never comes back a minute too early.
+    minutes = max(1, math.ceil(seconds / 60))
+    unit = "minute" if minutes == 1 else "minutes"
+    return f"Too many builds from your network. Try again in {minutes} {unit}."
+
+
+def _prune(now: float) -> None:
+    # Drops networks with no build in the window, so the table does not grow
+    # with every address that ever built. Called with the lock held.
+    for ip in [ip for ip, hits in _hits.items() if not hits or now - hits[-1] > WINDOW_SECONDS]:
+        del _hits[ip]
+
+
 def check_rate_limit(request: Request) -> None:
     ip = client_ip(request)
     now = time.monotonic()
     with _lock:
+        _prune(now)
         hits = _hits[ip]
         while hits and now - hits[0] > WINDOW_SECONDS:
             hits.popleft()
         if len(hits) >= BUILDS_PER_HOUR:
-            retry_after = int(WINDOW_SECONDS - (now - hits[0])) + 1
+            retry_after = max(1, math.ceil(WINDOW_SECONDS - (now - hits[0])))
             raise HTTPException(
                 status_code=429,
-                detail=f"Too many builds from your network. Try again in {retry_after // 60 + 1} minutes.",
+                detail=wait_message(retry_after),
                 headers={"Retry-After": str(retry_after)},
             )
         hits.append(now)
