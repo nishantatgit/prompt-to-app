@@ -4,7 +4,11 @@ Fly collects stdout, so each line can be filtered by its "event" field, for
 example: fly logs -a <app> | grep '"event": "build_finish"'
 
 Events: build_start, build_stage, build_finish, build_cost. Every line has
-"event", "ts" (unix seconds) and "job_id". Prompts and user keys are never
+"event", "ts" (unix seconds) and "job_id".
+
+builds_paused is logged when a free or bought build is refused because
+Vyskar's own key can't be used; it has no job yet, so its job_id is empty,
+and "reason" says why: key_missing, rejected or no_credit. Prompts and user keys are never
 logged, only their sizes and flags.
 """
 

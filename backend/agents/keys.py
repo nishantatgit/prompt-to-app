@@ -21,7 +21,11 @@ CREDIT_CHECK_MODEL = "claude-haiku-5-5"
 
 
 class KeyRejected(Exception):
-    pass
+    """reason: "rejected" (bad key) or "no_credit" (account out of credit)."""
+
+    def __init__(self, message: str, reason: str = "rejected"):
+        super().__init__(message)
+        self.reason = reason
 
 
 def rejected_message(provider: str) -> str:
@@ -46,7 +50,9 @@ def is_no_credit(error: Exception) -> bool:
     if isinstance(error, anthropic.BadRequestError):
         return "credit balance" in str(error).lower()
     if isinstance(error, openai.RateLimitError):
-        return getattr(error, "code", None) == "insufficient_quota" or "insufficient_quota" in str(error)
+        return getattr(error, "code", None) == "insufficient_quota" or "insufficient_quota" in str(
+            error
+        )
     return False
 
 
@@ -70,10 +76,10 @@ def check_key(provider: str, api_key: str, timeout: float = 10) -> None:
             client = openai.OpenAI(api_key=api_key, timeout=timeout, max_retries=0)
             client.models.list()
     except AUTH_ERRORS as error:
-        raise KeyRejected(rejected_message(provider)) from error
+        raise KeyRejected(rejected_message(provider), reason="rejected") from error
     except Exception as error:
         if is_no_credit(error):
-            raise KeyRejected(no_credit_message(provider)) from error
+            raise KeyRejected(no_credit_message(provider), reason="no_credit") from error
         return
 
 
@@ -88,5 +94,3 @@ def user_error_reason(error: Exception) -> str | None:
     if is_no_credit(error):
         return "no credit: " + no_credit_message(provider)
     return None
-
-
