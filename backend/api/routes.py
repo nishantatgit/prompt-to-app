@@ -15,6 +15,7 @@ from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
 from agents.usage import UsageMeter
 from api.credits import CreditConfig, credit_store
+from api.events import log_event
 from api.jobs import (
     TRIAL_FINISHED_HOOKS,
     cancel_job,
@@ -120,6 +121,17 @@ def own_keys_allowed() -> bool:
 
 PAID_PAUSED = "Builds are paused for a moment. Your credits are safe; try again soon."
 
+
+def log_paused(kind: str, reason: str, error: Exception | None = None) -> None:
+    """Why a free or bought build was refused as paused, so `fly logs` says
+    which to fix: key_missing (no ANTHROPIC_API_KEY on the server), rejected
+    (the key is invalid or revoked) or no_credit (the Anthropic account is out
+    of credit). The key itself is never logged."""
+    cause = getattr(error, "__cause__", None) or error
+    detail = str(cause)[:300] if cause else ""
+    log_event("builds_paused", "", kind=kind, reason=reason, provider=TRIAL_PROVIDER, detail=detail)
+
+
 _ledger: TrialLedger | None = None
 
 
@@ -199,6 +211,7 @@ def build(
         try:
             key = settings.api_key_for(TRIAL_PROVIDER)
         except ValueError:
+            log_paused("paid", "key_missing")
             raise HTTPException(status_code=503, detail=PAID_PAUSED) from None
         provider, paid = TRIAL_PROVIDER, True
     else:
@@ -211,6 +224,7 @@ def build(
         try:
             key = settings.api_key_for(TRIAL_PROVIDER)
         except ValueError:
+            log_paused("free", "key_missing")
             raise HTTPException(status_code=503, detail=TRIAL_PAUSED) from None
         provider, trial = TRIAL_PROVIDER, True
 
@@ -220,6 +234,7 @@ def build(
             check_key(provider, key)
         except KeyRejected as error:
             if trial or paid:  # Vyskar's own key: not the visitor's problem to fix
+                log_paused("paid" if paid else "free", error.reason, error)
                 raise HTTPException(
                     status_code=503, detail=PAID_PAUSED if paid else TRIAL_PAUSED
                 ) from None

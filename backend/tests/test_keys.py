@@ -62,8 +62,9 @@ def test_valid_anthropic_key_passes_with_a_one_token_call(monkeypatch):
 
 def test_anthropic_account_without_credit_is_caught_before_the_build(monkeypatch):
     monkeypatch.setattr(keys.anthropic, "Anthropic", FakeClient(call_error=no_credit_error()))
-    with pytest.raises(KeyRejected, match="Your Anthropic account has no credit left"):
+    with pytest.raises(KeyRejected, match="Your Anthropic account has no credit left") as caught:
         check_key("anthropic", "sk-ant-broke")
+    assert caught.value.reason == "no_credit"
 
 
 def test_other_errors_from_the_credit_call_do_not_block(monkeypatch):
@@ -80,8 +81,9 @@ def test_no_credit_during_a_build_gets_its_own_reason():
 
 def test_rejected_anthropic_key_raises_a_clear_message(monkeypatch):
     monkeypatch.setattr(keys.anthropic, "Anthropic", FakeClient(auth_error(anthropic)))
-    with pytest.raises(KeyRejected, match="Your Anthropic key was rejected"):
+    with pytest.raises(KeyRejected, match="Your Anthropic key was rejected") as caught:
         check_key("anthropic", "sk-ant-bad")
+    assert caught.value.reason == "rejected"
 
 
 def test_rejected_openai_key_raises_a_clear_message(monkeypatch):

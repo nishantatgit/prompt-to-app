@@ -1,8 +1,10 @@
+import json
 from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 
+from agents.keys import KeyRejected
 from api import jobs, routes
 
 
@@ -90,11 +92,40 @@ def test_with_the_trial_off_a_key_is_required(client, monkeypatch):
     assert (status["enabled"], status["builds_left"]) == (False, 0)
 
 
-def test_without_a_server_key_free_builds_pause(client):
+def paused_events(capsys) -> list[dict]:
+    lines = [line for line in capsys.readouterr().out.splitlines() if line.startswith("{")]
+    return [e for e in map(json.loads, lines) if e["event"] == "builds_paused"]
+
+
+def test_without_a_server_key_free_builds_pause(client, capsys):
     client.settings.server_key = ""
     response = build(client)
     assert response.status_code == 503
     assert response.json()["detail"] == routes.TRIAL_PAUSED
+    [event] = paused_events(capsys)
+    assert (event["kind"], event["reason"]) == ("free", "key_missing")
+
+
+@pytest.mark.parametrize(
+    "reason, cause",
+    [
+        ("no_credit", "Your credit balance is too low to access the Anthropic API."),
+        ("rejected", "invalid x-api-key"),
+    ],
+)
+def test_the_log_says_why_free_builds_paused(client, monkeypatch, capsys, reason, cause):
+    def refuse(provider, key):
+        raise KeyRejected("message for the user", reason=reason) from RuntimeError(cause)
+
+    monkeypatch.setattr(routes, "check_key", refuse)
+    response = build(client)
+    assert response.status_code == 503
+    assert response.json()["detail"] == routes.TRIAL_PAUSED
+    [event] = paused_events(capsys)
+    assert (event["kind"], event["reason"], event["provider"]) == ("free", reason, "anthropic")
+    assert event["detail"] == cause
+    assert "sk-ant-vyskar" not in json.dumps(event)  # the key itself is never logged
+    assert client.started == []  # no build was started
 
 
 def test_your_own_key_is_never_counted_as_a_trial(client):
