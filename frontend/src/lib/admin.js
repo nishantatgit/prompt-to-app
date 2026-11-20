@@ -3,6 +3,8 @@
 // The token lives in sessionStorage only: it is gone when the tab closes and
 // is never written to localStorage or sent anywhere but the API.
 
+import { errorMessage } from './errors.js'
+
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const KEY = 'vyskar-admin-token'
 
@@ -37,7 +39,7 @@ export async function getFeedback(token) {
   })
   const body = await res.json().catch(() => ({}))
   if (res.status === 401) throw new NotAllowed('That token was not accepted.')
-  if (!res.ok) throw new Error(body?.detail || `Server returned ${res.status}`)
+  if (!res.ok) throw new Error(errorMessage(body, res.status))
   const rows = Array.isArray(body.feedback) ? body.feedback : []
   return [...rows].sort((a, b) => (b.created || 0) - (a.created || 0))
 }
