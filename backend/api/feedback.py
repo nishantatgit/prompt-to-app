@@ -23,6 +23,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from api.env import env_int
 from api.jobs import get_job
 from api.limits import client_ip
 from api.trial import TrialConfig
@@ -160,7 +161,7 @@ def send_feedback(
         # Imported here: routes imports this module's router.
         from api.routes import trial_ledger
 
-        builds = int(os.getenv("FEEDBACK_BONUS_BUILDS", "2"))
+        builds = env_int("FEEDBACK_BONUS_BUILDS", 2)
         if trial_ledger(settings).grant_bonus(visitor, builds):
             bonus = builds
     return {"ok": True, "bonus_builds": bonus}
