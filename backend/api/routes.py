@@ -2,11 +2,11 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr, StringConstraints
 
 from agents import clarifier
 from agents.graph import AgentLimits, AgentModels, build_graph
@@ -51,8 +51,19 @@ SETTINGS_PREFIX = {
 }
 
 
+# The longest description Vyskar takes, for a build and for its questions. A
+# description goes to every agent, often more than once, so on free and bought
+# builds a very long one would be paid for on Vyskar's own key.
+MAX_PROMPT_CHARS = 4000
+
+# A build needs something to build: blank or whitespace only is refused.
+BuildPrompt = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_PROMPT_CHARS)
+]
+
+
 class BuildRequest(BaseModel):
-    prompt: str
+    prompt: BuildPrompt
     provider: Literal["anthropic", "openai"]
     api_key: SecretStr | None = None
     # To change an existing app instead of building a new one: its name, and
@@ -336,7 +347,7 @@ def cancel_build(job_id: str):
 
 
 class ClarifyRequest(BaseModel):
-    prompt: str = Field(max_length=4000)
+    prompt: str = Field(max_length=MAX_PROMPT_CHARS)
     provider: Literal["anthropic", "openai"]
     api_key: SecretStr | None = None
     app: str | None = None
