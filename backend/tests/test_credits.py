@@ -290,3 +290,58 @@ def test_restore_tries_are_limited(client, monkeypatch):
     for _ in range(2):
         assert client.post("/api/credits/restore", json={"payment_id": "pay_x1"}).status_code == 404
     assert client.post("/api/credits/restore", json={"payment_id": "pay_x1"}).status_code == 429
+
+
+# A mistyped CREDIT_PACKS must not break building.
+
+
+@pytest.fixture
+def fresh_reports():
+    from api import env
+
+    env._reported.clear()
+    yield
+    env._reported.clear()
+
+
+@pytest.mark.parametrize("raw", ["[{id: starter}]", '{"id": "starter"}', "not json"])
+def test_unreadable_packs_put_none_on_sale_but_builds_still_start(
+    client, monkeypatch, capsys, fresh_reports, raw
+):
+    monkeypatch.setenv("CREDIT_PACKS", raw)
+    status = client.get("/api/credits")
+    assert status.status_code == 200 and status.json()["packs"] == []
+    assert client.post("/api/credits/order", json={"pack": "starter"}).status_code == 400
+    # An own-key build used to be a 500 here, before the key was even looked at.
+    response = client.post(
+        "/api/build", json={"prompt": "a todo app", "provider": "anthropic", "api_key": "sk-own"}
+    )
+    assert response.status_code == 202
+    events = [
+        json.loads(line) for line in capsys.readouterr().out.splitlines() if "bad_setting" in line
+    ]
+    assert events and events[0]["name"] == "CREDIT_PACKS"
+    # The setting's value is never logged.
+    assert raw not in json.dumps(events)
+
+
+def test_bad_packs_are_dropped_and_good_ones_kept(client, monkeypatch, fresh_reports):
+    packs = [
+        {"id": "ok", "builds": 3, "price_inr": "199"},
+        {"id": "free", "builds": 5, "price_inr": 0},
+        {"id": "half", "builds": 2.5, "price_inr": 99},
+        {"builds": 1, "price_inr": 49},
+        {"id": "ok", "builds": 9, "price_inr": 999},
+        "starter",
+    ]
+    monkeypatch.setenv("CREDIT_PACKS", json.dumps(packs))
+    assert client.get("/api/credits").json()["packs"] == [
+        {"id": "ok", "builds": 3, "price_inr": 199}
+    ]
+    assert client.post("/api/credits/order", json={"pack": "ok"}).json()["amount"] == 19900
+
+
+@pytest.mark.parametrize("raw", ["", "  ", "null", "[]"])
+def test_blank_packs_mean_the_defaults(client, monkeypatch, raw):
+    monkeypatch.setenv("CREDIT_PACKS", raw)
+    assert [p["id"] for p in client.get("/api/credits").json()["packs"]] == ["starter", "maker"]
