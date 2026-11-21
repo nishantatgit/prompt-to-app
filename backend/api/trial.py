@@ -14,11 +14,12 @@ is the hard cap behind this.
 """
 
 import json
-import os
 import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
+
+from api.env import env_int
 
 IP_MULTIPLIER = 3
 TRIAL_DATABASE_HOURS = 24
@@ -36,8 +37,8 @@ class TrialConfig:
     @classmethod
     def from_env(cls) -> "TrialConfig":
         return cls(
-            builds_per_person=int(os.getenv("FREE_TRIAL_BUILDS", "0")),
-            daily_cap=int(os.getenv("FREE_TRIAL_DAILY_CAP", "50")),
+            builds_per_person=env_int("FREE_TRIAL_BUILDS", 0),
+            daily_cap=env_int("FREE_TRIAL_DAILY_CAP", 50),
         )
 
 

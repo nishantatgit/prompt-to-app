@@ -70,6 +70,9 @@ def test_signatures():
     good = hmac.new(WEBHOOK_SECRET.encode(), body, hashlib.sha256).hexdigest()
     assert razorpay.webhook_matches(body, good, WEBHOOK_SECRET)
     assert not razorpay.webhook_matches(body + b" ", good, WEBHOOK_SECRET)
+    # Junk with non-ASCII characters is refused, not a TypeError.
+    assert not razorpay.signature_matches("order_1", "pay_1", "café", SECRET)
+    assert not razorpay.webhook_matches(body, "café", WEBHOOK_SECRET)
 
 
 def fake_razorpay(monkeypatch, status="captured", order_id="order_1", amount=49900):
@@ -196,6 +199,19 @@ def test_a_forged_payment_adds_nothing(client, monkeypatch):
     _, proof = buy(client, monkeypatch)
     proof["razorpay_signature"] = sign(proof["razorpay_order_id"], "pay_1", secret="guess")
     assert client.post("/api/credits/verify", json=proof).status_code == 400
+    assert client.get("/api/credits").json()["builds_left"] == 0
+
+
+def test_a_non_ascii_signature_is_refused_not_a_crash(client, monkeypatch):
+    _, proof = buy(client, monkeypatch)
+    proof["razorpay_signature"] = "café"
+    assert client.post("/api/credits/verify", json=proof).status_code == 400
+    webhook = client.post(
+        "/api/razorpay/webhook",
+        content=b"{}",
+        headers={"X-Razorpay-Signature": "café".encode("latin-1")},
+    )
+    assert webhook.status_code == 400
     assert client.get("/api/credits").json()["builds_left"] == 0
 
 

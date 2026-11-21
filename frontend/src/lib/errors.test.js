@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { errorMessage } from './errors'
-import { restoreBuilds, sendFeedback } from './api'
+import { SERVER_AWAY, UNREACHABLE, errorMessage } from './errors'
+import { MAX_PROMPT_CHARS } from './prompt'
+import { getJob, getQuestions, restoreBuilds, sendFeedback } from './api'
 
 // The body FastAPI sends when RestoreRequest's pattern rejects payment_id.
 const BAD_PAYMENT_ID = {
@@ -46,10 +47,33 @@ describe('errorMessage', () => {
     expect(text).toMatch(/wasn't accepted/)
   })
 
+  it('says a description is too long, with the limit', () => {
+    const body = { detail: [{ type: 'string_too_long', loc: ['body', 'prompt'], msg: 'too long' }] }
+    expect(errorMessage(body, 422)).toBe(
+      `That description is too long. Keep it under ${MAX_PROMPT_CHARS} characters.`,
+    )
+  })
+
+  it('asks for a description when it was blank', () => {
+    const body = { detail: [{ type: 'string_too_short', loc: ['body', 'prompt'], msg: 'too short' }] }
+    expect(errorMessage(body, 422)).toBe('Describe your app first, then build it.')
+  })
+
   it('falls back to the status when there is no detail', () => {
-    expect(errorMessage({}, 502)).toBe('Server returned 502')
     expect(errorMessage(undefined, 500)).toBe('Server returned 500')
     expect(errorMessage({ detail: [] }, 422)).toBe('Server returned 422')
+  })
+
+  it('says the server is restarting for a bare 502, 503 or 504', () => {
+    expect(errorMessage({}, 502)).toBe(SERVER_AWAY)
+    expect(errorMessage(undefined, 503)).toBe(SERVER_AWAY)
+    expect(errorMessage({}, 504)).toBe(SERVER_AWAY)
+  })
+
+  it("keeps the server's own sentence on a 503", () => {
+    expect(errorMessage({ detail: "Push notifications aren't on." }, 503)).toBe(
+      "Push notifications aren't on.",
+    )
   })
 })
 
@@ -71,6 +95,37 @@ describe('api requests', () => {
     const body = { detail: 'No builds found for that payment ID. Check your Razorpay receipt.' }
     vi.stubGlobal('fetch', respond(404, body))
     await expect(restoreBuilds('pay_abc')).rejects.toThrow(/No builds found/)
+    vi.unstubAllGlobals()
+  })
+
+  it('says Vyskar cannot be reached instead of "Failed to fetch"', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+    const error = await getJob('abc').catch((e) => e)
+    expect(error.message).toBe(UNREACHABLE)
+    expect(error.unreachable).toBe(true)
+    vi.unstubAllGlobals()
+  })
+
+  it('marks a restarting server as unreachable, so polling carries on', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 502, json: () => Promise.reject(new Error('html')) }))
+    const error = await getJob('abc').catch((e) => e)
+    expect(error.message).toBe(SERVER_AWAY)
+    expect(error.unreachable).toBe(true)
+    vi.unstubAllGlobals()
+  })
+
+  it('does not mark a real refusal as unreachable', async () => {
+    vi.stubGlobal('fetch', respond(404, { detail: 'job not found' }))
+    const error = await getJob('abc').catch((e) => e)
+    expect(error.message).toBe('job not found')
+    expect(error.unreachable).toBeUndefined()
+    vi.unstubAllGlobals()
+  })
+
+  it('lets an aborted request stay an abort', async () => {
+    const abort = Object.assign(new Error('aborted'), { name: 'AbortError' })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abort))
+    expect(await getQuestions({ prompt: 'x', provider: 'anthropic' })).toEqual([])
     vi.unstubAllGlobals()
   })
 })

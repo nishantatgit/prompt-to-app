@@ -49,6 +49,13 @@ export function formatCost(usd) {
   return usd < 0.01 ? `$${usd.toFixed(4)}` : `$${usd.toFixed(2)}`
 }
 
+// The backend's confidence is already a percentage (0 to 100, one decimal),
+// the same number the build screen shows.
+export function formatConfidence(percent) {
+  if (typeof percent !== 'number' || !Number.isFinite(percent)) return ''
+  return `${Math.round(percent)}%`
+}
+
 export function formatWhen(seconds) {
   if (!seconds) return ''
   return new Date(seconds * 1000).toLocaleString(undefined, {

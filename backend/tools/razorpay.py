@@ -37,12 +37,18 @@ def signature_matches(order_id: str, payment_id: str, signature: str, secret: st
     expected = hmac.new(
         secret.encode(), f"{order_id}|{payment_id}".encode(), hashlib.sha256
     ).hexdigest()
-    return hmac.compare_digest(expected, signature or "")
+    return _same(expected, signature)
 
 
 def webhook_matches(body: bytes, signature: str, webhook_secret: str) -> bool:
     expected = hmac.new(webhook_secret.encode(), body, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, signature or "")
+    return _same(expected, signature)
+
+
+def _same(expected: str, signature: str) -> bool:
+    """Compared as bytes: compare_digest raises on non-ASCII text, so a junk
+    signature would be a 500 instead of a refusal."""
+    return hmac.compare_digest(expected.encode(), (signature or "").encode())
 
 
 def settle_payment(key_id: str, secret: str, payment_id: str, order_id: str, amount: int) -> dict:

@@ -10,6 +10,10 @@ builds_paused is logged when a free or bought build is refused because
 Vyskar's own key can't be used; it has no job yet, so its job_id is empty,
 and "reason" says why: key_missing, rejected or no_credit. Prompts and user keys are never
 logged, only their sizes and flags.
+
+bad_setting is logged once when a whole-number setting such as
+FREE_TRIAL_BUILDS is blank or mistyped; "name" says which, "using" is the
+default used instead, and the value itself is never logged (see api/env.py).
 """
 
 import json

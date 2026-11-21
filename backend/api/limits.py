@@ -1,12 +1,13 @@
 import math
-import os
 import threading
 import time
 from collections import defaultdict, deque
 
 from fastapi import HTTPException, Request
 
-BUILDS_PER_HOUR = int(os.getenv("BUILDS_PER_HOUR", "3"))
+from api.env import env_int
+
+BUILDS_PER_HOUR = env_int("BUILDS_PER_HOUR", 3, minimum=1)
 WINDOW_SECONDS = 3600
 
 _hits: dict[str, deque] = defaultdict(deque)
