@@ -15,6 +15,7 @@ from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
 from agents.usage import UsageMeter
 from api.credits import CreditConfig, credit_store
+from api.env import env_int
 from api.events import log_event
 from api.jobs import (
     TRIAL_FINISHED_HOOKS,
@@ -293,7 +294,7 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
     ledger = trial_ledger(settings)
     visitor = visitor_id(request)
     left = ledger.builds_left(config, visitor, client_ip(request))
-    bonus_builds = int(os.getenv("FEEDBACK_BONUS_BUILDS", "2"))
+    bonus_builds = env_int("FEEDBACK_BONUS_BUILDS", 2)
     return {
         "enabled": config.enabled,
         "builds_left": left,

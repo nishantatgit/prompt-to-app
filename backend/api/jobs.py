@@ -1,10 +1,10 @@
-import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from agents.keys import user_error_reason
+from api.env import env_int
 from api.events import log_event
 
 MAX_CONCURRENT_JOBS = 2
@@ -35,7 +35,7 @@ STAGES = {
 # The job view shows the build loop's latest steps; older ones are dropped.
 MAX_ACTIVITY = 50
 
-MAX_ACTIVE_JOBS = int(os.getenv("MAX_ACTIVE_JOBS", "6"))
+MAX_ACTIVE_JOBS = env_int("MAX_ACTIVE_JOBS", 6, minimum=1)
 FINISHED_STATUSES = {"succeeded", "failed", "rejected", "cancelled"}
 CANCELLED_REASON = "You cancelled this build."
 
