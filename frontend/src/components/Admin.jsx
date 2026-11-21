@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { NotAllowed, formatCost, formatWhen, getFeedback, loadToken, saveToken } from '../lib/admin.js'
+import { NotAllowed, formatConfidence, formatCost, formatWhen, getFeedback, loadToken, saveToken } from '../lib/admin.js'
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -48,6 +48,7 @@ function TokenForm({ onToken, error }) {
 function Build({ build }) {
   if (!build) return null
   const cost = formatCost(build.cost_usd)
+  const confidence = formatConfidence(build.confidence)
   return (
     <div className="mt-3 flex flex-col gap-1 rounded-xl border border-line-2 bg-ink-2 px-3 py-2 text-sm">
       {build.prompt && <p className="text-fg">{build.prompt}</p>}
@@ -55,7 +56,7 @@ function Build({ build }) {
         {build.status && <span>Status: {build.status}</span>}
         {build.trial && <span>Free build</span>}
         {cost && <span>Cost: {cost}</span>}
-        {typeof build.confidence === 'number' && <span>Confidence: {Math.round(build.confidence * 100)}%</span>}
+        {confidence && <span>Confidence: {confidence}</span>}
       </p>
       {build.reason && <p className="text-xs text-dim">{build.reason}</p>}
       {build.deploy_url ? (
