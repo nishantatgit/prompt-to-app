@@ -30,6 +30,7 @@ from api.jobs import (
     submit,
 )
 from api.limits import check_rate_limit, client_ip
+from api.server_key import server_key_status
 from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
 from tools import edit_key
@@ -192,6 +193,14 @@ def _clean_finished_workspaces(job: dict) -> None:
 JOB_FINISHED_HOOKS.append(_clean_finished_workspaces)
 
 
+def server_key(settings: Settings) -> str | None:
+    """Vyskar's own key for free and bought builds, or None when unset."""
+    try:
+        return settings.api_key_for(TRIAL_PROVIDER)
+    except ValueError:
+        return None
+
+
 def visitor_id(request: Request) -> str:
     return request.headers.get(VISITOR_HEADER, "").strip()[:64]
 
@@ -246,6 +255,7 @@ def build(
         try:
             key = settings.api_key_for(TRIAL_PROVIDER)
         except ValueError:
+            server_key_status.record("key_missing")
             log_paused("paid", "key_missing")
             raise HTTPException(status_code=503, detail=PAID_PAUSED) from None
         provider, paid = TRIAL_PROVIDER, True
@@ -259,6 +269,7 @@ def build(
         try:
             key = settings.api_key_for(TRIAL_PROVIDER)
         except ValueError:
+            server_key_status.record("key_missing")
             log_paused("free", "key_missing")
             raise HTTPException(status_code=503, detail=TRIAL_PAUSED) from None
         provider, trial = TRIAL_PROVIDER, True
@@ -267,8 +278,11 @@ def build(
     if not stub_mode():
         try:
             check_key(provider, key)
+            if trial or paid:
+                server_key_status.record(None)
         except KeyRejected as error:
             if trial or paid:  # Vyskar's own key: not the visitor's problem to fix
+                server_key_status.record(error.reason)
                 log_paused("paid" if paid else "free", error.reason, error)
                 raise HTTPException(
                     status_code=503, detail=PAID_PAUSED if paid else TRIAL_PAUSED
@@ -330,10 +344,20 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
     ledger = trial_ledger(settings)
     visitor = visitor_id(request)
     left = ledger.builds_left(config, visitor, client_ip(request))
+    # Only worth checking Vyskar's key when this visitor could use it.
+    paused = (
+        config.enabled
+        and left > 0
+        and not stub_mode()
+        and server_key_status.paused_reason(TRIAL_PROVIDER, server_key(settings)) is not None
+    )
     bonus_builds = env_int("FEEDBACK_BONUS_BUILDS", 2)
     return {
         "enabled": config.enabled,
         "builds_left": left,
+        # Free builds are on but Vyskar's own key doesn't work: the app says
+        # so before Build is tapped, instead of offering a build it would refuse.
+        "paused": paused,
         "own_keys": own_keys_allowed(),
         # Feedback earns more builds once; the app offers it when none are left.
         # FEEDBACK_BONUS_BUILDS=0 turns the offer off.
