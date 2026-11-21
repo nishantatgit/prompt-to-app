@@ -79,10 +79,14 @@ class TrialLedger:
             return 0
         now = time.time() if now is None else now
         with self._lock:
-            used = self._data["visitors"].get(visitor, 0)
-            by_ip = self._data["ips"].get(ip, 0)
-            today = self._data["days"].get(_today(now), 0)
-            bonus = self._data["bonus"].get(visitor, 0)
+            return self._left(config, visitor, ip, now)
+
+    def _left(self, config: TrialConfig, visitor: str, ip: str, now: float) -> int:
+        """builds_left, for a caller that holds the lock."""
+        used = self._data["visitors"].get(visitor, 0)
+        by_ip = self._data["ips"].get(ip, 0)
+        today = self._data["days"].get(_today(now), 0)
+        bonus = self._data["bonus"].get(visitor, 0)
         return max(
             0,
             min(
@@ -91,6 +95,23 @@ class TrialLedger:
                 config.daily_cap - today,
             ),
         )
+
+    def claim_build(
+        self, config: TrialConfig, visitor: str, ip: str, now: float | None = None
+    ) -> bool:
+        """Spend one trial build, atomically. False when there is none left.
+
+        Checking builds_left and then calling record_build lets two requests
+        at once (a double tap, two tabs) both pass the check and overspend a
+        person's builds or the daily cap. This checks and records together."""
+        if not config.enabled or not visitor:
+            return False
+        now = time.time() if now is None else now
+        with self._lock:
+            if self._left(config, visitor, ip, now) <= 0:
+                return False
+            self._count(visitor, ip, now)
+            return True
 
     def bonus_used(self, visitor: str) -> bool:
         with self._lock:
@@ -110,9 +131,13 @@ class TrialLedger:
     def record_build(self, visitor: str, ip: str, now: float | None = None) -> None:
         now = time.time() if now is None else now
         with self._lock:
-            for table, key in (("visitors", visitor), ("ips", ip), ("days", _today(now))):
-                self._data[table][key] = self._data[table].get(key, 0) + 1
-            self._save()
+            self._count(visitor, ip, now)
+
+    def _count(self, visitor: str, ip: str, now: float) -> None:
+        """One more trial build, for a caller that holds the lock."""
+        for table, key in (("visitors", visitor), ("ips", ip), ("days", _today(now))):
+            self._data[table][key] = self._data[table].get(key, 0) + 1
+        self._save()
 
     def record_database(self, name: str, now: float | None = None) -> None:
         if not name:

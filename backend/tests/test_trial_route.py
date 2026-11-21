@@ -184,3 +184,18 @@ def test_the_admin_page_may_send_its_token_cross_origin(monkeypatch):
     )
     assert response.status_code == 200
     assert "authorization" in response.headers["access-control-allow-headers"].lower()
+
+
+def test_a_build_racing_another_cannot_overspend_free_builds(client, monkeypatch):
+    assert build(client).status_code == 202
+
+    # While this request checks the key, another one takes the last free build.
+    def other_request_wins(provider, key):
+        routes.trial_ledger(client.settings).record_build("visitor-1", "testclient")
+
+    monkeypatch.setattr(routes, "check_key", other_request_wins)
+    response = build(client)
+    assert response.status_code == 400
+    assert response.json()["detail"] == routes.TRIAL_USED_UP
+    ledger = routes.trial_ledger(client.settings)
+    assert ledger._data["visitors"]["visitor-1"] == 2  # not 3
