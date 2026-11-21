@@ -21,6 +21,15 @@ const EMPTY_PROMPT = 'Describe your app first, then build it.'
 
 const FALLBACK = "Something in the request wasn't accepted. Check it and try again."
 
+// When the request never reached Vyskar: no signal, or the server is away.
+// Browsers word this as "Failed to fetch" (Chrome) or "Load failed" (Safari).
+export const UNREACHABLE = "Can't reach Vyskar right now. Check your connection and try again."
+
+// Fly's proxy answers these, without a detail, while the server restarts
+// after a deploy or is overloaded.
+const AWAY_STATUSES = new Set([502, 503, 504])
+export const SERVER_AWAY = 'Vyskar is restarting. Try again in a minute.'
+
 function fieldOf(item) {
   // loc looks like ["body", "payment_id"] or ["body", "answers", 0, "answer"].
   const loc = Array.isArray(item?.loc) ? item.loc : []
@@ -37,5 +46,6 @@ export function errorMessage(body, status) {
     if (field === 'prompt' && item.type === 'string_too_short') return EMPTY_PROMPT
     return FIELD_MESSAGES[field]
   }
+  if (AWAY_STATUSES.has(status)) return SERVER_AWAY
   return `Server returned ${status}`
 }

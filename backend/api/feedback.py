@@ -23,6 +23,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from api.env import env_int
 from api.jobs import get_job
 from api.limits import client_ip
 from api.trial import TrialConfig
@@ -63,8 +64,15 @@ class FeedbackStore:
             )
 
     def count_today(self, visitor: str, ip: str) -> int:
+        """Entries in the last day from this visitor or this IP. Without a
+        visitor id (storage blocked) only the IP counts: matching the empty
+        id would put everyone without one under a single shared limit."""
         since = time.time() - 86400
         with self._lock:
+            if not visitor:
+                return self._db.execute(
+                    "select count(*) from feedback where created > ? and ip = ?", (since, ip)
+                ).fetchone()[0]
             return self._db.execute(
                 "select count(*) from feedback where created > ? and (visitor = ? or ip = ?)",
                 (since, visitor, ip),
@@ -160,7 +168,7 @@ def send_feedback(
         # Imported here: routes imports this module's router.
         from api.routes import trial_ledger
 
-        builds = int(os.getenv("FEEDBACK_BONUS_BUILDS", "2"))
+        builds = env_int("FEEDBACK_BONUS_BUILDS", 2)
         if trial_ledger(settings).grant_bonus(visitor, builds):
             bonus = builds
     return {"ok": True, "bonus_builds": bonus}

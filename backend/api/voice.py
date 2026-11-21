@@ -7,6 +7,7 @@ from collections import defaultdict, deque
 
 from fastapi import APIRouter, HTTPException, Request
 
+from api.env import env_int
 from api.limits import client_ip
 from tools.sarvam import SpeechError, transcribe
 
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/api")
 
 # 30 seconds of 16 kHz, 16-bit mono WAV is about 0.96 MB.
 MAX_BYTES = 1_100_000
-PER_HOUR = int(os.getenv("VOICE_PER_HOUR", "40"))
+PER_HOUR = env_int("VOICE_PER_HOUR", 40, minimum=1)
 NOT_SET_UP = "Voice is not set up on this server."
 
 _hits: dict[str, deque] = defaultdict(deque)

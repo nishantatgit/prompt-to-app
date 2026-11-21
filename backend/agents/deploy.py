@@ -38,6 +38,8 @@ NO_TOKEN = "Deploy skipped: VERCEL_TOKEN is not set. The app was built and teste
 
 def make_deploy(token: str | None, set_env=set_project_env):
     def deploy(state: dict) -> dict:
+        if state.get("test_data_error"):
+            return {"deploy_url": "", "deploy_error": state["test_data_error"]}
         if not token:
             return {"deploy_url": "", "deploy_error": NO_TOKEN}
         name = app_name(state)
