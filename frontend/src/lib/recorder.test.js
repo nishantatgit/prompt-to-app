@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { encodeWav } from './recorder'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { encodeWav, startRecording } from './recorder'
 
 async function read(blob) {
   return new DataView(await blob.arrayBuffer())
@@ -46,5 +46,68 @@ describe('encodeWav', () => {
     const blob = encodeWav(new Float32Array(0))
     expect(blob.size).toBe(44)
     expect((await read(blob)).getUint32(40, true)).toBe(0)
+  })
+})
+
+// A fake microphone and audio graph, so startRecording runs without a browser.
+function fakeAudio({ failAt } = {}) {
+  const track = { stop: vi.fn() }
+  const stream = { getTracks: () => [track] }
+  const node = () => ({ connect: vi.fn((next) => next), disconnect: vi.fn() })
+  const source = node()
+  const context = {
+    sampleRate: 48000,
+    destination: {},
+    resume: vi.fn(async () => {
+      if (failAt === 'resume') throw new Error('resume failed')
+    }),
+    audioWorklet: {
+      addModule: vi.fn(async () => {
+        if (failAt === 'worklet') throw new Error('worklet failed')
+      }),
+    },
+    createMediaStreamSource: vi.fn(() => source),
+    createGain: vi.fn(() => ({ ...node(), gain: { value: 1 } })),
+    close: vi.fn(async () => {}),
+  }
+  vi.stubGlobal('navigator', { mediaDevices: { getUserMedia: vi.fn(async () => stream) } })
+  vi.stubGlobal(
+    'AudioContext',
+    vi.fn(function AudioContext() {
+      return context
+    }),
+  )
+  vi.stubGlobal(
+    'AudioWorkletNode',
+    vi.fn(function AudioWorkletNode() {
+      if (failAt === 'node') throw new Error('node failed')
+      return { ...node(), port: {} }
+    }),
+  )
+  URL.createObjectURL = vi.fn(() => 'blob:worklet')
+  URL.revokeObjectURL = vi.fn()
+  return { track, source, context }
+}
+
+describe('startRecording', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  for (const failAt of ['resume', 'worklet', 'node']) {
+    it(`turns the microphone off when setup fails at ${failAt}`, async () => {
+      const { track, context } = fakeAudio({ failAt })
+      await expect(startRecording({})).rejects.toThrow(`${failAt} failed`)
+      expect(track.stop).toHaveBeenCalled()
+      expect(context.close).toHaveBeenCalled()
+    })
+  }
+
+  it('keeps the microphone on once recording starts, and off after cancel', async () => {
+    const { track, context } = fakeAudio()
+    const session = await startRecording({})
+    expect(track.stop).not.toHaveBeenCalled()
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:worklet')
+    session.cancel()
+    expect(track.stop).toHaveBeenCalled()
+    expect(context.close).toHaveBeenCalled()
   })
 })
