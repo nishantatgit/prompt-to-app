@@ -18,6 +18,8 @@ from api.credits import CreditConfig, credit_store
 from api.env import env_int
 from api.events import log_event
 from api.jobs import (
+    FINISHED_STATUSES,
+    JOB_FINISHED_HOOKS,
     TRIAL_FINISHED_HOOKS,
     cancel_job,
     create_job,
@@ -33,7 +35,7 @@ from config import Settings, get_settings
 from tools import edit_key
 from tools.supabase import delete_database
 from tools.vercel import get_project_env
-from tools.workspace import new_job_id
+from tools.workspace import new_job_id, sweep_build_output
 
 router = APIRouter(prefix="/api")
 
@@ -167,6 +169,27 @@ def screenshots_dir(settings: Settings) -> Path | None:
     if os.getenv("APP_SCREENSHOTS", "true").lower() == "false":
         return None
     return Path(os.getenv("DATA_DIR") or settings.workspaces_dir) / "screenshots"
+
+
+def _job_running(job_id: str) -> bool:
+    job = get_job(job_id)
+    return job is not None and job["status"] not in FINISHED_STATUSES
+
+
+def _clean_finished_workspaces(job: dict) -> None:
+    """After each build, delete the packages and outputs of every build that
+    is over, this one included: they are rebuilt from source when needed, and
+    otherwise fill the volume the credits database lives on."""
+    workspace = (job.get("state") or {}).get("workspace_dir")
+    if not workspace:
+        return  # stopped before it had a folder: nothing new to clean
+    # Job folders sit side by side in WORKSPACES_DIR (tools/workspace.py).
+    cleaned = sweep_build_output(Path(workspace).parent, _job_running)
+    if cleaned:
+        log_event("workspaces_cleaned", job["job_id"], count=len(cleaned))
+
+
+JOB_FINISHED_HOOKS.append(_clean_finished_workspaces)
 
 
 def visitor_id(request: Request) -> str:
