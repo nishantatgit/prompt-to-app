@@ -66,16 +66,28 @@ export async function startRecording({ onLevel }) {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
   })
-  const context = new AudioContext()
-  await context.resume()
-  const url = URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))
+  let context = null
+  let source = null
+  let capture = null
   try {
-    await context.audioWorklet.addModule(url)
-  } finally {
-    URL.revokeObjectURL(url)
+    context = new AudioContext()
+    await context.resume()
+    const url = URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))
+    try {
+      await context.audioWorklet.addModule(url)
+    } finally {
+      URL.revokeObjectURL(url)
+    }
+    source = context.createMediaStreamSource(stream)
+    capture = new AudioWorkletNode(context, 'vyskar-capture')
+  } catch (err) {
+    // The microphone is already on here: turn it off, or the phone keeps
+    // showing it in use after the error.
+    stream.getTracks().forEach((track) => track.stop())
+    source?.disconnect()
+    context?.close().catch(() => {})
+    throw err
   }
-  const source = context.createMediaStreamSource(stream)
-  const capture = new AudioWorkletNode(context, 'vyskar-capture')
   const chunks = []
   let level = 0
   capture.port.onmessage = ({ data }) => {
