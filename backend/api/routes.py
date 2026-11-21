@@ -281,10 +281,12 @@ def build(
     # A credit is spent only once the build is sure to start.
     if paid and not credit_store(settings).use(visitor_id(request), job_id):
         raise HTTPException(status_code=400, detail=NO_KEY)
+    # Checked again and counted in one step: the check above came before the
+    # key check, so two requests at once could both have passed it.
+    if trial and not ledger.claim_build(config, visitor_id(request), client_ip(request)):
+        raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
     prompt = clarifier.with_answers(req.prompt, [a.model_dump() for a in req.answers])
     create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter)
-    if trial:
-        ledger.record_build(visitor_id(request), client_ip(request))
     if req.app:
         extra, new_key = {"app_name": req.app}, None
     else:

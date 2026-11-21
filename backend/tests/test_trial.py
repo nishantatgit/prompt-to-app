@@ -76,3 +76,40 @@ def test_a_failed_delete_is_tried_again_next_time(tmp_path):
 
     assert sweep_databases(book, fail, now=DAY + 1) == []
     assert book.expired_databases(now=DAY + 1) == ["old-app"]
+
+
+def test_claiming_a_build_counts_it(tmp_path):
+    book = ledger(tmp_path)
+    assert book.claim_build(ON, "v1", "1.1.1.1", now=0)
+    assert book.claim_build(ON, "v1", "1.1.1.1", now=1)
+    assert not book.claim_build(ON, "v1", "1.1.1.1", now=2)
+    assert book.builds_left(ON, "v1", "1.1.1.1", now=3) == 0
+    assert ledger(tmp_path).builds_left(ON, "v1", "1.1.1.1", now=3) == 0  # saved
+
+
+def test_no_claim_when_off_or_without_a_visitor(tmp_path):
+    book = ledger(tmp_path)
+    assert not book.claim_build(TrialConfig(), "v1", "1.1.1.1")
+    assert not book.claim_build(ON, "", "1.1.1.1")
+    assert book.builds_left(ON, "v1", "1.1.1.1") == 2
+
+
+def test_requests_at_once_never_overspend(tmp_path):
+    import threading
+
+    book = ledger(tmp_path)
+    many = TrialConfig(builds_per_person=3, daily_cap=50)
+    results = []
+    start = threading.Barrier(10)
+
+    def claim():
+        start.wait()
+        results.append(book.claim_build(many, "v1", "1.1.1.1"))
+
+    threads = [threading.Thread(target=claim) for _ in range(10)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert results.count(True) == 3
+    assert book.builds_left(many, "v1", "1.1.1.1") == 0
