@@ -58,7 +58,10 @@ export default function BuyBuilds({ credits, onBought }) {
         No AI key needed. Each build or change of an app uses one.
         {credits.builds_left > 0 && ` You have ${credits.builds_left} left.`}
       </p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      {credits.packs.length === 0 && (
+        <p className="mt-5 text-sm text-muted">No packs are on sale right now. Check back soon.</p>
+      )}
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 empty:hidden">
         {credits.packs.map((pack) => (
           <button
             key={pack.id}
