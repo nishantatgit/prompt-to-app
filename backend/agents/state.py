@@ -41,6 +41,9 @@ class JobState(TypedDict, total=False):
     build_log: str
 
     tests_ok: bool
+    # Set when the app's database couldn't be put back after the tests; the
+    # app is then not deployed, so nobody sees the tests' rows.
+    test_data_error: str
     test_summary: str
     test_report_path: str
 
