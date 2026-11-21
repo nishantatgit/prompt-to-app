@@ -36,6 +36,43 @@ def _prune(now: float) -> None:
         del _hits[ip]
 
 
+class HourlyCounter:
+    """Counts allowed tries per network over the last hour, for the smaller
+    limits (voice, questions, restoring bought builds). Networks with no try
+    in the last hour are dropped, so the table does not grow with every
+    address that ever came by."""
+
+    def __init__(self) -> None:
+        self._hits: dict[str, deque] = {}
+        self._lock = threading.Lock()
+
+    def allow(self, key: str, per_hour: int, now: float | None = None) -> bool:
+        """True, and the try is counted, while `key` has fewer than
+        `per_hour` tries in the last hour. A refused try is not counted."""
+        now = time.monotonic() if now is None else now
+        with self._lock:
+            idle = [
+                k for k, hits in self._hits.items() if not hits or now - hits[-1] > WINDOW_SECONDS
+            ]
+            for k in idle:
+                del self._hits[k]
+            hits = self._hits.setdefault(key, deque())
+            while hits and now - hits[0] > WINDOW_SECONDS:
+                hits.popleft()
+            if len(hits) >= per_hour:
+                return False
+            hits.append(now)
+            return True
+
+    def keys(self) -> set[str]:
+        with self._lock:
+            return set(self._hits)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._hits.clear()
+
+
 def check_rate_limit(request: Request) -> None:
     ip = client_ip(request)
     now = time.monotonic()

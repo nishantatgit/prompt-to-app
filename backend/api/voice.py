@@ -1,14 +1,11 @@
 """Voice input for phones: the browser records, Sarvam turns it into text."""
 
 import os
-import threading
-import time
-from collections import defaultdict, deque
 
 from fastapi import APIRouter, HTTPException, Request
 
 from api.env import env_int
-from api.limits import client_ip
+from api.limits import HourlyCounter, client_ip
 from tools.sarvam import SpeechError, transcribe
 
 router = APIRouter(prefix="/api")
@@ -18,19 +15,12 @@ MAX_BYTES = 1_100_000
 PER_HOUR = env_int("VOICE_PER_HOUR", 40, minimum=1)
 NOT_SET_UP = "Voice is not set up on this server."
 
-_hits: dict[str, deque] = defaultdict(deque)
-_lock = threading.Lock()
+_hits = HourlyCounter()
 
 
 def _check_limit(ip: str, now: float | None = None) -> None:
-    now = time.monotonic() if now is None else now
-    with _lock:
-        hits = _hits[ip]
-        while hits and now - hits[0] > 3600:
-            hits.popleft()
-        if len(hits) >= PER_HOUR:
-            raise HTTPException(status_code=429, detail="Too many recordings. Type for now.")
-        hits.append(now)
+    if not _hits.allow(ip, PER_HOUR, now):
+        raise HTTPException(status_code=429, detail="Too many recordings. Type for now.")
 
 
 @router.get("/voice")

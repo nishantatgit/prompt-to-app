@@ -87,3 +87,24 @@ def test_networks_with_no_recent_build_are_forgotten(clock):
 )
 def test_wait_message(seconds, text):
     assert limits.wait_message(seconds).endswith(f"Try again in {text}.")
+
+
+def test_hourly_counter_refuses_past_the_limit_and_does_not_count_refusals():
+    counter = limits.HourlyCounter()
+    assert counter.allow("1.1.1.1", 2, now=0.0)
+    assert counter.allow("1.1.1.1", 2, now=10.0)
+    assert not counter.allow("1.1.1.1", 2, now=20.0)
+    assert counter.allow("2.2.2.2", 2, now=20.0)  # another network
+    # The oldest try leaves the window; the refused one was never counted.
+    assert counter.allow("1.1.1.1", 2, now=3601.0)
+    assert not counter.allow("1.1.1.1", 2, now=3602.0)
+
+
+def test_hourly_counter_forgets_networks_with_no_recent_try():
+    counter = limits.HourlyCounter()
+    counter.allow("5.5.5.5", 3, now=0.0)
+    counter.allow("6.6.6.6", 3, now=3000.0)
+    counter.allow("7.7.7.7", 3, now=3601.0)
+    assert counter.keys() == {"6.6.6.6", "7.7.7.7"}
+    counter.clear()
+    assert counter.keys() == set()
