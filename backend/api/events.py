@@ -14,6 +14,10 @@ logged, only their sizes and flags.
 workspaces_cleaned is logged after a build when the packages and outputs of
 finished builds were deleted from WORKSPACES_DIR; "count" is how many job
 folders were cleaned.
+
+bad_setting is logged once when a whole-number setting such as
+FREE_TRIAL_BUILDS is blank or mistyped; "name" says which, "using" is the
+default used instead, and the value itself is never logged (see api/env.py).
 """
 
 import json
