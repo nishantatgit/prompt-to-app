@@ -120,6 +120,25 @@ def test_feedback_is_limited_per_day(client, monkeypatch):
     assert client.post("/api/feedback", json={"rating": "up"}).status_code == 429
 
 
+def test_people_without_a_visitor_id_are_limited_by_their_own_network(client, monkeypatch):
+    monkeypatch.setattr(feedback, "PER_DAY", 2)
+    for ip in ("203.0.113.1", "203.0.113.2"):
+        assert (
+            client.post(
+                "/api/waitlist",
+                json={"email": "asha@example.com"},
+                headers={"X-Vyskar-Visitor": "", "Fly-Client-IP": ip},
+            ).status_code
+            == 200
+        )
+    # Two people on other networks used the empty id: a third is still let in.
+    fresh = {"X-Vyskar-Visitor": "", "Fly-Client-IP": "203.0.113.3"}
+    for _ in range(2):
+        assert client.post("/api/feedback", json={"rating": "up"}, headers=fresh).status_code == 200
+    # Their own network's limit still applies.
+    assert client.post("/api/feedback", json={"rating": "up"}, headers=fresh).status_code == 429
+
+
 def test_the_waitlist_keeps_emails(client):
     assert client.post("/api/waitlist", json={"email": "asha@example.com"}).status_code == 200
     assert client.post("/api/waitlist", json={"email": "not an email"}).status_code == 400
