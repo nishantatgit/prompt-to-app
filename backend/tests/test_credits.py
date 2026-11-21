@@ -249,6 +249,16 @@ def test_your_own_key_never_spends_credits(client, monkeypatch):
     assert client.get("/api/credits").json()["builds_left"] == 5
 
 
+def test_a_credit_spent_at_the_same_moment_says_so(client, monkeypatch):
+    # Build tapped in two tabs: both saw a credit, only one gets it.
+    _, proof = buy(client, monkeypatch)
+    client.post("/api/credits/verify", json=proof)
+    monkeypatch.setattr(CreditStore, "use", lambda self, visitor, job_id: False)
+    response = client.post("/api/build", json={"prompt": "A timer", "provider": "openai"})
+    assert response.status_code == 400
+    assert response.json()["detail"] == routes.CREDITS_USED_UP
+
+
 def test_without_credits_or_a_key_a_build_is_refused(client):
     response = client.post("/api/build", json={"prompt": "A timer", "provider": "openai"})
     assert response.status_code == 400
