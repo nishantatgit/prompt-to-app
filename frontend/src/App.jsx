@@ -15,6 +15,7 @@ import BuildsPanel from './components/BuildsPanel.jsx'
 import Questions from './components/Questions.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
 import { MAX_PROMPT_CHARS } from './lib/prompt.js'
+import { pausedNote } from './lib/trial.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
 
 const CHANGE_EXAMPLES = [
@@ -65,7 +66,10 @@ export default function App() {
   const apiKey = ownKeys ? settings.apiKey : ''
   // Without a key: bought builds first, then free ones.
   const paidBuild = !apiKey && credits.builds_left > 0
-  const freeBuild = !apiKey && !paidBuild && trial.builds_left > 0
+  // Free builds left, but Vyskar's own AI key isn't working right now: say
+  // so before Build is tapped instead of offering a build the server refuses.
+  const freePaused = !apiKey && !paidBuild && trial.builds_left > 0 && Boolean(trial.paused)
+  const freeBuild = !apiKey && !paidBuild && !freePaused && trial.builds_left > 0
   const refreshTrial = () => getTrial().then(setTrial).catch(() => {})
 
   useEffect(() => {
@@ -77,7 +81,7 @@ export default function App() {
       if (stopped) return
       setTrial(nextTrial)
       setCredits(nextCredits)
-      const canBuild = nextTrial.builds_left > 0 || nextCredits.builds_left > 0
+      const canBuild = (nextTrial.builds_left > 0 && !nextTrial.paused) || nextCredits.builds_left > 0
       const savedKey = nextTrial.own_keys !== false && loadSettings().apiKey
       if (!savedKey && !canBuild) setShowSettings(true)
     })
@@ -148,6 +152,8 @@ export default function App() {
 
   const buildNote = paidBuild
     ? `Uses 1 of your ${credits.builds_left} builds.`
+    : freePaused
+    ? pausedNote(ownKeys)
     : freeBuild
     ? `Free build, no AI key needed: ${trial.builds_left} left.`
     : isPhone
@@ -218,7 +224,9 @@ export default function App() {
                   ? 'Key saved'
                   : paidBuild
                     ? `${credits.builds_left} builds`
-                    : freeBuild
+                    : freePaused
+                      ? 'Paused'
+                      : freeBuild
                       ? `${trial.builds_left} free`
                       : ownKeys && !credits.enabled
                         ? 'Add key'
@@ -229,7 +237,9 @@ export default function App() {
                   ? `${providerLabel} key saved`
                   : paidBuild
                     ? `${credits.builds_left} builds left`
-                    : freeBuild
+                    : freePaused
+                      ? 'Free builds paused'
+                      : freeBuild
                       ? `${trial.builds_left} free builds`
                       : !ownKeys
                         ? 'Get more builds'
@@ -359,6 +369,7 @@ export default function App() {
                 trial={trial}
                 credits={credits}
                 paidAllowed={!inAndroidApp}
+                ownKeys={ownKeys}
                 bonusBuilds={trial.bonus_builds ?? 2}
                 onBonus={refreshTrial}
               />

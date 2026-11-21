@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from agents.keys import KeyRejected
 from api import jobs, routes
+from api.server_key import ServerKeyStatus
 
 
 class Settings(SimpleNamespace):
@@ -59,6 +60,7 @@ def test_a_visitor_without_a_key_gets_free_builds_on_vyskars_key(client):
     assert client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json() == {
         "enabled": True,
         "builds_left": 2,
+        "paused": False,
         "own_keys": True,
         "bonus_available": True,
         "bonus_builds": 2,
@@ -225,3 +227,54 @@ def test_a_description_at_the_limit_builds_and_is_trimmed(client):
     assert response.status_code == 202
     job = jobs.get_job(response.json()["job_id"])
     assert job["prompt"] == "x" * routes.MAX_PROMPT_CHARS
+
+
+def trial_status(client, visitor="visitor-1"):
+    return client.get("/api/trial", headers={"X-Vyskar-Visitor": visitor}).json()
+
+
+def test_free_builds_show_as_paused_without_a_server_key(client):
+    client.settings.server_key = ""
+    status = trial_status(client)
+    assert (status["enabled"], status["builds_left"], status["paused"]) == (True, 2, True)
+
+
+def test_free_builds_show_as_paused_when_anthropic_rejects_the_key(client, monkeypatch):
+    calls = []
+
+    def refuse(provider, key):
+        calls.append((provider, key))
+        raise KeyRejected("rejected", reason="rejected")
+
+    monkeypatch.setattr(routes, "server_key_status", ServerKeyStatus(check=refuse))
+    assert trial_status(client)["paused"] is True
+    assert trial_status(client)["paused"] is True
+    # Checked once, then remembered: page loads don't each call Anthropic.
+    assert calls == [("anthropic", "sk-ant-vyskar")]
+
+
+def test_a_refused_build_shows_free_builds_as_paused_at_once(client, monkeypatch):
+    assert trial_status(client)["paused"] is False
+    monkeypatch.setattr(
+        routes,
+        "check_key",
+        lambda provider, key: (_ for _ in ()).throw(KeyRejected("x", reason="no_credit")),
+    )
+    assert build(client).status_code == 503
+    assert trial_status(client)["paused"] is True
+
+
+def test_a_build_on_a_fixed_key_clears_the_pause(client):
+    routes.server_key_status.record("rejected")
+    assert trial_status(client)["paused"] is True
+    assert build(client).status_code == 202  # check_key passes in this fixture
+    assert trial_status(client)["paused"] is False
+
+
+def test_no_key_check_once_free_builds_are_used_up_or_off(client, monkeypatch):
+    def fail(provider, key):
+        raise AssertionError("checked the key for nothing")
+
+    monkeypatch.setattr(routes, "server_key_status", ServerKeyStatus(check=fail))
+    monkeypatch.setenv("FREE_TRIAL_BUILDS", "0")
+    assert trial_status(client)["paused"] is False

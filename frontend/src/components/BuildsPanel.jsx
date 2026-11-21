@@ -4,7 +4,7 @@ import FeedbackForm from './FeedbackForm.jsx'
 
 // Free builds left, or, when they are used up: feedback for more, and a
 // way to get paid builds (the packs when buying is on, else an email list).
-export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paidAllowed = true }) {
+export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paidAllowed = true, ownKeys = true }) {
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
   const [error, setError] = useState('')
@@ -19,6 +19,19 @@ export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paid
     } catch (err) {
       setError(err.message)
     }
+  }
+
+  if (left > 0 && trial.paused) {
+    return (
+      <section aria-labelledby="builds-title" className="rounded-2xl border border-line bg-card p-6">
+        <h2 id="builds-title" className="font-display text-lg font-bold">
+          Free builds are paused
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          {ownKeys ? 'Add your own AI key below to build now.' : 'Try again a little later.'} Your {left} free {left === 1 ? 'build is' : 'builds are'} kept for later.
+        </p>
+      </section>
+    )
   }
 
   if (left > 0) {
