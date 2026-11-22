@@ -60,7 +60,7 @@ def test_the_readme_explains_the_app_to_a_person(tmp_path):
     assert "- **guestbook_entries** (id, created_at, name, message)" in text
     assert "  - Anyone can add an entry" in text
     assert "- E2 (F1-AC2): A signed entry is saved and survives a reload" in text
-    assert "Last run: 100.0% of tests passed." in text
+    assert "Last run: 100% of tests passed." in text
 
 
 def test_a_folder_without_a_spec_reads_as_none(tmp_path):

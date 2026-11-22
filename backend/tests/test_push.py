@@ -72,6 +72,16 @@ def test_generated_keys_are_a_p256_pair():
 # Messages
 
 
+def test_the_message_shows_a_whole_percentage_like_the_app_does():
+    # confidence() returns a float: 100.0 must read "100%", not "100.0%".
+    assert (
+        build_message(finished(confidence=100.0))["body"] == "Tests passed: 100%. Tap to open it."
+    )
+    assert (
+        build_message(finished(confidence=87.5))["body"] == "Tests passed: 87.5%. Tap to open it."
+    )
+
+
 def test_a_live_app_opens_from_the_notification():
     message = build_message(finished(deploy_url="https://tip.vercel.app", confidence=92))
     assert message == {
