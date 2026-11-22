@@ -287,7 +287,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
 
       {offline && !finished && !error && <p className="mt-4 text-sm text-muted">{OFFLINE_NOTE}</p>}
 
-      {error && <p className="mt-4 text-sm text-accent">{error}</p>}
+      {error && <p role="alert" className="mt-4 text-sm text-danger">{error}</p>}
     </section>
   )
 }

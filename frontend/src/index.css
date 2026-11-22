@@ -19,6 +19,10 @@
   --color-on-accent: #2a0835; /* dark purple text on green, 7.89:1; white on green fails (2.25:1) */
   --color-plum: #4a0e5c; /* surface only; white 13.92:1, green 6.2:1 on it */
 
+  /* Errors: soft pink, so a problem never looks like the green of success.
+     9.47:1 on page, 10.59:1 on card, 8.31:1 on plum. */
+  --color-danger: #ffb4c0;
+
   --font-display: "Unbounded", sans-serif;
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
@@ -32,7 +36,7 @@
     cursor: pointer;
   }
 
-  /* A clear aqua ring for keyboard focus. The browser's own ring is dark
+  /* A clear green ring for keyboard focus. The browser's own ring is dark
      and hard to see on the plum background. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     outline: 2px solid var(--color-accent);

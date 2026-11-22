@@ -30,7 +30,7 @@ function TokenForm({ onToken, error }) {
       />
       <p className="text-xs text-dim">Kept in this tab only, and forgotten when it closes.</p>
       {error && (
-        <p role="alert" className="text-sm text-[#ffb4c0]">
+        <p role="alert" className="text-sm text-danger">
           {error}
         </p>
       )}
@@ -173,7 +173,7 @@ export default function Admin() {
       {!token && <TokenForm onToken={openWith} error={error} />}
 
       {token && error && (
-        <p role="alert" className="text-sm text-[#ffb4c0]">
+        <p role="alert" className="text-sm text-danger">
           {error}
         </p>
       )}

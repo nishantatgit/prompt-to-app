@@ -270,7 +270,7 @@ export default function VoiceComposer({
         ) : (
           <Examples examples={examples} />
         )}
-        {error && <p className="mt-3 text-sm text-accent">{error}</p>}
+        {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}
       </div>
 
       {reviewing && (

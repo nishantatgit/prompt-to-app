@@ -343,7 +343,7 @@ export default function App() {
           <Questions questions={questions} onDone={launch} onSkip={() => launch([])} running={running} />
         )}
 
-        {error && <p className="rounded-lg border border-line bg-card p-4 text-accent">{error}</p>}
+        {error && <p role="alert" className="rounded-lg border border-line bg-card p-4 text-danger">{error}</p>}
 
         {jobId && (
           <JobView

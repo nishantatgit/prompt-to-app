@@ -84,7 +84,7 @@ export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paid
               </button>
             </form>
           )}
-          {error && <p className="text-sm text-accent">{error}</p>}
+          {error && <p role="alert" className="text-sm text-danger">{error}</p>}
         </div>
       )}
     </section>
