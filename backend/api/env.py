@@ -5,7 +5,8 @@ ValueError: at import for module-level settings, which kept the API from
 starting, and on every request for the rest, which turned /api/trial,
 /api/build and /api/feedback into 500s. Now such a value falls back to the
 default and a "bad_setting" event is logged once, with the setting's name,
-never its value.
+never its value. Other settings with their own format (CREDIT_PACKS) report
+through report_bad_setting the same way.
 """
 
 import os
@@ -17,7 +18,7 @@ _reported: set[tuple[str, str]] = set()
 _lock = threading.Lock()
 
 
-def _report(name: str, raw: str, **fields) -> None:
+def report_bad_setting(name: str, raw: str, **fields) -> None:
     # Some settings are read on every request: say it once per bad value.
     with _lock:
         if (name, raw) in _reported:
@@ -33,9 +34,9 @@ def env_int(name: str, default: int, minimum: int = 0) -> int:
     try:
         value = int(raw.strip())
     except ValueError:
-        _report(name, raw, problem="not_a_whole_number", using=default)
+        report_bad_setting(name, raw, problem="not_a_whole_number", using=default)
         return default
     if value < minimum:
-        _report(name, raw, problem="below_minimum", minimum=minimum, using=default)
+        report_bad_setting(name, raw, problem="below_minimum", minimum=minimum, using=default)
         return default
     return value
