@@ -148,6 +148,55 @@ def test_subscriptions_survive_a_restart(tmp_path):
     assert len(store.take_watchers("job-1")) == 1
 
 
+def at(monkeypatch, seconds):
+    monkeypatch.setattr(push.time, "time", lambda: seconds)
+
+
+def test_a_watch_left_from_a_job_that_never_finished_is_forgotten(tmp_path, monkeypatch):
+    # A job cut off by a restart never finishes, so its watch is never taken.
+    store = PushStore(tmp_path / "push.db")
+    at(monkeypatch, 1_000)
+    store.watch("lost-job", "https://push.example/1", "p1", "a1")
+    store.watch("lost-job", "https://push.example/2", "p2", "a2")
+
+    at(monkeypatch, 1_000 + push.STALE_SECONDS + 1)
+    store.watch("new-job", "https://push.example/2", "p2", "a2")
+
+    assert store.take_watchers("lost-job") == []
+    # Subscription 1 was not used since and is gone; 2 watches the new job.
+    assert store.count() == 1
+    assert [w["endpoint"] for w in store.take_watchers("new-job")] == ["https://push.example/2"]
+
+
+def test_recent_watches_and_subscriptions_are_kept(tmp_path, monkeypatch):
+    store = PushStore(tmp_path / "push.db")
+    at(monkeypatch, 1_000)
+    store.watch("job-1", "https://push.example/1", "p1", "a1")
+    assert store.take_watchers("job-1")  # pushed: the subscription watches nothing now
+
+    at(monkeypatch, 1_000 + push.STALE_SECONDS - 1)
+    store.watch("job-2", "https://push.example/2", "p2", "a2")
+    store.watch("job-3", "https://push.example/3", "p3", "a3")
+
+    assert store.count() == 3
+    assert len(store.take_watchers("job-2")) == 1
+
+
+def test_using_a_subscription_again_keeps_it(tmp_path, monkeypatch):
+    store = PushStore(tmp_path / "push.db")
+    at(monkeypatch, 1_000)
+    store.watch("job-1", "https://push.example/1", "p1", "a1")
+    store.take_watchers("job-1")
+
+    at(monkeypatch, 1_000 + push.STALE_SECONDS - 10)
+    store.watch("job-2", "https://push.example/1", "p1", "a1")  # same browser, new build
+    store.take_watchers("job-2")
+
+    at(monkeypatch, 1_000 + push.STALE_SECONDS + 10)
+    store.watch("job-3", "https://push.example/9", "p9", "a9")
+    assert store.count() == 2  # used within the day, so subscription 1 stays
+
+
 # Jobs call the hook when they finish
 
 

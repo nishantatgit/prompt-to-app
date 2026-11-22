@@ -37,6 +37,11 @@ TTL_SECONDS = 3600
 # Push services answer these when a subscription has gone (app uninstalled,
 # permission withdrawn): it is deleted so it is not tried again.
 GONE = {404, 410}
+# A build takes minutes, so a watch still there after a day belongs to a job
+# that never finished here, such as one cut off by a deploy or restart (jobs
+# live in memory). Such watches, and subscriptions not used since, are
+# deleted so the database does not keep growing or keep endpoints for good.
+STALE_SECONDS = 24 * 3600
 # The server posts to the endpoint a browser sends, so only the push services
 # of the main browsers are accepted: Chrome and Android, Safari, Firefox, Edge.
 PUSH_HOSTS = (
@@ -85,17 +90,30 @@ class PushStore:
         self._lock = threading.Lock()
 
     def watch(self, job_id: str, endpoint: str, p256dh: str, auth: str) -> None:
-        """Save the subscription (or its new keys) and have it watch the job."""
+        """Save the subscription (or its new keys) and have it watch the job.
+        `created` is refreshed each time, so it says when it was last used."""
         now = time.time()
         with self._lock:
+            self._forget_stale(now)
             self._db.execute(
                 "insert into subscriptions values (?, ?, ?, ?) on conflict(endpoint) do update "
-                "set p256dh = excluded.p256dh, auth = excluded.auth",
+                "set p256dh = excluded.p256dh, auth = excluded.auth, created = excluded.created",
                 (endpoint, p256dh, auth, now),
             )
             self._db.execute(
                 "insert or ignore into watches values (?, ?, ?)", (job_id, endpoint, now)
             )
+
+    def _forget_stale(self, now: float) -> None:
+        """Delete watches older than STALE_SECONDS, then subscriptions that
+        watch nothing and were last used before then. Call with the lock held."""
+        cutoff = now - STALE_SECONDS
+        self._db.execute("delete from watches where created < ?", (cutoff,))
+        self._db.execute(
+            "delete from subscriptions where created < ? "
+            "and endpoint not in (select endpoint from watches)",
+            (cutoff,),
+        )
 
     def take_watchers(self, job_id: str) -> list[dict]:
         """The subscriptions watching a job, removing the watches: each job
