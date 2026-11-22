@@ -3,7 +3,7 @@
 // The token lives in sessionStorage only: it is gone when the tab closes and
 // is never written to localStorage or sent anywhere but the API.
 
-import { errorMessage } from './errors.js'
+import { UNREACHABLE, errorMessage } from './errors.js'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const KEY = 'vyskar-admin-token'
@@ -34,9 +34,15 @@ export class NotAllowed extends Error {}
 
 // Feedback and waitlist entries, newest first.
 export async function getFeedback(token) {
-  const res = await fetch(`${API_BASE}/api/admin/feedback`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  let res
+  try {
+    res = await fetch(`${API_BASE}/api/admin/feedback`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  } catch {
+    // No signal or the API is down: say so, not the browser's "Failed to fetch".
+    throw new Error(UNREACHABLE)
+  }
   const body = await res.json().catch(() => ({}))
   if (res.status === 401) throw new NotAllowed('That token was not accepted.')
   if (!res.ok) throw new Error(errorMessage(body, res.status))

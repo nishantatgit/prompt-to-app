@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { UNREACHABLE } from './errors'
 import { NotAllowed, formatConfidence, formatCost, getFeedback, loadToken, saveToken } from './admin'
 
 beforeEach(() => sessionStorage.clear())
@@ -55,5 +56,15 @@ describe('getFeedback', () => {
   it('throws NotAllowed for a rejected token', async () => {
     reply(401, { detail: 'no' })
     await expect(getFeedback('bad')).rejects.toBeInstanceOf(NotAllowed)
+  })
+
+  it('says Vyskar cannot be reached when the request never arrives', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'))
+    await expect(getFeedback('t')).rejects.toThrow(UNREACHABLE)
+  })
+
+  it('keeps the token when Vyskar cannot be reached', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Load failed'))
+    await expect(getFeedback('t')).rejects.not.toBeInstanceOf(NotAllowed)
   })
 })
