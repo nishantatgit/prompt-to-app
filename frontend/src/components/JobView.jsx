@@ -233,6 +233,9 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
         <div className="mt-5 flex flex-col gap-2">
           <p className="font-display text-xl font-bold">Build cancelled.</p>
           <p className="text-sm text-muted">Nothing was deployed. Change your prompt and build again.</p>
+          {job.credit_refunded && (
+            <p className="text-sm text-muted">It had not started yet, so your bought build was given back.</p>
+          )}
         </div>
       )}
 

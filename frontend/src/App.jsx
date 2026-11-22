@@ -163,6 +163,8 @@ export default function App() {
   const handleDone = useCallback((job) => {
     setRunning(false)
     notifyBuildDone(job)
+    // A bought build cancelled before it started was given back.
+    if (job?.credit_refunded) loadCredits().then(setCredits).catch(() => {})
     const info = job && jobInfo.current[job.job_id]
     if (job?.status === 'succeeded' && job.app_name && info) {
       setApps(

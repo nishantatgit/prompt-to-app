@@ -1,7 +1,8 @@
 """Paid build credits, kept in SQLite on Fly's volume so they survive deploys.
 
 A visitor (the browser's random id) buys packs of builds. Balance = builds
-paid for - builds started. Each payment id is counted once, however often the
+paid for - builds started (a build cancelled before it
+started is given back). Each payment id is counted once, however often the
 browser or the webhook reports it.
 """
 
@@ -96,6 +97,13 @@ class CreditStore:
             except Exception:
                 self._db.execute("rollback")
                 raise
+
+    def refund(self, job_id: str) -> bool:
+        """Give back the build spent on job_id. False when none was spent on it
+        or it was already given back."""
+        with self._lock:
+            cursor = self._db.execute("delete from uses where job_id = ?", (job_id,))
+        return cursor.rowcount == 1
 
     def restore(self, payment_id: str, visitor: str) -> int | None:
         """Move every build bought by the payer of payment_id, used and

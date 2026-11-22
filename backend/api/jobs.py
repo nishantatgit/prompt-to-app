@@ -59,7 +59,12 @@ JOB_FINISHED_HOOKS: list = []
 
 
 def create_job(
-    job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False, meter=None
+    job_id: str,
+    prompt: str,
+    builder_mode: str = "pipeline",
+    trial: bool = False,
+    meter=None,
+    paid: bool = False,
 ) -> None:
     with _lock:
         _jobs[job_id] = {
@@ -70,6 +75,10 @@ def create_job(
             "reason": "",
             "builder_mode": builder_mode,
             "trial": trial,
+            # Paid for with a bought build, which is given back when the build
+            # is cancelled before it starts.
+            "paid": paid,
+            "credit_refunded": False,
             "meter": meter,  # a UsageMeter: the build's tokens and cost
             "activity": [],
             # Per stage: when its first step started, how many of its steps
@@ -111,8 +120,19 @@ def cancel_job(job_id: str) -> bool:
         job = _jobs[job_id]
         if job["status"] in FINISHED_STATUSES:
             return False
-        job.update(status="cancelled", reason=CANCELLED_REASON, finished_at=time.time())
+        job.update(
+            status="cancelled",
+            reason=CANCELLED_REASON,
+            finished_at=time.time(),
+            # Still waiting for a builder: no step ran and no model was called.
+            cancelled_in_queue=job["status"] == "queued",
+        )
         return True
+
+
+def mark_credit_refunded(job_id: str) -> None:
+    with _lock:
+        _jobs[job_id]["credit_refunded"] = True
 
 
 def is_cancelled(job_id: str) -> bool:
@@ -255,9 +275,12 @@ def _run(graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | No
 def _run_graph(
     graph, job_id: str, prompt: str, recursion_limit: int, extra: dict | None = None
 ) -> None:
-    if is_cancelled(job_id):
-        return  # cancelled while waiting in the queue
-    _update(job_id, status="running", started_at=time.time())
+    # Checked and started in one step: a cancel landing between the two would
+    # be overwritten by "running", and a refunded build would still run.
+    with _lock:
+        if _jobs[job_id]["status"] == "cancelled":
+            return  # cancelled while waiting in the queue
+        _jobs[job_id].update(status="running", started_at=time.time())
     job = get_job(job_id) or {}
     log_event(
         "build_start",
@@ -319,6 +342,8 @@ def public_view(job: dict) -> dict:
         "reason": job["reason"],
         "builder_mode": job.get("builder_mode", "pipeline"),
         "trial": job.get("trial", False),
+        # A bought build cancelled before it started was given back.
+        "credit_refunded": job.get("credit_refunded", False),
         "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
         "app_name": state.get("deployed_name") or state.get("app_name", ""),

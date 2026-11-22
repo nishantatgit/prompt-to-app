@@ -14,7 +14,7 @@ from agents.keys import KeyRejected, check_key
 from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
 from agents.usage import UsageMeter
-from api.credits import CreditConfig, credit_store
+from api.credits import CreditConfig, credit_store, open_store
 from api.env import env_int
 from api.events import log_event
 from api.jobs import (
@@ -25,6 +25,7 @@ from api.jobs import (
     create_job,
     get_job,
     has_capacity,
+    mark_credit_refunded,
     public_view,
     screenshot_file,
     submit,
@@ -323,7 +324,7 @@ def build(
     if trial and not ledger.claim_build(config, visitor_id(request), client_ip(request)):
         raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
     prompt = clarifier.with_answers(req.prompt, [a.model_dump() for a in req.answers])
-    create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter)
+    create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter, paid=paid)
     if req.app:
         extra, new_key = {"app_name": req.app}, None
     else:
@@ -392,7 +393,17 @@ def cancel_build(job_id: str):
         raise HTTPException(status_code=404, detail="job not found")
     if not cancel_job(job_id):
         raise HTTPException(status_code=409, detail="This build has already finished.")
-    return public_view(get_job(job_id))
+    job = get_job(job_id)
+    # A bought build cancelled while it waited for a builder cost Vyskar
+    # nothing, so the visitor gets it back. Spending it opened the store in
+    # this process, and jobs live only in this process.
+    store = open_store()
+    if job.get("paid") and job.get("cancelled_in_queue") and store is not None:
+        if store.refund(job_id):
+            mark_credit_refunded(job_id)
+            log_event("credit_refunded", job_id, reason="cancelled_in_queue")
+        job = get_job(job_id)
+    return public_view(job)
 
 
 class ClarifyRequest(BaseModel):
