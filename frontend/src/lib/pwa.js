@@ -17,8 +17,12 @@ function isStandalone() {
   )
 }
 
-function isIos() {
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
+// iPhone or iPad. Since iPadOS 13, Safari on an iPad asks for desktop sites
+// and says it is a Mac, so an iPad is a "Mac" with a touch screen (Macs
+// report no touch points).
+export function isIos(nav = window.navigator) {
+  if (/iphone|ipad|ipod/i.test(nav.userAgent)) return true
+  return /macintosh/i.test(nav.userAgent) && nav.maxTouchPoints > 1
 }
 
 // What the install button can offer on this device:
