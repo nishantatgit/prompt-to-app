@@ -4,7 +4,8 @@
   The build's prompt, status, app and cost are saved with it, so a complaint
   can be traced to the exact build. A real message, from someone on free
   builds, earns FEEDBACK_BONUS_BUILDS more, once.
-- POST /api/waitlist: an email, from someone who wants paid builds.
+- POST /api/waitlist: an email, from someone who wants paid builds. Each
+  email is kept once, whatever its case.
 - GET /api/admin/feedback: everything, newest first, with ADMIN_TOKEN.
 
 Stored in SQLite on Fly's volume (DATA_DIR).
@@ -63,6 +64,16 @@ class FeedbackStore:
                 (time.time(), kind, *values),
             )
 
+    def on_waitlist(self, email: str) -> bool:
+        """Whether this email already joined the waitlist, ignoring case."""
+        with self._lock:
+            row = self._db.execute(
+                "select 1 from feedback"
+                " where kind = 'waitlist' and lower(email) = lower(?) limit 1",
+                (email,),
+            ).fetchone()
+        return row is not None
+
     def count_today(self, visitor: str, ip: str) -> int:
         """Entries in the last day from this visitor or this IP. Without a
         visitor id (storage blocked) only the IP counts: matching the empty
@@ -81,7 +92,7 @@ class FeedbackStore:
     def all(self, limit: int = 500) -> list[dict]:
         with self._lock:
             cursor = self._db.execute(
-                "select * from feedback order by created desc limit ?", (limit,)
+                "select * from feedback order by created desc, id desc limit ?", (limit,)
             )
             names = [d[0] for d in cursor.description]
             rows = [dict(zip(names, row, strict=True)) for row in cursor.fetchall()]
@@ -188,7 +199,10 @@ def join_waitlist(
     store = feedback_store(settings)
     visitor, ip = _visitor(request), client_ip(request)
     _check_limit(store, visitor, ip)
-    store.add("waitlist", visitor=visitor, ip=ip, email=email)
+    # Tapping "Tell me" again, or joining from another browser, is still a
+    # yes, but one row per email keeps the admin list free of repeats.
+    if not store.on_waitlist(email):
+        store.add("waitlist", visitor=visitor, ip=ip, email=email)
     return {"ok": True}
 
 

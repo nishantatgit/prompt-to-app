@@ -146,6 +146,20 @@ def test_the_waitlist_keeps_emails(client):
     assert (row["kind"], row["email"]) == ("waitlist", "asha@example.com")
 
 
+def test_the_waitlist_keeps_each_email_once(client):
+    for email in ("asha@example.com", "Asha@Example.com ", "ravi@example.com"):
+        assert client.post("/api/waitlist", json={"email": email}).status_code == 200
+    emails = [row["email"] for row in admin(client).json()["feedback"]]
+    assert emails == ["ravi@example.com", "asha@example.com"]
+
+
+def test_a_waitlist_email_in_feedback_does_not_count_as_joined(client):
+    client.post("/api/feedback", json={"message": "Nice", "email": "asha@example.com"})
+    assert client.post("/api/waitlist", json={"email": "asha@example.com"}).status_code == 200
+    kinds = [row["kind"] for row in admin(client).json()["feedback"]]
+    assert kinds == ["waitlist", "feedback"]
+
+
 def test_only_the_admin_reads_feedback(client, monkeypatch):
     assert client.get("/api/admin/feedback").status_code == 401
     assert (
