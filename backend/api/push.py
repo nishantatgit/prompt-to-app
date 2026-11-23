@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from api.jobs import FINISHED_STATUSES, JOB_FINISHED_HOOKS, get_job
 from config import Settings, get_settings
+from tools.gate import percent_text
 
 router = APIRouter(prefix="/api")
 
@@ -162,7 +163,7 @@ def build_message(job: dict) -> dict | None:
     if status == "succeeded":
         confidence = state.get("confidence")
         body = (
-            f"Tests passed: {confidence}%. Tap to open it."
+            f"Tests passed: {percent_text(confidence)}%. Tap to open it."
             if confidence is not None
             else "Tap to open it."
         )

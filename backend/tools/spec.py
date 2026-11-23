@@ -16,6 +16,8 @@ import json
 import time
 from pathlib import Path
 
+from tools.gate import percent_text
+
 SPEC_DIR = "spec"
 FILES = {
     "requirements": "requirements.json",
@@ -103,7 +105,7 @@ def readme(state: dict, history: list[dict]) -> str:
         lines.append(f"- {e['id']} ({e.get('criterion_id', '')}): {e.get('description', '')}")
     confidence = state.get("confidence")
     if confidence is not None:
-        lines += ["", f"Last run: {confidence}% of tests passed."]
+        lines += ["", f"Last run: {percent_text(confidence)}% of tests passed."]
     return "\n".join(lines).rstrip() + "\n"
 
 
