@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { joinWaitlist } from '../lib/api.js'
 import FeedbackForm from './FeedbackForm.jsx'
+import { nextFreeBuildsTime } from '../lib/trial.js'
 
 // Free builds left, or, when they are used up: feedback for more, and a
 // way to get paid builds (the packs when buying is on, else an email list).
@@ -47,14 +48,27 @@ export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paid
     )
   }
 
+  // Only today's builds for everyone are taken: this person's own are kept.
+  const dayFull = Boolean(trial.day_full)
+
   return (
     <section aria-labelledby="builds-title" className="flex flex-col gap-5 rounded-2xl border border-line bg-card p-6">
-      <div>
-        <h2 id="builds-title" className="font-display text-lg font-bold">You've used your free builds</h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted">Thanks for trying Vyskar!</p>
-      </div>
+      {dayFull ? (
+        <div>
+          <h2 id="builds-title" className="font-display text-lg font-bold">Today's free builds are all taken</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Yours are kept. Free builds come back at {nextFreeBuildsTime()}
+            {ownKeys ? ', or add your own AI key below to build now.' : '.'}
+          </p>
+        </div>
+      ) : (
+        <div>
+          <h2 id="builds-title" className="font-display text-lg font-bold">You've used your free builds</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">Thanks for trying Vyskar!</p>
+        </div>
+      )}
 
-      {trial.bonus_available && (
+      {trial.bonus_available && !dayFull && (
         <div className="flex flex-col gap-3">
           <p className="font-semibold">Tell us how it went and get {bonusBuilds} more builds.</p>
           <FeedbackForm withRating={false} withEmail autoOpen bonus={bonusBuilds} onBonus={onBonus} />

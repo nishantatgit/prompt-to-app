@@ -61,6 +61,7 @@ def test_a_visitor_without_a_key_gets_free_builds_on_vyskars_key(client):
         "enabled": True,
         "builds_left": 2,
         "paused": False,
+        "day_full": False,
         "own_keys": True,
         "bonus_available": True,
         "bonus_builds": 2,
@@ -278,3 +279,26 @@ def test_no_key_check_once_free_builds_are_used_up_or_off(client, monkeypatch):
     monkeypatch.setattr(routes, "server_key_status", ServerKeyStatus(check=fail))
     monkeypatch.setenv("FREE_TRIAL_BUILDS", "0")
     assert trial_status(client)["paused"] is False
+
+
+def test_when_the_days_free_builds_are_taken_the_visitor_is_told_to_come_back(client, monkeypatch):
+    monkeypatch.setenv("FREE_TRIAL_DAILY_CAP", "1")
+    assert build(client, visitor="visitor-1").status_code == 202
+    # visitor-2 has not built yet, but the cap for everyone is reached today.
+    status = client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-2"}).json()
+    assert status["builds_left"] == 0
+    assert status["day_full"] is True
+    response = build(client, visitor="visitor-2")
+    assert response.status_code == 400
+    assert response.json()["detail"] == routes.TRIAL_DAY_FULL
+
+
+def test_a_visitor_whose_own_builds_are_used_is_not_told_to_come_back(client, monkeypatch):
+    monkeypatch.setenv("FREE_TRIAL_BUILDS", "1")
+    monkeypatch.setenv("FREE_TRIAL_DAILY_CAP", "1")
+    assert build(client).status_code == 202
+    # Both limits are reached: their own builds are the reason, and they do
+    # not come back tomorrow.
+    status = client.get("/api/trial", headers={"X-Vyskar-Visitor": "visitor-1"}).json()
+    assert status["day_full"] is False
+    assert build(client).json()["detail"] == routes.TRIAL_USED_UP
