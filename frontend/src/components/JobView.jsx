@@ -26,12 +26,20 @@ function formatDuration(seconds) {
   return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`
 }
 
+// Whose money the model cost came from: free and bought builds run on
+// Vyskar's own key, so only the rest were paid for on the person's key.
+function costSource(job) {
+  if (job.trial) return 'of free credit'
+  if (job.paid) return 'covered by your bought build'
+  return 'on your AI key'
+}
+
 // The model cost, when every model used has a known price.
 function costNote(job) {
   const usage = job.usage
   if (!usage?.complete || usage.cost_usd == null) return ''
   const cost = usage.cost_usd < 0.01 ? 'under $0.01' : `about $${usage.cost_usd.toFixed(2)}`
-  return ` · ${cost} ${job.trial ? 'of free credit' : 'on your AI key'}`
+  return ` · ${cost} ${costSource(job)}`
 }
 
 // How long each step took, once the build has ended.
