@@ -28,7 +28,7 @@ from api.jobs import (
     screenshot_file,
     submit,
 )
-from api.limits import HourlyCounter, check_rate_limit, client_ip
+from api.limits import HourlyCounter, check_rate_limit, client_ip, give_back_build
 from api.server_key import server_key_status
 from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
@@ -299,7 +299,7 @@ def build(
         )
 
     # After the key check, so a request without a key does not use up an attempt.
-    check_rate_limit(request)
+    counted_at = check_rate_limit(request)
 
     meter = UsageMeter()
     if stub_mode():
@@ -318,11 +318,15 @@ def build(
     )
     job_id = new_job_id()
     # A credit is spent only once the build is sure to start.
+    # A build refused here never starts, so it does not count against the
+    # network's builds for the hour either.
     if paid and not credit_store(settings).use(visitor_id(request), job_id):
+        give_back_build(request, counted_at)
         raise HTTPException(status_code=400, detail=CREDITS_USED_UP)
     # Checked again and counted in one step: the check above came before the
     # key check, so two requests at once could both have passed it.
     if trial and not ledger.claim_build(config, visitor_id(request), client_ip(request)):
+        give_back_build(request, counted_at)
         raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
     prompt = clarifier.with_answers(req.prompt, [a.model_dump() for a in req.answers])
     create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter)

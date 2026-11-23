@@ -278,3 +278,16 @@ def test_no_key_check_once_free_builds_are_used_up_or_off(client, monkeypatch):
     monkeypatch.setattr(routes, "server_key_status", ServerKeyStatus(check=fail))
     monkeypatch.setenv("FREE_TRIAL_BUILDS", "0")
     assert trial_status(client)["paused"] is False
+
+
+def test_a_free_build_lost_to_another_tab_does_not_use_up_an_hourly_build(client, monkeypatch):
+    from api import limits
+
+    monkeypatch.setattr(routes, "check_rate_limit", limits.check_rate_limit)
+    monkeypatch.setattr(limits, "_hits", limits.defaultdict(limits.deque))
+    assert build(client).status_code == 202  # a build that starts counts
+    assert len(limits._hits["testclient"]) == 1
+    monkeypatch.setattr(routes.TrialLedger, "claim_build", lambda *a, **kw: False)
+    response = build(client)
+    assert response.json()["detail"] == routes.TRIAL_USED_UP
+    assert len(limits._hits["testclient"]) == 1  # the refused one was given back
