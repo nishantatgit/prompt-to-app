@@ -108,3 +108,27 @@ def test_hourly_counter_forgets_networks_with_no_recent_try():
     assert counter.keys() == {"6.6.6.6", "7.7.7.7"}
     counter.clear()
     assert counter.keys() == set()
+
+
+def test_a_build_given_back_no_longer_counts(clock):
+    counted = [limits.check_rate_limit(request())]
+    clock.now += 10
+    counted.append(limits.check_rate_limit(request()))
+    clock.now += 10
+    refused = limits.check_rate_limit(request())
+    limits.give_back_build(request(), refused)
+    limits.check_rate_limit(request())  # the third build of the hour, not the fourth
+    with pytest.raises(HTTPException):
+        limits.check_rate_limit(request())
+    assert counted == [1000.0, 1010.0]
+
+
+def test_giving_back_touches_only_that_network_and_that_build(clock):
+    limits.check_rate_limit(request(fly_ip="1.1.1.1"))
+    clock.now += 5
+    other = limits.check_rate_limit(request(fly_ip="2.2.2.2"))
+    limits.give_back_build(request(fly_ip="1.1.1.1"), other)  # not one of 1.1.1.1's builds
+    limits.give_back_build(request(fly_ip="3.3.3.3"), other)  # a network with no builds
+    limits.give_back_build(request(fly_ip="1.1.1.1"), None)  # nothing was counted
+    assert list(limits._hits["1.1.1.1"]) == [1000.0]
+    assert list(limits._hits["2.2.2.2"]) == [1005.0]

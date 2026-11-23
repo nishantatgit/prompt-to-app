@@ -73,7 +73,9 @@ class HourlyCounter:
             self._hits.clear()
 
 
-def check_rate_limit(request: Request) -> None:
+def check_rate_limit(request: Request) -> float:
+    """Count a build for the request's network, or refuse it with a 429.
+    Returns when it was counted, for give_back_build."""
     ip = client_ip(request)
     now = time.monotonic()
     with _lock:
@@ -89,3 +91,16 @@ def check_rate_limit(request: Request) -> None:
                 headers={"Retry-After": str(retry_after)},
             )
         hits.append(now)
+    return now
+
+
+def give_back_build(request: Request, counted_at: float | None) -> None:
+    """Uncount a build that was counted but then refused before it started,
+    such as when its free or bought build went to another tab at the same
+    moment, so the refusal does not also use up one of the hour's builds."""
+    if counted_at is None:
+        return
+    with _lock:
+        hits = _hits.get(client_ip(request))
+        if hits and counted_at in hits:
+            hits.remove(counted_at)

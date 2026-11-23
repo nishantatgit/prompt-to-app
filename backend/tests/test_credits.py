@@ -355,3 +355,16 @@ def test_bad_packs_are_dropped_and_good_ones_kept(client, monkeypatch, fresh_rep
 def test_blank_packs_mean_the_defaults(client, monkeypatch, raw):
     monkeypatch.setenv("CREDIT_PACKS", raw)
     assert [p["id"] for p in client.get("/api/credits").json()["packs"]] == ["starter", "maker"]
+
+
+def test_a_credit_lost_to_another_tab_does_not_use_up_an_hourly_build(client, monkeypatch):
+    from api import limits
+
+    _, proof = buy(client, monkeypatch)
+    client.post("/api/credits/verify", json=proof)
+    monkeypatch.setattr(routes, "check_rate_limit", limits.check_rate_limit)
+    monkeypatch.setattr(limits, "_hits", limits.defaultdict(limits.deque))
+    monkeypatch.setattr(CreditStore, "use", lambda self, visitor, job_id: False)
+    response = client.post("/api/build", json={"prompt": "A timer", "provider": "openai"})
+    assert response.json()["detail"] == routes.CREDITS_USED_UP
+    assert not limits._hits.get("testclient")
