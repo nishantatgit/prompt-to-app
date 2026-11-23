@@ -6,6 +6,9 @@ import { listen, speechSupported } from '../lib/speech.js'
 
 const MAX_SECONDS = 30
 const BARS = 28
+// The browser's recognizer can stop without hearing words and without an
+// error, such as when stop is tapped at once.
+const NOTHING_HEARD = "Didn't catch that. Tap the mic and try again."
 const EXAMPLES = [
   'a habit tracker that shows my streaks',
   'a shared grocery list for my flat',
@@ -151,13 +154,24 @@ export default function VoiceComposer({
       startCue()
       onPromptChange('')
       setPhase('listening')
+      let heard = ''
       session.current = listen({
-        onText: onPromptChange,
+        onText: (text) => {
+          heard = text
+          onPromptChange(text)
+        },
         onError: setError,
         onEnd: () => {
           session.current = null
-          setPhase('review')
           stopCue()
+          if (heard.trim()) {
+            setPhase('review')
+            return
+          }
+          // Nothing was written down: back to the start, with "Type instead"
+          // and a reason, instead of a screen that waits for nothing.
+          setPhase('idle')
+          setError((shown) => shown || NOTHING_HEARD)
         },
       })
       return
