@@ -82,3 +82,9 @@ def test_recordings_are_limited_per_network(client, monkeypatch):
     assert post(client).status_code == 200
     assert post(client).status_code == 200
     assert post(client).status_code == 429
+
+
+def test_networks_with_no_recent_recording_are_forgotten(client):
+    voice._check_limit("5.5.5.5", now=0.0)
+    voice._check_limit("6.6.6.6", now=3601.0)
+    assert voice._hits.keys() == {"6.6.6.6"}

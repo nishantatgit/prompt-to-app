@@ -1,6 +1,5 @@
 import os
 import threading
-import time
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -29,7 +28,7 @@ from api.jobs import (
     screenshot_file,
     submit,
 )
-from api.limits import check_rate_limit, client_ip
+from api.limits import HourlyCounter, check_rate_limit, client_ip
 from api.server_key import server_key_status
 from api.trial import TrialConfig, TrialLedger, sweep_databases
 from config import Settings, get_settings
@@ -403,19 +402,11 @@ class ClarifyRequest(BaseModel):
 
 
 CLARIFY_PER_HOUR = 30
-_clarify_hits: dict[str, list[float]] = {}
-_clarify_lock = threading.Lock()
+_clarify_hits = HourlyCounter()
 
 
 def _clarify_allowed(ip: str) -> bool:
-    now = time.monotonic()
-    with _clarify_lock:
-        hits = [t for t in _clarify_hits.get(ip, []) if now - t < 3600]
-        allowed = len(hits) < CLARIFY_PER_HOUR
-        if allowed:
-            hits.append(now)
-        _clarify_hits[ip] = hits
-        return allowed
+    return _clarify_hits.allow(ip, CLARIFY_PER_HOUR)
 
 
 @router.post("/clarify")

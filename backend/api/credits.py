@@ -13,8 +13,6 @@ while bought builds can still be spent and restored.
 
 import json
 import os
-import threading
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -23,7 +21,7 @@ from pydantic import BaseModel, Field
 
 from api.credits_store import CreditStore
 from api.env import report_bad_setting
-from api.limits import client_ip
+from api.limits import HourlyCounter, client_ip
 from config import Settings, get_settings
 from tools import razorpay
 
@@ -239,8 +237,7 @@ async def razorpay_webhook(request: Request, settings: Settings = Depends(get_se
 
 
 RESTORE_PER_HOUR = 10
-_restore_hits: dict[str, list[float]] = {}
-_restore_lock = threading.Lock()
+_restore_hits = HourlyCounter()
 
 
 class RestoreRequest(BaseModel):
@@ -254,13 +251,8 @@ def restore_builds(
     """Bring bought builds to this browser with the payment ID from the
     Razorpay receipt. Few tries per hour: payment IDs can't be guessed."""
     _config_or_503()
-    ip = client_ip(request)
-    now = time.monotonic()
-    with _restore_lock:
-        hits = [t for t in _restore_hits.get(ip, []) if now - t < 3600]
-        if len(hits) >= RESTORE_PER_HOUR:
-            raise HTTPException(status_code=429, detail="Too many tries. Try again in an hour.")
-        _restore_hits[ip] = [*hits, now]
+    if not _restore_hits.allow(client_ip(request), RESTORE_PER_HOUR):
+        raise HTTPException(status_code=429, detail="Too many tries. Try again in an hour.")
     visitor = visitor_of(request)
     if not visitor:
         raise HTTPException(status_code=400, detail="Reload the page and try again.")
