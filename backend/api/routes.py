@@ -363,8 +363,12 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
         "paused": paused,
         "own_keys": own_keys_allowed(),
         # Feedback earns more builds once; the app offers it when none are left.
-        # FEEDBACK_BONUS_BUILDS=0 turns the offer off.
-        "bonus_available": config.enabled and bonus_builds > 0 and not ledger.bonus_used(visitor),
+        # FEEDBACK_BONUS_BUILDS=0 turns the offer off. Without a visitor id
+        # (storage blocked) nothing could be granted, so nothing is offered.
+        "bonus_available": config.enabled
+        and bonus_builds > 0
+        and bool(visitor)
+        and not ledger.bonus_used(visitor),
         "bonus_builds": bonus_builds,
     }
 

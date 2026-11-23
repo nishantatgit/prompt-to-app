@@ -278,3 +278,21 @@ def test_no_key_check_once_free_builds_are_used_up_or_off(client, monkeypatch):
     monkeypatch.setattr(routes, "server_key_status", ServerKeyStatus(check=fail))
     monkeypatch.setenv("FREE_TRIAL_BUILDS", "0")
     assert trial_status(client)["paused"] is False
+
+
+def test_no_bonus_offer_without_a_visitor_id(client, monkeypatch):
+    from api import feedback
+
+    monkeypatch.setattr(feedback, "_store", None)
+    # Storage blocked: the browser sends no visitor id, and grant_bonus can
+    # never give builds to an empty id, so the app must not promise them.
+    no_id = {"X-Vyskar-Visitor": ""}
+    assert client.get("/api/trial", headers=no_id).json()["bonus_available"] is False
+    assert client.get("/api/trial").json()["bonus_available"] is False
+    reply = client.post(
+        "/api/feedback",
+        json={"message": "Loved it, but the timer page needs a reset button."},
+        headers=no_id,
+    )
+    assert reply.status_code == 200
+    assert reply.json()["bonus_builds"] == 0
