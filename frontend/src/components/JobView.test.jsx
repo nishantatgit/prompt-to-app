@@ -5,6 +5,7 @@ vi.mock('../lib/api.js', () => ({
   getJob: vi.fn(),
   cancelJob: vi.fn(),
   screenshotUrl: () => '',
+  sendFeedback: vi.fn(),
 }))
 
 import { getJob } from '../lib/api.js'
@@ -73,5 +74,35 @@ describe('JobView cancelled', () => {
     render(<JobView jobId="abc" />)
     await screen.findAllByText('Build cancelled.')
     expect(screen.queryByText(/given back/)).toBeNull()
+  })
+})
+
+// Free and bought builds run on Vyskar's own AI key.
+const STOPPED_BY_VYSKAR = {
+  job_id: 'abc',
+  status: 'failed',
+  stage: 'building',
+  activity: [],
+  timings: { stages: {}, total_seconds: 30 },
+  reason: "paused: This is on Vyskar's side, nothing for you to fix. Try again in a little while.",
+}
+
+describe('JobView when Vyskar\'s own AI key stops a build', () => {
+  it('says it is on Vyskar, not the visitor, and that a bought build came back', async () => {
+    getJob.mockResolvedValue({ ...STOPPED_BY_VYSKAR, credit_refunded: true })
+    render(<JobView jobId="abc" />)
+    await act(async () => {})
+    expect(screen.getAllByText("Vyskar's AI stopped partway through.").length).toBeGreaterThan(0)
+    expect(screen.getByText(/nothing for you to fix/)).toBeTruthy()
+    expect(screen.queryByText(/paused:/)).toBeNull()
+    expect(screen.queryByText(/out of credit/)).toBeNull()
+    expect(screen.getByText('Your bought build was given back.')).toBeTruthy()
+  })
+
+  it('does not mention a bought build on a free one', async () => {
+    getJob.mockResolvedValue({ ...STOPPED_BY_VYSKAR, trial: true, credit_refunded: false })
+    render(<JobView jobId="abc" />)
+    await act(async () => {})
+    expect(screen.queryByText('Your bought build was given back.')).toBeNull()
   })
 })

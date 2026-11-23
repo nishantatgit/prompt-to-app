@@ -170,8 +170,11 @@ export default function App() {
   const handleDone = useCallback((job) => {
     setRunning(false)
     notifyBuildDone(job)
-    // A bought build cancelled before it started was given back.
+    // A bought build cancelled before it started, or stopped by Vyskar's
+    // own AI key, was given back.
     if (job?.credit_refunded) loadCredits().then(setCredits).catch(() => {})
+    // Vyskar's own AI key stopped the build: free builds now show as paused.
+    if (job?.reason?.startsWith('paused')) getTrial().then(setTrial).catch(() => {})
     const info = job && jobInfo.current[job.job_id]
     if (job?.status === 'succeeded' && job.app_name && info) {
       setApps(
