@@ -55,6 +55,7 @@ function Build({ build }) {
       <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
         {build.status && <span>Status: {build.status}</span>}
         {build.trial && <span>Free build</span>}
+        {build.paid && <span>Bought build</span>}
         {cost && <span>Cost: {cost}</span>}
         {confidence && <span>Confidence: {confidence}</span>}
       </p>

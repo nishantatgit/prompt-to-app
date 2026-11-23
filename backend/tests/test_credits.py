@@ -239,14 +239,20 @@ def test_a_paid_build_runs_on_vyskars_key_and_spends_one_credit(client, monkeypa
     assert response.status_code == 202
     assert client.started == [("anthropic", "sk-ant-vyskar")]
     assert client.get("/api/credits").json()["builds_left"] == 4
+    # Marked as bought, so the app does not say it cost the visitor's AI key.
+    job = client.get(f"/api/jobs/{response.json()['job_id']}").json()
+    assert job["paid"] is True and job["trial"] is False
 
 
 def test_your_own_key_never_spends_credits(client, monkeypatch):
     _, proof = buy(client, monkeypatch)
     client.post("/api/credits/verify", json=proof)
-    client.post("/api/build", json={"prompt": "A timer", "provider": "openai", "api_key": "sk-own"})
+    response = client.post(
+        "/api/build", json={"prompt": "A timer", "provider": "openai", "api_key": "sk-own"}
+    )
     assert client.started == [("openai", "sk-own")]
     assert client.get("/api/credits").json()["builds_left"] == 5
+    assert client.get(f"/api/jobs/{response.json()['job_id']}").json()["paid"] is False
 
 
 def test_without_credits_or_a_key_a_build_is_refused(client):

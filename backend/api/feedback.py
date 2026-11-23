@@ -118,6 +118,7 @@ def _build_snapshot(job_id: str | None) -> str | None:
             "status": job.get("status"),
             "reason": job.get("reason"),
             "trial": job.get("trial"),
+            "paid": job.get("paid"),
             "app": state.get("deployed_name") or state.get("app_name"),
             "deploy_url": state.get("deploy_url"),
             "confidence": state.get("confidence"),

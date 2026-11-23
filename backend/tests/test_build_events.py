@@ -73,6 +73,7 @@ def test_a_failed_build_logs_a_short_reason(capsys):
     logged = events(capsys.readouterr().out)
     start, finish = logged[0], logged[-1]
     assert start["change"] is True and start["builder_mode"] == "loop" and start["trial"] is True
+    assert start["paid"] is False and finish["paid"] is False
     assert finish["event"] == "build_finish" and finish["status"] == "failed"
     assert len(finish["reason"]) == jobs.MAX_LOGGED_REASON
 

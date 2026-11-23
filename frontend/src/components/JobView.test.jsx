@@ -60,3 +60,31 @@ describe('JobView polling', () => {
     expect(screen.queryByRole('button', { name: 'Cancel build' })).toBeNull()
   })
 })
+
+// A finished build with a known cost, shown under its step times.
+function finished(extra) {
+  return {
+    job_id: 'abc',
+    status: 'succeeded',
+    stage: 'deploying',
+    activity: [],
+    deploy_url: 'https://habit.vercel.app',
+    app_name: 'habit',
+    timings: { stages: { building: { seconds: 40 } }, total_seconds: 60 },
+    usage: { complete: true, cost_usd: 0.42 },
+    ...extra,
+  }
+}
+
+describe('JobView cost note', () => {
+  it.each([
+    [{ trial: false, paid: false }, 'about $0.42 on your AI key'],
+    [{ trial: true, paid: false }, 'about $0.42 of free credit'],
+    [{ trial: false, paid: true }, 'about $0.42 covered by your bought build'],
+  ])('says whose money a build used: %o', async (flags, text) => {
+    getJob.mockResolvedValue(finished(flags))
+    render(<JobView jobId="abc" />)
+    await act(async () => {})
+    expect(screen.getByText(new RegExp(text.replace('$', '\\$')))).toBeTruthy()
+  })
+})

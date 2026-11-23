@@ -323,7 +323,7 @@ def build(
     if trial and not ledger.claim_build(config, visitor_id(request), client_ip(request)):
         raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
     prompt = clarifier.with_answers(req.prompt, [a.model_dump() for a in req.answers])
-    create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter)
+    create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter, paid=paid)
     if req.app:
         extra, new_key = {"app_name": req.app}, None
     else:

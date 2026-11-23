@@ -79,7 +79,12 @@ def _forget_old_jobs(now: float) -> None:
 
 
 def create_job(
-    job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False, meter=None
+    job_id: str,
+    prompt: str,
+    builder_mode: str = "pipeline",
+    trial: bool = False,
+    meter=None,
+    paid: bool = False,
 ) -> None:
     with _lock:
         _forget_old_jobs(time.time())
@@ -91,6 +96,8 @@ def create_job(
             "reason": "",
             "builder_mode": builder_mode,
             "trial": trial,
+            # A bought build: it ran on Vyskar's own key and used a credit.
+            "paid": paid,
             "meter": meter,  # a UsageMeter: the build's tokens and cost
             "activity": [],
             # Per stage: when its first step started, how many of its steps
@@ -225,6 +232,7 @@ def _log_finish(job: dict) -> None:
         reason=(job.get("reason") or "")[:MAX_LOGGED_REASON],
         builder_mode=job.get("builder_mode", "pipeline"),
         trial=job.get("trial", False),
+        paid=job.get("paid", False),
         seconds=timings["total_seconds"],
         stages={stage: t["seconds"] for stage, t in timings["stages"].items()},
         deploy_url=(job.get("state") or {}).get("deploy_url", ""),
@@ -242,6 +250,7 @@ def _log_usage(job: dict) -> None:
     record = {
         "status": job["status"],
         "trial": job.get("trial", False),
+        "paid": job.get("paid", False),
         "seconds": timings_view(job)["total_seconds"],
         "cost_usd": usage["cost_usd"],
         "calls": usage["calls"],
@@ -287,6 +296,7 @@ def _run_graph(
         job_id,
         builder_mode=job.get("builder_mode", "pipeline"),
         trial=job.get("trial", False),
+        paid=job.get("paid", False),
         change=bool((extra or {}).get("app_name")),
         prompt_chars=len(prompt),
     )
@@ -342,6 +352,7 @@ def public_view(job: dict) -> dict:
         "reason": job["reason"],
         "builder_mode": job.get("builder_mode", "pipeline"),
         "trial": job.get("trial", False),
+        "paid": job.get("paid", False),
         "activity": job.get("activity", []),
         "deploy_url": state.get("deploy_url", ""),
         "app_name": state.get("deployed_name") or state.get("app_name", ""),
