@@ -115,7 +115,7 @@ export default function BuyBuilds({ credits, onBought }) {
           Bought builds before? Restore them with your payment ID
         </button>
       )}
-      {error && <p className="mt-3 text-sm text-accent">{error}</p>}
+      {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}
     </section>
   )
 }

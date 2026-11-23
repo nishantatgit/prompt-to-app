@@ -123,7 +123,7 @@ export default function FeedbackForm({ jobId, bonus = 0, withRating = true, with
           </button>
         </>
       )}
-      {error && <p className="text-sm text-accent">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </form>
   )
 }
