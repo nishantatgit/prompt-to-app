@@ -92,11 +92,18 @@ def test_a_live_app_opens_from_the_notification():
     }
 
 
-def test_a_stopped_build_opens_vyskar():
+def test_a_stopped_build_opens_vyskar_on_that_build():
+    # Vyskar is usually closed when this push arrives: "/" alone would open
+    # an empty page instead of what happened.
     for status in ("failed", "rejected"):
-        message = build_message(finished(status=status))
+        message = build_message(finished(job_id="26-11-23-1763900000-abc123def0", status=status))
         assert message["title"] == "Your build stopped"
-        assert message["url"] == "/"
+        assert message["url"] == "/?job=26-11-23-1763900000-abc123def0"
+
+
+def test_an_odd_job_id_cannot_change_the_link():
+    message = build_message(finished(job_id="a&b/c", status="failed"))
+    assert message["url"] == "/?job=a%26b%2Fc"
 
 
 def test_a_cancelled_build_is_not_pushed():
