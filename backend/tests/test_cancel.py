@@ -114,3 +114,16 @@ def test_cancel_endpoint():
     assert response.status_code == 200
     assert response.json()["status"] == "cancelled"
     assert client.post("/api/jobs/c-6/cancel").status_code == 409
+
+
+def test_cancelling_a_queued_job_says_it_never_started():
+    jobs.create_job("c-5", "a timer")
+    jobs.cancel_job("c-5")
+    assert jobs.get_job("c-5")["cancelled_in_queue"] is True
+
+
+def test_cancelling_a_running_job_says_it_had_started():
+    jobs.create_job("c-7", "a timer")
+    jobs._update("c-7", status="running")
+    jobs.cancel_job("c-7")
+    assert jobs.get_job("c-7")["cancelled_in_queue"] is False

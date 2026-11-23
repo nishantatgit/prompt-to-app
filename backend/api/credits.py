@@ -118,6 +118,11 @@ def credit_store(settings: Settings) -> CreditStore:
     return _store
 
 
+def open_store() -> CreditStore | None:
+    """The store if this process has opened it, else None."""
+    return _store
+
+
 def visitor_of(request: Request) -> str:
     return request.headers.get(VISITOR_HEADER, "").strip()[:64]
 

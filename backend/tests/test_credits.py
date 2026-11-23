@@ -43,6 +43,17 @@ def test_credits_survive_a_restart(tmp_path):
     assert CreditStore(tmp_path / "credits.db").balance("v") == 4
 
 
+def test_a_refund_gives_back_one_build_once(tmp_path):
+    store = CreditStore(tmp_path / "credits.db")
+    store.add_order("order_1", "v", "starter", 5, 49900)
+    store.record_payment("pay_1", "order_1")
+    store.use("v", "job-1")
+    assert store.refund("job-1") is True
+    assert store.refund("job-1") is False  # a second cancel gives nothing more
+    assert store.refund("job-unknown") is False
+    assert store.balance("v") == 5
+
+
 def test_the_last_credit_can_be_spent_only_once(tmp_path):
     store = CreditStore(tmp_path / "credits.db")
     store.add_order("order_1", "v", "one", 1, 9900)
@@ -239,6 +250,47 @@ def test_a_paid_build_runs_on_vyskars_key_and_spends_one_credit(client, monkeypa
     assert response.status_code == 202
     assert client.started == [("anthropic", "sk-ant-vyskar")]
     assert client.get("/api/credits").json()["builds_left"] == 4
+
+
+def test_a_bought_build_cancelled_in_the_queue_is_given_back(client, monkeypatch):
+    _, proof = buy(client, monkeypatch)
+    client.post("/api/credits/verify", json=proof)
+    job_id = client.post("/api/build", json={"prompt": "A timer", "provider": "openai"}).json()[
+        "job_id"
+    ]
+    assert client.get("/api/credits").json()["builds_left"] == 4
+    # submit is stubbed, so the job is still waiting for a builder.
+    view = client.post(f"/api/jobs/{job_id}/cancel").json()
+    assert view["status"] == "cancelled"
+    assert view["credit_refunded"] is True
+    assert client.get("/api/credits").json()["builds_left"] == 5
+    assert client.get(f"/api/jobs/{job_id}").json()["credit_refunded"] is True
+
+
+def test_a_bought_build_cancelled_after_it_started_stays_spent(client, monkeypatch):
+    from api import jobs
+
+    _, proof = buy(client, monkeypatch)
+    client.post("/api/credits/verify", json=proof)
+    job_id = client.post("/api/build", json={"prompt": "A timer", "provider": "openai"}).json()[
+        "job_id"
+    ]
+    jobs._update(job_id, status="running")  # the model may already have been called
+    view = client.post(f"/api/jobs/{job_id}/cancel").json()
+    assert view["status"] == "cancelled"
+    assert view["credit_refunded"] is False
+    assert client.get("/api/credits").json()["builds_left"] == 4
+
+
+def test_cancelling_an_own_key_build_touches_no_credits(client, monkeypatch):
+    _, proof = buy(client, monkeypatch)
+    client.post("/api/credits/verify", json=proof)
+    job_id = client.post(
+        "/api/build", json={"prompt": "A timer", "provider": "openai", "api_key": "sk-own"}
+    ).json()["job_id"]
+    view = client.post(f"/api/jobs/{job_id}/cancel").json()
+    assert view["credit_refunded"] is False
+    assert client.get("/api/credits").json()["builds_left"] == 5
 
 
 def test_your_own_key_never_spends_credits(client, monkeypatch):

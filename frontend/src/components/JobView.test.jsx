@@ -60,3 +60,18 @@ describe('JobView polling', () => {
     expect(screen.queryByRole('button', { name: 'Cancel build' })).toBeNull()
   })
 })
+
+describe('JobView cancelled', () => {
+  it('says when a bought build was given back', async () => {
+    getJob.mockResolvedValue({ ...RUNNING, status: 'cancelled', credit_refunded: true })
+    render(<JobView jobId="abc" />)
+    expect(await screen.findByText(/your bought build was given back/)).toBeTruthy()
+  })
+
+  it('says nothing about a refund otherwise', async () => {
+    getJob.mockResolvedValue({ ...RUNNING, status: 'cancelled', credit_refunded: false })
+    render(<JobView jobId="abc" />)
+    await screen.findAllByText('Build cancelled.')
+    expect(screen.queryByText(/given back/)).toBeNull()
+  })
+})
