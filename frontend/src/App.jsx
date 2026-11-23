@@ -140,6 +140,13 @@ export default function App() {
     } catch (err) {
       setError(err.message)
       setRunning(false)
+      // A refused build often means the counts on screen are out of date,
+      // such as free or bought builds used up in another tab: show the real
+      // ones so the button and note stop offering a build that isn't there.
+      if (!err.unreachable && (freeBuild || paidBuild)) {
+        refreshTrial()
+        loadCredits().then(setCredits).catch(() => {})
+      }
     }
   }
 

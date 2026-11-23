@@ -134,6 +134,9 @@ def own_keys_allowed() -> bool:
 
 
 PAID_PAUSED = "Builds are paused for a moment. Your credits are safe; try again soon."
+# The last bought build went to another build started at the same moment,
+# such as Build tapped in two tabs.
+CREDITS_USED_UP = "Your last bought build was just used by another build."
 
 
 def log_paused(kind: str, reason: str, error: Exception | None = None) -> None:
@@ -316,7 +319,7 @@ def build(
     job_id = new_job_id()
     # A credit is spent only once the build is sure to start.
     if paid and not credit_store(settings).use(visitor_id(request), job_id):
-        raise HTTPException(status_code=400, detail=NO_KEY)
+        raise HTTPException(status_code=400, detail=CREDITS_USED_UP)
     # Checked again and counted in one step: the check above came before the
     # key check, so two requests at once could both have passed it.
     if trial and not ledger.claim_build(config, visitor_id(request), client_ip(request)):
