@@ -32,14 +32,26 @@ function sameKey(subscription, key) {
   return a.length === b.length && a.every((byte, i) => byte === b[i])
 }
 
-let serverKey // the server's answer, asked once per page load
+let serverKey // the server's answer, kept for the page load once it has one
 
 async function publicKey() {
   if (serverKey === undefined) {
-    const status = await getPush().catch(() => null)
+    let status
+    try {
+      status = await getPush()
+    } catch {
+      // Vyskar could not be asked this time: try again on the next build
+      // instead of leaving push off until the page is reloaded.
+      return null
+    }
     serverKey = status?.enabled && status.public_key ? status.public_key : null
   }
   return serverKey
+}
+
+// For tests: forget the server's answer.
+export function resetPushKey() {
+  serverKey = undefined
 }
 
 // Ask the server to push this device when the job finishes. Call it after
