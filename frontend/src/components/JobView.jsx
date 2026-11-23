@@ -59,6 +59,9 @@ function StepTimes({ job }) {
 
 function failureHeading(job) {
   if (job.status === 'rejected') return 'Vyskar could not build this request.'
+  // Free and bought builds run on Vyskar's own AI key: when it stops
+  // working midway, the visitor has nothing to fix.
+  if (job.reason?.startsWith('paused')) return "Vyskar's AI stopped partway through."
   if (job.reason?.startsWith('key rejected')) return 'Your API key did not work.'
   if (job.reason?.startsWith('no credit')) return 'Your AI account is out of credit.'
   if (job.reason?.startsWith('internal error')) return 'Something went wrong on our side.'
@@ -272,8 +275,11 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">{failureHeading(job)}</p>
           <p className="text-sm leading-relaxed text-muted">
-            {job.reason?.replace(/^(key rejected|no credit): /, '')}
+            {job.reason?.replace(/^(key rejected|no credit|paused): /, '')}
           </p>
+          {job.credit_refunded && (
+            <p className="text-sm text-muted">Your bought build was given back.</p>
+          )}
           {job.test_summary && (
             <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 font-mono text-xs text-dim">{job.test_summary}</pre>
           )}

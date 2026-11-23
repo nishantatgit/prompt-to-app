@@ -19,6 +19,7 @@ from api.events import log_event
 from api.jobs import (
     FINISHED_STATUSES,
     JOB_FINISHED_HOOKS,
+    SERVER_KEY_FAILED_HOOKS,
     TRIAL_FINISHED_HOOKS,
     cancel_job,
     create_job,
@@ -194,6 +195,22 @@ def _clean_finished_workspaces(job: dict) -> None:
 
 
 JOB_FINISHED_HOOKS.append(_clean_finished_workspaces)
+
+
+def _server_key_failed(job: dict, reason: str, error: Exception) -> None:
+    """Vyskar's own key stopped a free or bought build partway. Free builds
+    show as paused from now on, instead of starting builds that fail the same
+    way, and a bought build is given back: the visitor paid for a build and
+    the fault was Vyskar's."""
+    server_key_status.record(reason)
+    log_paused("paid" if job.get("paid") else "free", reason, error)
+    store = open_store()
+    if job.get("paid") and store is not None and store.refund(job["job_id"]):
+        mark_credit_refunded(job["job_id"])
+        log_event("credit_refunded", job["job_id"], reason="server_key_failed")
+
+
+SERVER_KEY_FAILED_HOOKS.append(_server_key_failed)
 
 
 def server_key(settings: Settings) -> str | None:

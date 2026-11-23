@@ -64,6 +64,19 @@ TRIAL_FINISHED_HOOKS: list = []
 # notification to the browser that started it.
 JOB_FINISHED_HOOKS: list = []
 
+# Free and bought builds run on Vyskar's own AI key. When that key is
+# rejected or out of credit partway through, the visitor has nothing to fix,
+# so they are not sent to their own AI account's billing page.
+SERVER_KEY_STOPPED = (
+    "paused: This is on Vyskar's side, nothing for you to fix. Try again in a little while."
+)
+
+# Called with a free or bought job, the reason ("rejected" or "no_credit")
+# and the error, when Vyskar's own key stops it partway. They run before the
+# job shows as failed, so a bought build given back is already marked as
+# given back when the page sees the failure.
+SERVER_KEY_FAILED_HOOKS: list = []
+
 
 def _forget_old_jobs(now: float) -> None:
     """Drop jobs that finished more than FINISHED_JOB_HOURS ago. Call with
@@ -345,8 +358,17 @@ def _run_graph(
     except Exception as error:
         if is_cancelled(job_id):
             return
-        reason = user_error_reason(error) or f"internal error: {error}"
-        _update(job_id, status="failed", reason=reason)
+        reason = user_error_reason(error)
+        job = get_job(job_id) or {}
+        if reason and (job.get("trial") or job.get("paid")):
+            code = "rejected" if reason.startswith("key rejected") else "no_credit"
+            for hook in SERVER_KEY_FAILED_HOOKS:
+                try:
+                    hook(job, code, error)
+                except Exception:
+                    pass
+            reason = SERVER_KEY_STOPPED
+        _update(job_id, status="failed", reason=reason or f"internal error: {error}")
 
 
 def submit(
