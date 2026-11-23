@@ -4,6 +4,11 @@ Off until RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are set. Packs come from
 CREDIT_PACKS, a JSON list such as
   [{"id": "starter", "builds": 5, "price_inr": 499}]
 so prices change without a code change. The defaults are placeholders.
+
+CREDIT_PACKS is read on every build, so a mistyped value must not break
+building: a pack that isn't valid is left out and logged as "bad_setting".
+When none is valid, no packs are on sale (rather than the placeholder prices),
+while bought builds can still be spent and restored.
 """
 
 import json
@@ -15,6 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.credits_store import CreditStore
+from api.env import report_bad_setting
 from api.limits import HourlyCounter, client_ip
 from config import Settings, get_settings
 from tools import razorpay
@@ -26,6 +32,53 @@ DEFAULT_PACKS = [
     {"id": "maker", "builds": 15, "price_inr": 1299},
 ]
 VISITOR_HEADER = "x-vyskar-visitor"
+
+
+def _whole(value) -> int | None:
+    """A whole number of at least 1 from JSON: 5, 5.0 or "5"; else None."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, float) and value.is_integer():
+        value = int(value)
+    elif isinstance(value, str) and value.strip().isdigit():
+        value = int(value.strip())
+    return value if isinstance(value, int) and value >= 1 else None
+
+
+def read_packs(raw: str | None) -> tuple:
+    """The packs in CREDIT_PACKS, each as {"id", "builds", "price_inr"}.
+    Unset or blank means the defaults. Bad packs are dropped and reported."""
+    if raw is None or not raw.strip():
+        return tuple(DEFAULT_PACKS)
+    try:
+        packs = json.loads(raw)
+    except ValueError:
+        report_bad_setting("CREDIT_PACKS", raw, problem="not_json", using="no packs")
+        return ()
+    if packs is None or packs == []:
+        return tuple(DEFAULT_PACKS)
+    if not isinstance(packs, list):
+        report_bad_setting("CREDIT_PACKS", raw, problem="not_a_list", using="no packs")
+        return ()
+    good, seen = [], set()
+    for pack in packs:
+        if not isinstance(pack, dict):
+            continue
+        pack_id = pack.get("id")
+        builds, price = _whole(pack.get("builds")), _whole(pack.get("price_inr"))
+        if isinstance(pack_id, str) and pack_id.strip() and builds and price:
+            if pack_id not in seen:
+                seen.add(pack_id)
+                good.append({"id": pack_id, "builds": builds, "price_inr": price})
+    if len(good) < len(packs):
+        report_bad_setting(
+            "CREDIT_PACKS",
+            raw,
+            problem="bad_packs",
+            dropped=len(packs) - len(good),
+            using=f"{len(good)} packs",
+        )
+    return tuple(good)
 
 
 @dataclass(frozen=True)
@@ -44,12 +97,11 @@ class CreditConfig:
 
     @classmethod
     def from_env(cls) -> "CreditConfig":
-        packs = json.loads(os.getenv("CREDIT_PACKS") or "null") or DEFAULT_PACKS
         return cls(
             key_id=os.getenv("RAZORPAY_KEY_ID", ""),
             secret=os.getenv("RAZORPAY_KEY_SECRET", ""),
             webhook_secret=os.getenv("RAZORPAY_WEBHOOK_SECRET", ""),
-            packs=tuple(packs),
+            packs=read_packs(os.getenv("CREDIT_PACKS")),
         )
 
 
@@ -102,7 +154,7 @@ def create_order(req: OrderRequest, request: Request, settings: Settings = Depen
     pack = config.pack(req.pack)
     if pack is None:
         raise HTTPException(status_code=400, detail="Unknown pack.")
-    amount = int(pack["price_inr"]) * 100  # Razorpay takes paise
+    amount = pack["price_inr"] * 100  # Razorpay takes paise
     try:
         order = razorpay.create_order(
             config.key_id,

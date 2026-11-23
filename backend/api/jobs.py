@@ -39,6 +39,13 @@ MAX_ACTIVE_JOBS = env_int("MAX_ACTIVE_JOBS", 6, minimum=1)
 FINISHED_STATUSES = {"succeeded", "failed", "rejected", "cancelled"}
 CANCELLED_REASON = "You cancelled this build."
 
+# Jobs live in memory and the API runs for weeks between deploys, so a
+# finished job is forgotten after this many hours. By then its page has long
+# stopped asking about it, its feedback snapshot has been taken, and its push
+# has been sent. Each job holds its whole build state (requirements,
+# architecture, test plan, build log), so keeping them all would only grow.
+FINISHED_JOB_HOURS = env_int("FINISHED_JOB_HOURS", 24, minimum=1)
+
 
 def active_job_count() -> int:
     with _lock:
@@ -58,10 +65,24 @@ TRIAL_FINISHED_HOOKS: list = []
 JOB_FINISHED_HOOKS: list = []
 
 
+def _forget_old_jobs(now: float) -> None:
+    """Drop jobs that finished more than FINISHED_JOB_HOURS ago. Call with
+    _lock held."""
+    cutoff = now - FINISHED_JOB_HOURS * 3600
+    old = [
+        job_id
+        for job_id, job in _jobs.items()
+        if job["status"] in FINISHED_STATUSES and (job["finished_at"] or now) < cutoff
+    ]
+    for job_id in old:
+        del _jobs[job_id]
+
+
 def create_job(
     job_id: str, prompt: str, builder_mode: str = "pipeline", trial: bool = False, meter=None
 ) -> None:
     with _lock:
+        _forget_old_jobs(time.time())
         _jobs[job_id] = {
             "job_id": job_id,
             "prompt": prompt,
@@ -151,7 +172,9 @@ def _finish_clock(job_id: str) -> None:
     """Stop the job's clock, and any stage still running when it ended."""
     now = time.time()
     with _lock:
-        job = _jobs[job_id]
+        job = _jobs.get(job_id)
+        if job is None:
+            return  # a cancelled build that ran on until it was forgotten
         job["finished_at"] = job["finished_at"] or now
         for timing in job["timings"].values():
             if timing.get("finished") is None:
