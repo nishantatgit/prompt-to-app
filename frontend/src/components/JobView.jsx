@@ -101,7 +101,8 @@ function LoopActivity({ job }) {
   )
 }
 
-export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, onBonus }) {
+// opened: the build came from a notification's link, not from Build here.
+export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, onBonus, opened = false }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState('')
   const [offline, setOffline] = useState(false)
@@ -142,7 +143,11 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
       } catch (err) {
         if (stopped) return
         if (err.message === 'job not found') {
-          setError('This build was lost because the server restarted. Please start it again.')
+          setError(
+            opened
+              ? 'Vyskar no longer has this build. Builds are kept for a day after they finish.'
+              : 'This build was lost because the server restarted. Please start it again.',
+          )
           onDone?.(null)
           return
         }
@@ -162,7 +167,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
       stopped = true
       clearTimeout(timer)
     }
-  }, [jobId, onDone])
+  }, [jobId, onDone, opened])
 
   const finished = job && FINISHED.has(job.status)
 

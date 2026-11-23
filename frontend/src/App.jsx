@@ -17,6 +17,11 @@ import { loadApps, rememberApp } from './lib/myApps.js'
 import { MAX_PROMPT_CHARS } from './lib/prompt.js'
 import { pausedNote } from './lib/trial.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
+import { takeJobFromUrl } from './lib/openJob.js'
+
+// A build opened from a "Your build stopped" push: its screen shows what
+// happened. Read once, at load.
+const OPENED_JOB = takeJobFromUrl()
 
 const CHANGE_EXAMPLES = [
   'add a dark mode',
@@ -40,8 +45,10 @@ export default function App() {
   const [trial, setTrial] = useState({ enabled: false, builds_left: 0 })
   const [credits, setCredits] = useState({ enabled: false, builds_left: 0, packs: [] })
   const [prompt, setPrompt] = useState('')
-  const [jobId, setJobId] = useState(null)
-  const [running, setRunning] = useState(false)
+  const [jobId, setJobId] = useState(OPENED_JOB)
+  // Until the opened build's first answer comes back (it is usually over),
+  // Build waits, as it does for a running build.
+  const [running, setRunning] = useState(Boolean(OPENED_JOB))
   const [error, setError] = useState('')
   const isPhone = useIsPhone()
   const [inputMode, setInputMode] = useInputMode()
@@ -358,6 +365,7 @@ export default function App() {
           <JobView
             key={jobId}
             jobId={jobId}
+            opened={jobId === OPENED_JOB}
             onDone={handleDone}
             onChange={startChange}
             feedbackBonus={!apiKey && trial.bonus_available ? (trial.bonus_builds ?? 2) : 0}

@@ -98,17 +98,28 @@ self.addEventListener('push', (event) => {
   )
 })
 
-// Tapping a build notification opens the live app, or Vyskar for a failed
-// build, reusing an open Vyskar window where there is one.
+// Tapping a build notification opens the live app, or Vyskar on the failed
+// build (/?job=<id>), reusing an open Vyskar window where there is one.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const url = event.notification.data?.url || '/'
   event.waitUntil(
     (async () => {
+      const target = new URL(url, self.location.origin)
+      const ours = target.origin === self.location.origin
       const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
       const own = windows.find((w) => new URL(w.url).origin === self.location.origin)
-      if (url === '/' && own) return own.focus()
-      return self.clients.openWindow(url)
+      if (ours && own) {
+        if (target.pathname === '/' && !target.search) return own.focus()
+        try {
+          // Only a window this worker controls can be sent elsewhere.
+          const moved = await own.navigate(target.href)
+          return (moved || own).focus()
+        } catch {
+          // Not controlled yet: open the build in a new window instead.
+        }
+      }
+      return self.clients.openWindow(target.href)
     })(),
   )
 })

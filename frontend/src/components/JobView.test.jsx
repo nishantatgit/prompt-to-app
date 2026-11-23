@@ -75,3 +75,26 @@ describe('JobView cancelled', () => {
     expect(screen.queryByText(/given back/)).toBeNull()
   })
 })
+
+describe('JobView opened from a notification', () => {
+  it('shows how the stopped build ended', async () => {
+    getJob.mockResolvedValue({ ...RUNNING, status: 'failed', reason: 'The app did not build.' })
+    render(<JobView jobId="abc" opened />)
+    expect(await screen.findByText('The app did not build.')).toBeTruthy()
+  })
+
+  it('says builds are kept for a day when it is gone', async () => {
+    getJob.mockRejectedValue(new Error('job not found'))
+    const onDone = vi.fn()
+    render(<JobView jobId="abc" opened onDone={onDone} />)
+    expect((await screen.findAllByText(/kept for a day/)).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/server restarted/)).toBeNull()
+    expect(onDone).toHaveBeenCalledWith(null)
+  })
+
+  it('still blames a restart for a build started here', async () => {
+    getJob.mockRejectedValue(new Error('job not found'))
+    render(<JobView jobId="abc" />)
+    expect((await screen.findAllByText(/server restarted/)).length).toBeGreaterThan(0)
+  })
+})

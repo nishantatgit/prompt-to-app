@@ -21,7 +21,7 @@ import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -174,10 +174,12 @@ def build_message(job: dict) -> dict | None:
             "tag": job["job_id"],
         }
     if status in ("failed", "rejected"):
+        # Vyskar is usually closed by now, so "/" alone would open an empty
+        # composer: the job id lets the app show what happened.
         return {
             "title": "Your build stopped",
             "body": "Tap to see what happened.",
-            "url": "/",
+            "url": f"/?job={quote(job['job_id'], safe='')}",
             "tag": job["job_id"],
         }
     return None  # cancelled by the user: they know already
