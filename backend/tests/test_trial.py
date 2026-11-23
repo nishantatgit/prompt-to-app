@@ -113,3 +113,17 @@ def test_requests_at_once_never_overspend(tmp_path):
         thread.join()
     assert results.count(True) == 3
     assert book.builds_left(many, "v1", "1.1.1.1") == 0
+
+
+def test_day_full_only_when_the_person_still_has_builds_of_their_own(tmp_path):
+    book = ledger(tmp_path)
+    for i in range(5):
+        book.record_build(f"v{i}", f"10.0.0.{i}", now=i)
+    # Cap reached: a new person is held back by the day, not by their own use.
+    assert book.day_full(ON, "v9", "10.0.0.9", now=10) is True
+    # Next day the cap is fresh.
+    assert book.day_full(ON, "v9", "10.0.0.9", now=DAY + 10) is False
+    # Someone who used all their own builds is never "day full".
+    book.record_build("v0", "10.0.0.0", now=11)
+    assert book.day_full(ON, "v0", "10.0.0.0", now=12) is False
+    assert book.day_full(ON, "", "10.0.0.9", now=10) is False

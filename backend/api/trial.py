@@ -97,6 +97,27 @@ class TrialLedger:
             ),
         )
 
+    def day_full(
+        self, config: TrialConfig, visitor: str, ip: str, now: float | None = None
+    ) -> bool:
+        """Whether this person still has free builds of their own but today's
+        FREE_TRIAL_DAILY_CAP for everyone is used up. builds_left is 0 then
+        too, and "you have used your free builds" would be wrong: theirs come
+        back at midnight UTC."""
+        if not config.enabled or not visitor:
+            return False
+        now = time.time() if now is None else now
+        with self._lock:
+            used = self._data["visitors"].get(visitor, 0)
+            by_ip = self._data["ips"].get(ip, 0)
+            today = self._data["days"].get(_today(now), 0)
+            bonus = self._data["bonus"].get(visitor, 0)
+        own = min(
+            config.builds_per_person + bonus - used,
+            config.builds_per_person * IP_MULTIPLIER + bonus - by_ip,
+        )
+        return own > 0 and today >= config.daily_cap
+
     def claim_build(
         self, config: TrialConfig, visitor: str, ip: str, now: float | None = None
     ) -> bool:

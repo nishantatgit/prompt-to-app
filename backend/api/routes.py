@@ -126,6 +126,18 @@ VISITOR_HEADER = "x-vyskar-visitor"
 NO_KEY = "An API key is required."
 TRIAL_USED_UP = "You have used your free builds. Add your own AI key to keep building."
 TRIAL_PAUSED = "Free builds are paused right now. Add your own AI key to build."
+# Everyone's free builds for the day (FREE_TRIAL_DAILY_CAP) are gone, but this
+# person's own are not: they come back at midnight UTC.
+TRIAL_DAY_FULL = "Today's free builds are all taken. Yours are kept: try again tomorrow."
+
+
+def trial_refused(ledger: TrialLedger, config: TrialConfig, request: Request) -> HTTPException:
+    """Why a free build was refused: this person's builds are used up, or only
+    today's builds for everyone are."""
+    day_full = ledger.day_full(config, visitor_id(request), client_ip(request))
+    return HTTPException(status_code=400, detail=TRIAL_DAY_FULL if day_full else TRIAL_USED_UP)
+
+
 OWN_KEYS_OFF = "Vyskar builds on its own AI now, no key needed."
 
 
@@ -265,7 +277,7 @@ def build(
             raise HTTPException(status_code=400, detail=NO_KEY)
         ledger = trial_ledger(settings)
         if ledger.builds_left(config, visitor_id(request), client_ip(request)) <= 0:
-            raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
+            raise trial_refused(ledger, config, request)
         try:
             key = settings.api_key_for(TRIAL_PROVIDER)
         except ValueError:
@@ -321,7 +333,7 @@ def build(
     # Checked again and counted in one step: the check above came before the
     # key check, so two requests at once could both have passed it.
     if trial and not ledger.claim_build(config, visitor_id(request), client_ip(request)):
-        raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
+        raise trial_refused(ledger, config, request)
     prompt = clarifier.with_answers(req.prompt, [a.model_dump() for a in req.answers])
     create_job(job_id, prompt, settings.builder_mode, trial=trial, meter=meter)
     if req.app:
@@ -358,6 +370,9 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
         # Free builds are on but Vyskar's own key doesn't work: the app says
         # so before Build is tapped, instead of offering a build it would refuse.
         "paused": paused,
+        # None left now only because today's builds for everyone are taken:
+        # the app says to come back tomorrow, not that this person's are used.
+        "day_full": left <= 0 and ledger.day_full(config, visitor, client_ip(request)),
         "own_keys": own_keys_allowed(),
         # Feedback earns more builds once; the app offers it when none are left.
         # FEEDBACK_BONUS_BUILDS=0 turns the offer off.
