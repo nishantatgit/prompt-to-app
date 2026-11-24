@@ -75,3 +75,32 @@ describe('JobView cancelled', () => {
     expect(screen.queryByText(/given back/)).toBeNull()
   })
 })
+
+describe('JobView test results', () => {
+  const LIVE = { ...RUNNING, status: 'succeeded', deploy_url: 'https://todo.vercel.app', app_name: 'todo' }
+
+  it('says the count once and lists each failed test on its own line', async () => {
+    getJob.mockResolvedValue({
+      ...LIVE,
+      confidence: 75,
+      test_summary: '3/4 tests passed.\nC2 failed: button not found',
+    })
+    render(<JobView jobId="abc" />)
+    expect(await screen.findByText('Confidence 75% (3/4 tests passed)')).toBeTruthy()
+    expect(screen.queryAllByText(/3\/4 tests passed/)).toHaveLength(1)
+    expect(screen.getByRole('listitem').textContent).toBe('C2 failed: button not found')
+  })
+
+  it('shows no list when every test passed', async () => {
+    getJob.mockResolvedValue({ ...LIVE, confidence: 100, test_summary: '4/4 tests passed.' })
+    render(<JobView jobId="abc" />)
+    expect(await screen.findByText('Confidence 100% (4/4 tests passed)')).toBeTruthy()
+    expect(screen.queryByRole('list')).toBeNull()
+  })
+
+  it('leaves out empty brackets without a summary', async () => {
+    getJob.mockResolvedValue({ ...LIVE, confidence: 100, test_summary: '' })
+    render(<JobView jobId="abc" />)
+    expect(await screen.findByText('Confidence 100%')).toBeTruthy()
+  })
+})

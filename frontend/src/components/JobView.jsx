@@ -2,6 +2,33 @@ import { useEffect, useState } from 'react'
 import { cancelJob, getJob, screenshotUrl } from '../lib/api.js'
 import FeedbackForm from './FeedbackForm.jsx'
 import BuildAnimation from './BuildAnimation.jsx'
+import { splitTestSummary } from '../lib/testSummary.js'
+
+// The tests' count once, next to the confidence, then each failed test on
+// its own line. Nothing more when every test passed.
+function TestResults({ job }) {
+  const { headline, details } = splitTestSummary(job.test_summary)
+  return (
+    <>
+      {job.confidence != null ? (
+        <p className={`font-mono text-sm ${job.confidence >= 95 ? 'text-green-400' : 'text-amber-400'}`}>
+          Confidence {job.confidence}%{headline && ` (${headline})`}
+        </p>
+      ) : (
+        headline && <p className="text-sm text-muted">{headline}</p>
+      )}
+      {details.length > 0 && (
+        <ul className="flex flex-col gap-1 text-sm text-muted">
+          {details.map((line, i) => (
+            <li key={i} className="break-words">
+              {line}
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  )
+}
 
 const STAGES = [
   'checking request',
@@ -250,12 +277,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
               Free trial app: its saved data is deleted after 24 hours. Build it with your own AI key to keep it.
             </p>
           )}
-          {job.confidence != null && (
-            <p className={`font-mono text-sm ${job.confidence >= 95 ? 'text-green-400' : 'text-amber-400'}`}>
-                Confidence {job.confidence}% ({job.test_summary?.split('\n')[0]})
-            </p>
-        )}
-          <p className="text-sm text-muted">{job.test_summary}</p>
+          <TestResults job={job} />
           {job.editable && onChange && (
             <button
               type="button"
