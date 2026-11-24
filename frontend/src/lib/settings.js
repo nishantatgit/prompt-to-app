@@ -8,10 +8,19 @@ export const PROVIDERS = [
 const EMPTY = { provider: 'anthropic', apiKey: '' }
 
 // The key lives only in this browser. It is sent with each build and never stored on the server.
+//
+// Whatever is stored is checked: a value that is not what saveSettings wrote
+// (edited by hand, or left by an older version) falls back field by field,
+// so the settings panel never gets a key that is not text, which would break
+// it on save, or a provider the app does not offer.
 export function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
-    return saved ? { ...EMPTY, ...saved } : EMPTY
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return EMPTY
+    return {
+      provider: PROVIDERS.some((p) => p.id === saved.provider) ? saved.provider : EMPTY.provider,
+      apiKey: typeof saved.apiKey === 'string' ? saved.apiKey : EMPTY.apiKey,
+    }
   } catch {
     return EMPTY
   }
