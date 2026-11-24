@@ -2,16 +2,22 @@ name: Backend
 
 # Runs the backend tests on every pull request and push to main that touches
 # the backend. The tests use stubs and mocks only: no secrets, no model calls,
-# and the database test skips itself without VYSKAR_TEST_DATABASE_URL.
+# and the database test skips itself without VYSKAR_TEST_DATABASE_URL. It
+# also runs when the frontend's copies of the API limits change, since
+# test_frontend_limits.py checks them.
 on:
   pull_request:
     paths:
       - "backend/**"
+      - "frontend/src/lib/prompt.js"
+      - "frontend/src/lib/limits.js"
       - ".github/workflows/backend.yml"
   push:
     branches: [main]
     paths:
       - "backend/**"
+      - "frontend/src/lib/prompt.js"
+      - "frontend/src/lib/limits.js"
       - ".github/workflows/backend.yml"
 
 jobs:

@@ -4,13 +4,14 @@
 // carry a list of objects instead, which used to show up as "[object Object]",
 // for example when a pasted order ID went into "Restore builds".
 
+import { MAX_FEEDBACK_CHARS } from './limits.js'
 import { MAX_PROMPT_CHARS } from './prompt.js'
 
 // What to say when a field was rejected, by the field's name.
 const FIELD_MESSAGES = {
   payment_id: "That doesn't look like a payment ID. It starts with pay_ and is on your Razorpay receipt.",
   email: 'That email is too long. Check it and try again.',
-  message: 'That message is too long. Keep it under 4000 characters.',
+  message: `That message is too long. Keep it under ${MAX_FEEDBACK_CHARS} characters.`,
   prompt: `That description is too long. Keep it under ${MAX_PROMPT_CHARS} characters.`,
   answers: "Those answers weren't accepted. Shorten them and try again.",
   app: "That app name isn't valid. Open it again from My apps.",
