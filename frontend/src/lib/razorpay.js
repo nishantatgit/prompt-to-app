@@ -20,9 +20,13 @@ function loadCheckout() {
 }
 
 // Resolves with Razorpay's proof of payment, or null if the window was closed.
+// A failed attempt does not end it: Razorpay keeps the window open so the
+// visitor can try again, and a later attempt can still succeed. The failure
+// only counts if they close the window without paying.
 export async function pay({ keyId, orderId, amount, description }) {
   await loadCheckout()
   return new Promise((resolve, reject) => {
+    let failure = null
     const checkout = new window.Razorpay({
       key: keyId,
       order_id: orderId,
@@ -32,11 +36,11 @@ export async function pay({ keyId, orderId, amount, description }) {
       description,
       theme: { color: '#4A0E5C' },
       handler: (proof) => resolve(proof),
-      modal: { ondismiss: () => resolve(null) },
+      modal: { ondismiss: () => (failure ? reject(new Error(failure)) : resolve(null)) },
     })
-    checkout.on('payment.failed', (event) =>
-      reject(new Error(event?.error?.description || 'The payment did not go through.')),
-    )
+    checkout.on('payment.failed', (event) => {
+      failure = event?.error?.description || 'The payment did not go through.'
+    })
     checkout.open()
   })
 }
