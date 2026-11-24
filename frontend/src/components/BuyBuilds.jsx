@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createOrder, restoreBuilds, verifyPayment } from '../lib/api.js'
 import { pay } from '../lib/razorpay.js'
+import { builds } from '../lib/plural.js'
 
 const rupees = (n) => `₹${n.toLocaleString('en-IN')}`
 
@@ -19,7 +20,7 @@ export default function BuyBuilds({ credits, onBought }) {
     setDone('')
     try {
       const { builds_left } = await restoreBuilds(restoreId.trim())
-      setDone(`Restored. You have ${builds_left} builds.`)
+      setDone(`Restored. You have ${builds(builds_left)}.`)
       setRestoring(false)
       onBought(builds_left)
     } catch (err) {
@@ -37,11 +38,11 @@ export default function BuyBuilds({ credits, onBought }) {
         keyId: order.key_id,
         orderId: order.order_id,
         amount: order.amount,
-        description: `${pack.builds} app builds`,
+        description: builds(pack.builds, 'app'),
       })
       if (!proof) return // closed the window
       const { builds_left, payment_id } = await verifyPayment(proof)
-      setDone(`Paid. You have ${builds_left} builds.`)
+      setDone(`Paid. You have ${builds(builds_left)}.`)
       setPaymentId(payment_id || proof.razorpay_payment_id)
       onBought(builds_left)
     } catch (err) {
@@ -72,7 +73,7 @@ export default function BuyBuilds({ credits, onBought }) {
           >
             <span className="font-display text-xl font-bold">
               <span className="sr-only">Buy </span>
-              {pack.builds} builds
+              {builds(pack.builds)}
             </span>
             <span className="text-accent">{rupees(pack.price_inr)}</span>
             <span className="text-xs text-dim">
