@@ -3,6 +3,7 @@
 // - Pages: the cached copy opens at once and is refreshed in the background,
 //   so the installed app starts without waiting for the network. A new
 //   release shows from the next launch. Without a cached copy, the network.
+//   Other paths (/admin) take the network first, see freshPageFirst.
 // - /assets/: built files have a hash in their name and never change, so
 //   they come from the cache once fetched.
 // - Everything else from this site, such as icons: the cache answers at
@@ -28,6 +29,21 @@ self.addEventListener('activate', (event) => {
 })
 
 // The app has one page, so every navigation is answered with '/'.
+// Cache first only for '/' itself: other paths such as /admin load a
+// separate chunk (Admin-<hash>.js) that the cached page may not have
+// fetched yet, and after a release that old chunk no longer exists, so a
+// cached page there would come up blank. Those paths take the network
+// first and fall back to the cached page only when offline.
+async function freshPageFirst(event) {
+  try {
+    const response = await fetch(event.request)
+    if (response.ok) return response
+    return (await caches.match('/')) || response
+  } catch {
+    return (await caches.match('/')) || Response.error()
+  }
+}
+
 async function cachedPageFirst(event) {
   const cached = await caches.match('/')
   const fresh = fetch(event.request)
@@ -66,8 +82,9 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return
   if (url.pathname.startsWith('/api/')) return
 
-  if (request.mode === 'navigate') event.respondWith(cachedPageFirst(event))
-  else if (url.pathname.startsWith('/assets/')) event.respondWith(cacheFirst(request))
+  if (request.mode === 'navigate') {
+    event.respondWith(url.pathname === '/' ? cachedPageFirst(event) : freshPageFirst(event))
+  } else if (url.pathname.startsWith('/assets/')) event.respondWith(cacheFirst(request))
   else event.respondWith(staleWhileRevalidate(request))
 })
 
