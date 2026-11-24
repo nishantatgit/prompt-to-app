@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { joinWaitlist } from '../lib/api.js'
 import FeedbackForm from './FeedbackForm.jsx'
+import { builds } from '../lib/plural.js'
 
 // Free builds left, or, when they are used up: feedback for more, and a
 // way to get paid builds (the packs when buying is on, else an email list).
@@ -56,7 +57,7 @@ export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paid
 
       {trial.bonus_available && (
         <div className="flex flex-col gap-3">
-          <p className="font-semibold">Tell us how it went and get {bonusBuilds} more builds.</p>
+          <p className="font-semibold">Tell us how it went and get {builds(bonusBuilds, 'more')}.</p>
           <FeedbackForm withRating={false} withEmail autoOpen bonus={bonusBuilds} onBonus={onBonus} />
         </div>
       )}

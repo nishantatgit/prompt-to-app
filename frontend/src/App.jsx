@@ -11,6 +11,7 @@ import VoiceComposer from './components/VoiceComposer.jsx'
 import MyApps from './components/MyApps.jsx'
 import BuyBuilds from './components/BuyBuilds.jsx'
 import { inAndroidApp } from './lib/platform.js'
+import { builds } from './lib/plural.js'
 import BuildsPanel from './components/BuildsPanel.jsx'
 import Questions from './components/Questions.jsx'
 import { loadApps, rememberApp } from './lib/myApps.js'
@@ -158,7 +159,9 @@ export default function App() {
   }
 
   const buildNote = paidBuild
-    ? `Uses 1 of your ${credits.builds_left} builds.`
+    ? credits.builds_left === 1
+      ? 'Uses your last build.'
+      : `Uses 1 of your ${credits.builds_left} builds.`
     : freePaused
     ? pausedNote(ownKeys)
     : freeBuild
@@ -232,7 +235,7 @@ export default function App() {
                 {apiKey
                   ? 'Key saved'
                   : paidBuild
-                    ? `${credits.builds_left} builds`
+                    ? builds(credits.builds_left)
                     : freePaused
                       ? 'Paused'
                       : freeBuild
@@ -245,11 +248,11 @@ export default function App() {
                 {apiKey
                   ? `${providerLabel} key saved`
                   : paidBuild
-                    ? `${credits.builds_left} builds left`
+                    ? `${builds(credits.builds_left)} left`
                     : freePaused
                       ? 'Free builds paused'
                       : freeBuild
-                      ? `${trial.builds_left} free builds`
+                      ? builds(trial.builds_left, 'free')
                       : !ownKeys
                         ? 'Get more builds'
                         : credits.enabled

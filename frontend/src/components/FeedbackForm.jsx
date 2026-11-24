@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { sendFeedback } from '../lib/api.js'
+import { builds } from '../lib/plural.js'
 
 const BONUS_MIN = 20 // characters, as the server counts them
 
@@ -41,7 +42,7 @@ export default function FeedbackForm({ jobId, bonus = 0, withRating = true, with
     return (
       <p className="text-sm text-accent">
         {sent.bonus_builds
-          ? `Thank you! You've got ${sent.bonus_builds} more free builds.`
+          ? `Thank you! You've got ${builds(sent.bonus_builds, 'more free')}.`
           : 'Thank you! This goes straight to the person building Vyskar.'}
       </p>
     )
@@ -110,8 +111,8 @@ export default function FeedbackForm({ jobId, bonus = 0, withRating = true, with
           {bonus > 0 && (
             <p className={`text-xs ${long ? 'text-accent' : 'text-dim'}`}>
               {long
-                ? `Sending this gets you ${bonus} more free builds.`
-                : `Write a sentence or two and get ${bonus} more free builds.`}
+                ? `Sending this gets you ${builds(bonus, 'more free')}.`
+                : `Write a sentence or two and get ${builds(bonus, 'more free')}.`}
             </p>
           )}
           <button
