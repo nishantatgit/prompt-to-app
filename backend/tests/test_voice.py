@@ -1,5 +1,8 @@
+import asyncio
+
 import httpx
 import pytest
+from fastapi import HTTPException, Request
 from fastapi.testclient import TestClient
 
 from api import voice
@@ -74,6 +77,46 @@ def test_only_short_wav_recordings_are_accepted(client):
     assert post(client, content_type="audio/webm").status_code == 415
     assert post(client, body=b"").status_code == 400
     assert post(client, body=b"0" * (voice.MAX_BYTES + 1)).status_code == 413
+
+
+def test_an_oversized_recording_is_refused_by_its_declared_length(client, monkeypatch):
+    monkeypatch.setattr(voice, "transcribe", lambda key, audio: pytest.fail("not sent on"))
+    response = client.post(
+        "/api/transcribe",
+        content=WAV,
+        headers={"Content-Type": "audio/wav", "Content-Length": str(voice.MAX_BYTES + 1)},
+    )
+    assert response.status_code == 413
+    assert response.json()["detail"] == voice.TOO_LONG
+
+
+def test_an_oversized_recording_stops_being_read_past_the_cap():
+    chunk = b"0" * 64_000
+    pulled = []
+
+    async def receive():
+        # Far more than the cap, with no Content-Length: the server must stop
+        # pulling soon after MAX_BYTES instead of taking all of it.
+        pulled.append(len(chunk))
+        return {"type": "http.request", "body": chunk, "more_body": len(pulled) < 1000}
+
+    request = Request(
+        {"type": "http", "method": "POST", "headers": [(b"content-type", b"audio/wav")]},
+        receive,
+    )
+    with pytest.raises(HTTPException) as refused:
+        asyncio.run(voice._read_capped(request))
+    assert refused.value.status_code == 413
+    assert sum(pulled) <= voice.MAX_BYTES + len(chunk)
+
+
+def test_a_recording_at_the_cap_is_still_taken(client, monkeypatch):
+    heard = {}
+    monkeypatch.setattr(
+        voice, "transcribe", lambda key, audio: heard.update(n=len(audio)) or ("hi", "en-IN")
+    )
+    assert post(client, body=b"0" * voice.MAX_BYTES).status_code == 200
+    assert heard["n"] == voice.MAX_BYTES
 
 
 def test_recordings_are_limited_per_network(client, monkeypatch):

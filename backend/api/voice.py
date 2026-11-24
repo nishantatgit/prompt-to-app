@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api")
 MAX_BYTES = 1_100_000
 PER_HOUR = env_int("VOICE_PER_HOUR", 40, minimum=1)
 NOT_SET_UP = "Voice is not set up on this server."
+TOO_LONG = "Recordings can be up to 30 seconds."
 
 _hits = HourlyCounter()
 
@@ -21,6 +22,24 @@ _hits = HourlyCounter()
 def _check_limit(ip: str, now: float | None = None) -> None:
     if not _hits.allow(ip, PER_HOUR, now):
         raise HTTPException(status_code=429, detail="Too many recordings. Type for now.")
+
+
+async def _read_capped(request: Request) -> bytes:
+    """The request body, refused as soon as it is longer than MAX_BYTES.
+
+    Reading it all first would let one upload of any size sit in the API's
+    memory before the length check, so the declared length is checked up
+    front and the body is read in chunks that stop past the cap.
+    """
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_BYTES:
+        raise HTTPException(status_code=413, detail=TOO_LONG)
+    audio = bytearray()
+    async for chunk in request.stream():
+        audio += chunk
+        if len(audio) > MAX_BYTES:
+            raise HTTPException(status_code=413, detail=TOO_LONG)
+    return bytes(audio)
 
 
 @router.get("/voice")
@@ -36,11 +55,9 @@ async def transcribe_speech(request: Request):
         raise HTTPException(status_code=503, detail=NOT_SET_UP)
     if not request.headers.get("content-type", "").startswith("audio/wav"):
         raise HTTPException(status_code=415, detail="Send the recording as audio/wav.")
-    audio = await request.body()
+    audio = await _read_capped(request)
     if not audio:
         raise HTTPException(status_code=400, detail="The recording was empty.")
-    if len(audio) > MAX_BYTES:
-        raise HTTPException(status_code=413, detail="Recordings can be up to 30 seconds.")
     _check_limit(client_ip(request))
     try:
         text, language = transcribe(key, audio)
