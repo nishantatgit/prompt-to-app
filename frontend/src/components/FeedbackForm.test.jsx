@@ -38,4 +38,15 @@ describe('FeedbackForm', () => {
     expect(screen.queryByRole('alert')).toBeNull()
     expect(screen.getByText(/Thank you!/).className).toContain('text-accent')
   })
+
+  it('counts emoji as the server does when saying a message earns bonus builds', () => {
+    render(<FeedbackForm jobId="abc" bonus={2} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Good' }))
+    const box = screen.getByLabelText('Your feedback')
+    // 10 emoji: 20 by JavaScript's count, 10 by the server's, so no bonus yet
+    fireEvent.change(box, { target: { value: '👍'.repeat(10) } })
+    expect(screen.getByText(/Write a sentence or two/)).toBeTruthy()
+    fireEvent.change(box, { target: { value: 'The todo list saved fine.' } })
+    expect(screen.getByText(/Sending this gets you/)).toBeTruthy()
+  })
 })

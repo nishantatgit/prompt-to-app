@@ -32,6 +32,9 @@ from config import Settings, get_settings
 router = APIRouter(prefix="/api")
 
 MIN_MESSAGE_FOR_BONUS = 20
+# The longest feedback message taken. The frontend's copies of these two live
+# in frontend/src/lib/limits.js, checked by test_frontend_limits.py.
+MAX_FEEDBACK_CHARS = 4000
 PER_DAY = 20
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -135,7 +138,7 @@ def _check_limit(store: FeedbackStore, visitor: str, ip: str) -> None:
 class FeedbackRequest(BaseModel):
     job_id: str | None = Field(default=None, max_length=64)
     rating: Literal["up", "down"] | None = None
-    message: str = Field(default="", max_length=4000)
+    message: str = Field(default="", max_length=MAX_FEEDBACK_CHARS)
     email: str | None = Field(default=None, max_length=200)
 
 

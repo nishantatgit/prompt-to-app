@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { sendFeedback } from '../lib/api.js'
 
-const BONUS_MIN = 20 // characters, as the server counts them
+import { FEEDBACK_BONUS_MIN_CHARS, MAX_FEEDBACK_CHARS, serverLength } from '../lib/limits.js'
 
 function Thumb({ down, ...props }) {
   return (
@@ -47,7 +47,7 @@ export default function FeedbackForm({ jobId, bonus = 0, withRating = true, with
     )
   }
 
-  const long = message.trim().length >= BONUS_MIN
+  const long = serverLength(message.trim()) >= FEEDBACK_BONUS_MIN_CHARS
   return (
     <form onSubmit={send} className="flex flex-col gap-3">
       {withRating && (
@@ -83,7 +83,7 @@ export default function FeedbackForm({ jobId, bonus = 0, withRating = true, with
             rows={3}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            maxLength={4000}
+            maxLength={MAX_FEEDBACK_CHARS}
             placeholder={
               !withRating
                 ? 'How did your builds go? What should Vyskar do better?'
