@@ -3,7 +3,20 @@ import { forgetApp, loadApps, rememberApp } from './myApps'
 
 const KEY = 'vyskar.apps'
 
-beforeEach(() => localStorage.clear())
+function blockStorage() {
+  const error = () => {
+    throw new Error('SecurityError')
+  }
+  vi.spyOn(Storage.prototype, 'getItem').mockImplementation(error)
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementation(error)
+}
+
+beforeEach(() => {
+  localStorage.clear()
+  // A save that works clears what an earlier test kept in memory.
+  rememberApp({ name: 'reset', url: '', prompt: '' })
+  localStorage.clear()
+})
 afterEach(() => vi.useRealTimers())
 
 describe('loadApps', () => {
@@ -70,6 +83,43 @@ describe('rememberApp', () => {
       throw new Error('QuotaExceededError')
     })
     expect(rememberApp({ name: 'one', url: 'u1', editKey: 'k1', prompt: 'p' })).toHaveLength(1)
+  })
+})
+
+describe('when storage will not keep the list', () => {
+  it('still finds an app just built, so it can be changed', () => {
+    blockStorage()
+    rememberApp({ name: 'one', url: 'u1', editKey: 'k1', prompt: 'p' })
+    expect(loadApps().find((app) => app.name === 'one')?.editKey).toBe('k1')
+  })
+
+  it('keeps earlier apps when the next one is built', () => {
+    blockStorage()
+    rememberApp({ name: 'one', url: 'u1', editKey: 'k1', prompt: 'p' })
+    const apps = rememberApp({ name: 'two', url: 'u2', editKey: 'k2', prompt: 'p' })
+    expect(apps.map((app) => app.name)).toEqual(['two', 'one'])
+  })
+
+  it('keeps apps already saved when storage fills up', () => {
+    rememberApp({ name: 'one', url: 'u1', editKey: 'k1', prompt: 'p' })
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError')
+    })
+    rememberApp({ name: 'two', url: 'u2', editKey: 'k2', prompt: 'p' })
+    expect(loadApps().map((app) => app.name)).toEqual(['two', 'one'])
+  })
+
+  it('reads storage again once a save works', () => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError')
+    })
+    rememberApp({ name: 'one', url: 'u1', editKey: 'k1', prompt: 'p' })
+    setItem.mockRestore()
+    rememberApp({ name: 'two', url: 'u2', editKey: 'k2', prompt: 'p' })
+    expect(JSON.parse(localStorage.getItem(KEY)).map((app) => app.name)).toEqual(['two', 'one'])
+    // Another tab's change is seen again.
+    localStorage.setItem(KEY, JSON.stringify([{ name: 'other' }]))
+    expect(loadApps().map((app) => app.name)).toEqual(['other'])
   })
 })
 
