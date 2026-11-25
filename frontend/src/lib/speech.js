@@ -18,8 +18,15 @@ const ERRORS = {
   network: 'Voice needs an internet connection. Try again or type instead.',
 }
 
+const FAILED = "Voice didn't work this time. Try again or type instead."
+
 // Starts listening at once. onText gets the whole transcript so far each time
 // it changes; onEnd is called once, when listening stops for any reason.
+//
+// stop() ends listening and keeps what was heard (onEnd still comes).
+// cancel() is for when the voice screen goes away, such as when a phone is
+// turned sideways mid-sentence: the mic turns off and no callback is called
+// again, so nothing more is written into the prompt.
 export function listen({ onText, onEnd, onError, lang = navigator.language || 'en-US' }) {
   const recognition = new Recognition()
   recognition.lang = lang
@@ -32,9 +39,23 @@ export function listen({ onText, onEnd, onError, lang = navigator.language || 'e
   }
   recognition.onerror = (event) => {
     if (event.error === 'aborted') return
-    onError?.(ERRORS[event.error] || "Voice didn't work this time. Try again or type instead.")
+    onError?.(ERRORS[event.error] || FAILED)
   }
   recognition.onend = () => onEnd?.()
-  recognition.start()
-  return { stop: () => recognition.stop() }
+  const cancel = () => {
+    recognition.onresult = null
+    recognition.onerror = null
+    recognition.onend = null
+    recognition.abort()
+  }
+  try {
+    recognition.start()
+  } catch {
+    // Such as when another tab or app holds the recognizer: say so and end,
+    // instead of showing "Listening..." with nothing listening.
+    onError?.(FAILED)
+    onEnd?.()
+    return { stop: () => {}, cancel: () => {} }
+  }
+  return { stop: () => recognition.stop(), cancel }
 }
