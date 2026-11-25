@@ -1,0 +1,45 @@
+name: Landing
+
+# Builds vyskar.com (the English page at / and the Hindi page at /hi/) on
+# every pull request and push to main that touches the landing page, so a
+# change that breaks the build or drops a page is caught before Vercel ships
+# it. Needs no secrets.
+on:
+  pull_request:
+    paths:
+      - "landing/**"
+      - ".github/workflows/landing.yml"
+  push:
+    branches: [main]
+    paths:
+      - "landing/**"
+      - ".github/workflows/landing.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: landing/yarn.lock
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn build
+      - name: Both pages are built, each in its own language with its script
+        run: |
+          check() {
+            page="$1"; lang="$2"
+            if [ ! -f "$page" ]; then
+              echo "::error::$page was not built"; exit 1
+            fi
+            grep -q "<html lang=\"$lang\"" "$page" || { echo "::error::$page is not lang=$lang"; exit 1; }
+            grep -q '<script type="module"' "$page" || { echo "::error::$page has no script"; exit 1; }
+            echo "ok: $page ($lang)"
+          }
+          check dist/index.html en
+          check dist/hi/index.html hi
