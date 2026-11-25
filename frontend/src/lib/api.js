@@ -23,7 +23,9 @@ async function request(path, options) {
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = errorMessage(body, res.status);
-    throw message === SERVER_AWAY ? unreachable(message) : new Error(message);
+    const error = message === SERVER_AWAY ? unreachable(message) : new Error(message);
+    error.status = res.status;
+    throw error;
   }
   return body;
 }

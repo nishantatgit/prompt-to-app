@@ -182,6 +182,14 @@ def create_order(req: OrderRequest, request: Request, settings: Settings = Depen
     }
 
 
+# Paid in Razorpay, but the check here failed for now: restoring with the
+# payment ID adds the builds once Razorpay answers (see _record_unconfirmed).
+UNCONFIRMED = (
+    "Your payment went through, but Vyskar couldn't add the builds yet. "
+    "Restore them with your payment ID in a minute."
+)
+
+
 class PaymentProof(BaseModel):
     razorpay_order_id: str
     razorpay_payment_id: str
@@ -212,7 +220,7 @@ def verify_payment(
     except Exception:
         raise HTTPException(
             status_code=502,
-            detail="Payment received; your builds will appear in a minute.",
+            detail=UNCONFIRMED,
         ) from None
     store.record_payment(proof.razorpay_payment_id, proof.razorpay_order_id)
     return {
@@ -242,6 +250,33 @@ async def razorpay_webhook(request: Request, settings: Settings = Depends(get_se
 
 
 RESTORE_PER_HOUR = 10
+
+
+def _record_unconfirmed(config: CreditConfig, store: CreditStore, payment_id: str) -> bool:
+    """Count a payment Vyskar never confirmed, so it can be restored.
+
+    Paying and confirming are two steps: if the confirm call failed (the
+    phone lost signal, or Razorpay or Vyskar was slow) and no webhook came,
+    the money was taken but the builds were never added, and restoring said
+    "No builds found". Razorpay is asked about the payment instead: it must
+    be for an order Vyskar created, for that order's amount, and captured
+    (an authorized one is captured here, as in verify). Any problem means
+    False, so restore answers as before."""
+    try:
+        payment = razorpay.get_payment(config.key_id, config.secret, payment_id)
+        if payment.get("id") != payment_id:
+            return False
+        order_id = payment.get("order_id") or ""
+        order = store.order(order_id)
+        if order is None:
+            return False
+        razorpay.settle_payment(
+            config.key_id, config.secret, payment_id, order_id, order["amount"]
+        )
+    except Exception:
+        return False
+    store.record_payment(payment_id, order_id)
+    return True
 _restore_hits = HourlyCounter()
 
 
@@ -255,13 +290,17 @@ def restore_builds(
 ):
     """Bring bought builds to this browser with the payment ID from the
     Razorpay receipt. Few tries per hour: payment IDs can't be guessed."""
-    _config_or_503()
+    config = _config_or_503()
     if not _restore_hits.allow(client_ip(request), RESTORE_PER_HOUR):
         raise HTTPException(status_code=429, detail="Too many tries. Try again in an hour.")
     visitor = visitor_of(request)
     if not visitor:
         raise HTTPException(status_code=400, detail="Reload the page and try again.")
-    balance = credit_store(settings).restore(req.payment_id.strip(), visitor)
+    store = credit_store(settings)
+    payment_id = req.payment_id.strip()
+    balance = store.restore(payment_id, visitor)
+    if balance is None and _record_unconfirmed(config, store, payment_id):
+        balance = store.restore(payment_id, visitor)
     if balance is None:
         raise HTTPException(
             status_code=404,
