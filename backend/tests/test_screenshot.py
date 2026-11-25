@@ -1,3 +1,4 @@
+import json
 import os
 import time
 from types import SimpleNamespace
@@ -69,6 +70,33 @@ def test_a_failed_photo_never_fails_the_build(tmp_path):
 
     assert make_screenshot(tmp_path, take=boom)(state(tmp_path)) == {}
     assert make_screenshot(tmp_path, take=fake_take([], ok=False))(state(tmp_path)) == {}
+
+
+def logged(out):
+    return [json.loads(line) for line in out.splitlines() if line.startswith("{")]
+
+
+def test_a_missed_photo_is_logged_with_why(tmp_path, capsys):
+    def boom(*a):
+        raise RuntimeError("chromium crashed at /secret/path")
+
+    make_screenshot(tmp_path, take=fake_take([], ok=False))(state(tmp_path))
+    make_screenshot(tmp_path, take=boom)(state(tmp_path))
+    out = capsys.readouterr().out
+    failed, error = [e for e in logged(out) if e["event"] == "screenshot_missed"]
+    assert failed["job_id"] == "job-1" and failed["reason"] == "failed"
+    assert error["reason"] == "error" and error["error"] == "RuntimeError"
+    # Only the error's type is logged, never its message.
+    assert "secret" not in out
+
+
+def test_nothing_is_logged_when_the_photo_is_taken_or_not_wanted(tmp_path, capsys):
+    make_screenshot(tmp_path, take=fake_take([]))(state(tmp_path))
+    make_screenshot(None, take=fake_take([]))(state(tmp_path))
+    no_url = state(tmp_path)
+    no_url["deploy_url"] = ""
+    make_screenshot(tmp_path, take=fake_take([]))(no_url)
+    assert logged(capsys.readouterr().out) == []
 
 
 def test_the_photo_is_taken_after_deploy_and_ends_the_graph(tmp_path):

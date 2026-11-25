@@ -15,6 +15,11 @@ workspaces_cleaned is logged after a build when the packages and outputs of
 finished builds were deleted from WORKSPACES_DIR; "count" is how many job
 folders were cleaned.
 
+screenshot_missed is logged when an app went live but the photo for the end
+of the build animation could not be taken; "reason" is failed (the
+screenshot script did not save a photo) or error (it raised), and "error" is
+the exception's class name.
+
 bad_setting is logged once when a whole-number setting such as
 FREE_TRIAL_BUILDS is blank or mistyped; "name" says which, "using" is the
 default used instead, and the value itself is never logged (see api/env.py).
