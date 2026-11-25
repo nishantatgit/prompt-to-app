@@ -64,6 +64,15 @@ class HourlyCounter:
             hits.append(now)
             return True
 
+    def give_back(self, key: str) -> None:
+        """Uncount the latest try for `key`, for a try that failed on our
+        side (such as an outage at a provider), so it does not use up the
+        network's hour."""
+        with self._lock:
+            hits = self._hits.get(key)
+            if hits:
+                hits.pop()
+
     def keys(self) -> set[str]:
         with self._lock:
             return set(self._hits)

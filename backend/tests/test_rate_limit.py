@@ -108,3 +108,13 @@ def test_hourly_counter_forgets_networks_with_no_recent_try():
     assert counter.keys() == {"6.6.6.6", "7.7.7.7"}
     counter.clear()
     assert counter.keys() == set()
+
+
+def test_a_given_back_try_frees_its_place():
+    counter = limits.HourlyCounter()
+    assert counter.allow("1.1.1.1", 1, now=0.0)
+    assert not counter.allow("1.1.1.1", 1, now=1.0)
+    counter.give_back("1.1.1.1")
+    assert counter.allow("1.1.1.1", 1, now=2.0)
+    counter.give_back("9.9.9.9")  # never seen: nothing to give back
+    assert counter.keys() == {"1.1.1.1"}
