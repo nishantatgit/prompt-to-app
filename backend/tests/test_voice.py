@@ -88,3 +88,28 @@ def test_networks_with_no_recent_recording_are_forgotten(client):
     voice._check_limit("5.5.5.5", now=0.0)
     voice._check_limit("6.6.6.6", now=3601.0)
     assert voice._hits.keys() == {"6.6.6.6"}
+
+
+def test_a_sarvam_outage_does_not_use_up_the_hour(client, monkeypatch):
+    monkeypatch.setattr(voice, "PER_HOUR", 1)
+
+    def down(key, audio):
+        raise RuntimeError("Sarvam 500")
+
+    monkeypatch.setattr(voice, "transcribe", down)
+    assert post(client).status_code == 502
+    assert post(client).status_code == 502
+    monkeypatch.setattr(voice, "transcribe", lambda key, audio: ("hi", "en-IN"))
+    assert post(client).status_code == 200
+    assert post(client).status_code == 429
+
+
+def test_unclear_audio_still_counts(client, monkeypatch):
+    monkeypatch.setattr(voice, "PER_HOUR", 1)
+
+    def unclear(key, audio):
+        raise sarvam.SpeechError("Couldn't make out that recording.")
+
+    monkeypatch.setattr(voice, "transcribe", unclear)
+    assert post(client).status_code == 422
+    assert post(client).status_code == 429

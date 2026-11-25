@@ -47,6 +47,9 @@ async def transcribe_speech(request: Request):
     except SpeechError as error:
         raise HTTPException(status_code=422, detail=str(error)) from None
     except Exception:
+        # Sarvam's problem, not the visitor's: the recording does not count
+        # against the network's hour.
+        _hits.give_back(client_ip(request))
         raise HTTPException(
             status_code=502, detail="Voice isn't working right now. Type your app instead."
         ) from None
