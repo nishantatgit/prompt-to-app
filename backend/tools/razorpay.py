@@ -51,12 +51,17 @@ def _same(expected: str, signature: str) -> bool:
     return hmac.compare_digest(expected.encode(), (signature or "").encode())
 
 
+def get_payment(key_id: str, secret: str, payment_id: str) -> dict:
+    """The payment as Razorpay has it: its order, amount and status."""
+    response = httpx.get(f"{API}/payments/{payment_id}", auth=_auth(key_id, secret), timeout=30)
+    response.raise_for_status()
+    return response.json()
+
+
 def settle_payment(key_id: str, secret: str, payment_id: str, order_id: str, amount: int) -> dict:
     """Make sure the money is taken: the payment must be for this order and
     amount, and captured. An authorized payment is captured here."""
-    response = httpx.get(f"{API}/payments/{payment_id}", auth=_auth(key_id, secret), timeout=30)
-    response.raise_for_status()
-    payment = response.json()
+    payment = get_payment(key_id, secret, payment_id)
     if payment.get("order_id") != order_id or payment.get("amount") != amount:
         raise PaymentError("This payment does not match the order.")
     if payment.get("status") == "authorized":

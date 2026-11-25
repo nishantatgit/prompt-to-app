@@ -347,11 +347,64 @@ def test_restoring_over_the_api(client, monkeypatch):
 
 
 def test_restore_tries_are_limited(client, monkeypatch):
+    fake_razorpay(monkeypatch)
     monkeypatch.setattr(credits, "RESTORE_PER_HOUR", 2)
     credits._restore_hits.clear()
     for _ in range(2):
         assert client.post("/api/credits/restore", json={"payment_id": "pay_x1"}).status_code == 404
     assert client.post("/api/credits/restore", json={"payment_id": "pay_x1"}).status_code == 429
+
+
+def test_a_payment_that_was_never_confirmed_can_be_restored(client, monkeypatch):
+    """Paid in Razorpay, then the confirm call failed and no webhook came:
+    restoring with the payment ID asks Razorpay and adds the builds."""
+    credits._restore_hits.clear()
+    _, proof = buy(client, monkeypatch)
+
+    def razorpay_down(*a, **kw):
+        raise httpx.ConnectError("no route")
+
+    monkeypatch.setattr(razorpay.httpx, "get", razorpay_down)
+    reply = client.post("/api/credits/verify", json=proof)
+    assert reply.status_code == 502
+    assert "payment ID" in reply.json()["detail"]
+    assert client.get("/api/credits").json()["builds_left"] == 0
+    # Still down: nothing found, as before.
+    assert client.post("/api/credits/restore", json={"payment_id": "pay_1"}).status_code == 404
+
+    calls = fake_razorpay(monkeypatch, status="authorized")
+    other = TestClient(client.app, headers={"X-Vyskar-Visitor": "visitor-2"})
+    assert other.post("/api/credits/restore", json={"payment_id": "pay_1"}).json() == {
+        "builds_left": 5
+    }
+    assert ("POST", f"{razorpay.API}/payments/pay_1/capture") in calls
+    # Counted once: confirming late, or restoring again, adds nothing more.
+    assert client.post("/api/credits/verify", json=proof).json()["builds_left"] == 5
+    assert other.post("/api/credits/restore", json={"payment_id": "pay_1"}).json() == {
+        "builds_left": 5
+    }
+
+
+@pytest.mark.parametrize(
+    "payment",
+    [
+        {"id": "pay_1", "order_id": "order_elsewhere", "amount": 49900, "status": "captured"},
+        {"id": "pay_1", "order_id": "order_1", "amount": 100, "status": "captured"},
+        {"id": "pay_1", "order_id": "order_1", "amount": 49900, "status": "failed"},
+        {"id": "pay_other", "order_id": "order_1", "amount": 49900, "status": "captured"},
+    ],
+    ids=["another-order", "wrong-amount", "failed", "another-payment"],
+)
+def test_restore_adds_nothing_for_a_payment_that_does_not_match(client, monkeypatch, payment):
+    credits._restore_hits.clear()
+    buy(client, monkeypatch)  # creates order_1 for 49900, never confirmed
+
+    def get(url, **kw):
+        return httpx.Response(200, json=payment, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(razorpay.httpx, "get", get)
+    assert client.post("/api/credits/restore", json={"payment_id": "pay_1"}).status_code == 404
+    assert client.get("/api/credits").json()["builds_left"] == 0
 
 
 # A mistyped CREDIT_PACKS must not break building.

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { createOrder, restoreBuilds, verifyPayment } from '../lib/api.js'
+import { createOrder, restoreBuilds } from '../lib/api.js'
+import { Unconfirmed, confirmPayment } from '../lib/payment.js'
 import { pay } from '../lib/razorpay.js'
 
 const rupees = (n) => `₹${n.toLocaleString('en-IN')}`
@@ -9,6 +10,8 @@ export default function BuyBuilds({ credits, onBought }) {
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+  // Paid, but not confirmed yet: said calmly, not as an error.
+  const [notice, setNotice] = useState('')
   const [paymentId, setPaymentId] = useState('')
   const [restoring, setRestoring] = useState(false)
   const [restoreId, setRestoreId] = useState('')
@@ -19,6 +22,7 @@ export default function BuyBuilds({ credits, onBought }) {
     setDone('')
     try {
       const { builds_left } = await restoreBuilds(restoreId.trim())
+      setNotice('')
       setDone(`Restored. You have ${builds_left} builds.`)
       setRestoring(false)
       onBought(builds_left)
@@ -31,6 +35,7 @@ export default function BuyBuilds({ credits, onBought }) {
     setBusy(pack.id)
     setError('')
     setDone('')
+    setNotice('')
     try {
       const order = await createOrder(pack.id)
       const proof = await pay({
@@ -40,12 +45,20 @@ export default function BuyBuilds({ credits, onBought }) {
         description: `${pack.builds} app builds`,
       })
       if (!proof) return // closed the window
-      const { builds_left, payment_id } = await verifyPayment(proof)
+      const { builds_left, payment_id } = await confirmPayment(proof)
       setDone(`Paid. You have ${builds_left} builds.`)
       setPaymentId(payment_id || proof.razorpay_payment_id)
       onBought(builds_left)
     } catch (err) {
-      setError(err.message)
+      if (err instanceof Unconfirmed && err.paymentId) {
+        // The money is taken: keep the payment ID on screen, ready to restore.
+        setNotice(err.message)
+        setPaymentId(err.paymentId)
+        setRestoreId(err.paymentId)
+        setRestoring(true)
+      } else {
+        setError(err.message)
+      }
     } finally {
       setBusy('')
     }
@@ -83,6 +96,11 @@ export default function BuyBuilds({ credits, onBought }) {
       </div>
       <p className="mt-3 text-xs text-dim">UPI, cards and netbanking, through Razorpay.</p>
       {done && <p className="mt-3 text-sm text-accent">{done}</p>}
+      {notice && (
+        <p role="status" className="mt-3 text-sm text-fg">
+          {notice}
+        </p>
+      )}
       {paymentId && (
         <p className="mt-2 text-sm text-muted">
           Keep your payment ID <span className="select-all font-mono text-fg">{paymentId}</span>. It
