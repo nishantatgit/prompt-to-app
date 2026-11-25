@@ -3,7 +3,13 @@
 const KEY = 'vyskar.apps'
 const MAX_APPS = 50
 
+// The list, when storage would not keep it (blocked, or full). Until a save
+// works again this page reads from here, so an app just built can still be
+// changed and the next build does not drop it from the list.
+let unsaved = null
+
 export function loadApps() {
+  if (unsaved) return unsaved
   try {
     const apps = JSON.parse(localStorage.getItem(KEY) || '[]')
     return Array.isArray(apps) ? apps : []
@@ -15,8 +21,10 @@ export function loadApps() {
 function save(apps) {
   try {
     localStorage.setItem(KEY, JSON.stringify(apps))
+    unsaved = null
   } catch {
     // private mode or full storage: the list lasts until the page closes
+    unsaved = apps
   }
 }
 
