@@ -69,3 +69,47 @@ def test_works_on_a_real_workspace(tmp_path):
     sandbox = Sandbox(job_dir)
     assert "src/App.jsx" in sandbox.list_files().splitlines()
     assert "package.json" in sandbox.list_files().splitlines()
+
+
+# A model mistake on a file must come back as a tool answer. Before, these
+# raised OSError past the tool wrapper and failed the whole build.
+@pytest.mark.parametrize("path", ["src", "src/", "", "."])
+def test_write_to_a_folder_is_a_tool_error(sandbox, path):
+    sandbox.write_file("src/App.jsx", "a")
+    with pytest.raises(ToolError, match="is a folder"):
+        sandbox.write_file(path, "bad")
+
+
+def test_write_under_a_file_is_a_tool_error(sandbox):
+    sandbox.write_file("src/App.jsx", "a")
+    with pytest.raises(ToolError, match="part of that path is a file"):
+        sandbox.write_file("src/App.jsx/Card.jsx", "bad")
+    assert sandbox.read_file("src/App.jsx") == "a"
+
+
+def test_read_a_folder_is_a_tool_error(sandbox):
+    sandbox.write_file("src/App.jsx", "a")
+    with pytest.raises(ToolError, match="is a folder"):
+        sandbox.read_file("src")
+
+
+def test_read_a_binary_file_is_a_tool_error(sandbox):
+    (sandbox.root / "logo.png").write_bytes(b"\x89PNG\r\n\x1a\n\xff\xfe\x00")
+    with pytest.raises(ToolError, match="not a text file"):
+        sandbox.read_file("logo.png")
+
+
+def test_edit_with_empty_old_text_is_refused(sandbox):
+    sandbox.write_file("a.txt", "one")
+    with pytest.raises(ToolError, match="`old` is empty"):
+        sandbox.edit_file("a.txt", "", "two")
+    assert sandbox.read_file("a.txt") == "one"
+
+
+def test_file_tool_returns_folder_error_to_the_model(sandbox):
+    from tools.file_tools import make_file_tools
+
+    tools = {tool.name: tool for tool in make_file_tools(sandbox)}
+    sandbox.write_file("src/App.jsx", "a")
+    answer = tools["write_file"].invoke({"path": "src", "content": "x"})
+    assert answer.startswith("Error: 'src' is a folder")
