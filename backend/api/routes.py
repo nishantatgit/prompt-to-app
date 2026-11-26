@@ -14,7 +14,7 @@ from agents.llm import create_llm
 from agents.stub_llm import make_stub_models, stub_mode
 from agents.usage import UsageMeter
 from api.credits import CreditConfig, credit_store, open_store
-from api.env import env_int
+from api.env import env_flag, env_int
 from api.events import log_event
 from api.jobs import (
     FINISHED_STATUSES,
@@ -131,7 +131,7 @@ OWN_KEYS_OFF = "Vyskar builds on its own AI now, no key needed."
 
 def own_keys_allowed() -> bool:
     """Whether people may build with their own AI key. Off with ALLOW_OWN_KEYS=false."""
-    return os.getenv("ALLOW_OWN_KEYS", "true").lower() != "false"
+    return env_flag("ALLOW_OWN_KEYS", True)
 
 
 PAID_PAUSED = "Builds are paused for a moment. Your credits are safe; try again soon."
@@ -170,7 +170,7 @@ def trial_ledger(settings: Settings) -> TrialLedger:
 def screenshots_dir(settings: Settings) -> Path | None:
     """Where photos of finished apps go: Fly's volume (DATA_DIR), else next to
     the workspaces. None, so no photos, with APP_SCREENSHOTS=false."""
-    if os.getenv("APP_SCREENSHOTS", "true").lower() == "false":
+    if not env_flag("APP_SCREENSHOTS", True):
         return None
     return Path(os.getenv("DATA_DIR") or settings.workspaces_dir) / "screenshots"
 
@@ -251,7 +251,7 @@ def build(
         raise HTTPException(status_code=400, detail=OWN_KEYS_OFF)
     elif req.api_key:
         key = req.api_key.get_secret_value()
-    elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
+    elif env_flag("ALLOW_SERVER_KEYS", False):
         key = settings.api_key_for(req.provider)
     elif credits.enabled and credit_store(settings).balance(visitor_id(request)) > 0:
         # Bought builds run on Vyskar's own key, like free ones.
@@ -438,7 +438,7 @@ def clarify(req: ClarifyRequest, request: Request, settings: Settings = Depends(
     try:
         if req.api_key and own_keys_allowed():
             key = req.api_key.get_secret_value()
-        elif os.environ.get("ALLOW_SERVER_KEYS") == "true":
+        elif env_flag("ALLOW_SERVER_KEYS", False):
             key = settings.api_key_for(provider)
         else:
             visitor, ip = visitor_id(request), client_ip(request)
