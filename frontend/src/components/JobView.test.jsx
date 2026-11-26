@@ -75,3 +75,29 @@ describe('JobView cancelled', () => {
     expect(screen.queryByText(/given back/)).toBeNull()
   })
 })
+
+describe('JobView failed build', () => {
+  const FAILED = {
+    job_id: 'abc',
+    status: 'failed',
+    stage: 'requirements',
+    activity: [],
+    timings: { stages: {}, total_seconds: 1 },
+  }
+
+  it("says a check failure in plain words and keeps Vyskar's own reason under Details", async () => {
+    const reason = "Requirements failed: requirement R1: source_quote 'bill amount' does not appear in the request."
+    getJob.mockResolvedValue({ ...FAILED, reason })
+    render(<JobView jobId="abc" />)
+    await screen.findByText(/couldn't work out exactly what the app should do/)
+    expect(screen.getByText('Details')).toBeTruthy()
+    expect(screen.getByText(reason).closest('details')).toBeTruthy()
+  })
+
+  it('shows a reason written for people as it is, with no Details', async () => {
+    getJob.mockResolvedValue({ ...FAILED, reason: 'No app called my-notes was found.' })
+    render(<JobView jobId="abc" />)
+    await screen.findByText('No app called my-notes was found.')
+    expect(screen.queryByText('Details')).toBeNull()
+  })
+})
