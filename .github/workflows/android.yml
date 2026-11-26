@@ -4,6 +4,11 @@ name: Android app
 # Run by hand from the Actions tab; see android/README.md.
 on:
   workflow_dispatch:
+    inputs:
+      play_signing_sha256:
+        description: "Google's app signing key SHA-256 (Play Console, Setup, App signing), for assetlinks.json. Optional."
+        required: false
+        default: ""
   push:
     branches: [main]
     paths:
@@ -31,6 +36,9 @@ jobs:
           yarn install --non-interactive
           node generate.mjs build/project
 
+      - name: Test the helper scripts
+        run: yarn test
+
       - name: Signing key
         env:
           KEY_BASE64: ${{ secrets.ANDROID_UPLOAD_KEY_BASE64 }}
@@ -50,6 +58,18 @@ jobs:
           keytool -list -v -keystore upload-key.jks -alias upload -storepass "$KEY_PASSWORD" \
             | grep "SHA256:" | sed 's/^\s*//' > fingerprints.txt
           cat fingerprints.txt
+
+      - name: Asset links for app.vyskar.com
+        env:
+          PLAY_SHA256: ${{ inputs.play_signing_sha256 }}
+        run: |
+          node assetlinks.mjs fingerprints.txt "$PLAY_SHA256" > assetlinks.json
+          cat assetlinks.json
+          if [ "$KEY_PASSWORD" = "throwaway" ]; then
+            echo "::warning::assetlinks.json lists the throwaway key: do not commit it."
+          elif [ -z "$PLAY_SHA256" ]; then
+            echo "::warning::assetlinks.json has no play_signing_sha256: installs from Play will still show a browser bar."
+          fi
 
       - name: Build
         working-directory: android/build/project
@@ -83,3 +103,4 @@ jobs:
             android/vyskar.aab
             android/vyskar.apk
             android/fingerprints.txt
+            android/assetlinks.json

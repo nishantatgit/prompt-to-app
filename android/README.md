@@ -32,7 +32,21 @@ Keep `upload-key.jks` and its password safe, outside the repo.
 
 ## Digital Asset Links
 
-Chrome hides the browser bar only when app.vyskar.com vouches for the app, in
-`frontend/public/.well-known/assetlinks.json`. It needs the SHA-256
-fingerprints of the upload key (from `fingerprints.txt`) and of Google's app
-signing key (Play Console, Setup, App signing).
+Chrome hides the browser bar only when app.vyskar.com vouches for the app at
+`/.well-known/assetlinks.json`. That file is not in the repo yet: until it
+is, the Play Store app opens app.vyskar.com with a browser bar on top.
+
+It needs the SHA-256 fingerprints of the upload key and of Google's app
+signing key (Play Console, Setup, App signing). The workflow writes it for
+you:
+
+1. Run the **Android app** workflow with the upload key secrets set, and paste
+   Google's app signing SHA-256 into the `play_signing_sha256` box.
+2. Take `assetlinks.json` from the run's files and commit it as
+   `frontend/public/.well-known/assetlinks.json`.
+3. Once Vercel has deployed it, check
+   https://app.vyskar.com/.well-known/assetlinks.json opens.
+
+Do not commit one made with the throwaway key: it vouches for an app nobody
+installs. To make the file by hand: `node assetlinks.mjs fingerprints.txt
+<play SHA-256>`.
