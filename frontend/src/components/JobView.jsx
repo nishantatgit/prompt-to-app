@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { cancelJob, getJob, screenshotUrl } from '../lib/api.js'
 import FeedbackForm from './FeedbackForm.jsx'
 import BuildAnimation from './BuildAnimation.jsx'
+import { failureText } from '../lib/failure.js'
 
 const STAGES = [
   'checking request',
@@ -63,6 +64,23 @@ function failureHeading(job) {
   if (job.reason?.startsWith('no credit')) return 'Your AI account is out of credit.'
   if (job.reason?.startsWith('internal error')) return 'Something went wrong on our side.'
   return 'The app did not pass its checks.'
+}
+
+// A plain sentence first; Vyskar's own wording stays one tap away, for
+// feedback and for tracing the build.
+function FailureReason({ reason }) {
+  const { text, detail } = failureText(reason)
+  return (
+    <>
+      <p className="text-sm leading-relaxed text-muted">{text}</p>
+      {detail && (
+        <details className="text-sm text-muted">
+          <summary className="min-h-11 py-3 underline underline-offset-4">Details</summary>
+          <p className="break-words font-mono text-xs leading-relaxed text-dim">{detail}</p>
+        </details>
+      )}
+    </>
+  )
 }
 
 // Shown under the steps while polling can't reach Vyskar. The build keeps
@@ -271,9 +289,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
       {(job?.status === 'failed' || job?.status === 'rejected') && (
         <div className="mt-5 flex flex-col gap-3">
           <p className="font-display text-xl font-bold">{failureHeading(job)}</p>
-          <p className="text-sm leading-relaxed text-muted">
-            {job.reason?.replace(/^(key rejected|no credit): /, '')}
-          </p>
+          <FailureReason reason={job.reason} />
           {job.test_summary && (
             <pre className="whitespace-pre-wrap rounded-lg bg-ink p-4 font-mono text-xs text-dim">{job.test_summary}</pre>
           )}
