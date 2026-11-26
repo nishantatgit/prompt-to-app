@@ -19,8 +19,14 @@ primary_region = 'sin'
   memory = '2gb'
   cpu_kind = 'shared'
   cpus = 2
-# Paid build credits live here, in SQLite, so they survive deploys. Create
-# the volume once before deploying this:
+# Everything Vyskar must keep across deploys lives here (DATA_DIR):
+#   credits.db        bought build credits and Razorpay payments
+#   trial-usage.json  free build counts, feedback bonuses, trial databases
+#   feedback.db       feedback and waitlist emails (the /admin page)
+#   push.db           Web Push subscriptions
+#   screenshots/      photos of finished apps
+# Deleting or recreating the volume loses all of it. Create the volume once
+# before deploying this:
 #   fly volumes create vyskar_data --region sin --size 1
 [mounts]
   source = 'vyskar_data'

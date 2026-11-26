@@ -8,9 +8,10 @@ Off unless FREE_TRIAL_BUILDS is above 0. Then:
 - databases of trial apps are deleted after TRIAL_DATABASE_HOURS, because
   the free Supabase plan allows only two
 
-Counts are kept in a JSON file next to the workspaces. Fly has no volume
-here, so a deploy resets them; the spending limit on the Anthropic account
-is the hard cap behind this.
+Counts are kept in trial-usage.json on Fly's volume (DATA_DIR, see
+trial_ledger in api/routes.py), so a deploy keeps them; without DATA_DIR
+the file sits next to the workspaces. The spending limit on the Anthropic
+account is still the hard cap behind this.
 """
 
 import json
