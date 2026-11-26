@@ -14,6 +14,10 @@ DONE_STATES = {"READY", "ERROR", "CANCELED"}
 
 
 def _params(extra: dict | None = None) -> dict:
+    """Query parameters for every Vercel call. With VERCEL_TEAM_ID set, each
+    call must carry it: one without it lands in the token owner's personal
+    account, so the app would deploy there while its keys, domain and later
+    edits looked for it in the team."""
     params = dict(extra or {})
     team_id = os.environ.get("VERCEL_TEAM_ID")
     if team_id:
@@ -70,7 +74,7 @@ def create_deployment(token: str, name: str, files: list[dict]) -> dict:
     """Start a production deployment. Vercel installs and builds the project itself."""
     response = httpx.post(
         f"{API}/v13/deployments",
-        params={"skipAutoDetectionConfirmation": "1"},
+        params=_params({"skipAutoDetectionConfirmation": "1"}),
         headers=_headers(token),
         json={
             "name": name,
@@ -95,6 +99,7 @@ def wait_until_ready(token: str, deployment_id: str, timeout: int = 300, interva
     while time.monotonic() < deadline:
         response = httpx.get(
             f"{API}/v13/deployments/{deployment_id}",
+            params=_params(),
             headers=_headers(token),
             timeout=30,
         )
@@ -110,6 +115,7 @@ def add_domain(token: str, project: str, domain: str) -> dict:
     """Attach a domain, such as converter.vyskar.app, to a project."""
     response = httpx.post(
         f"{API}/v10/projects/{project}/domains",
+        params=_params(),
         headers=_headers(token),
         json={"name": domain},
         timeout=30,
