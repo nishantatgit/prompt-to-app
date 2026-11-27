@@ -61,6 +61,7 @@ def test_a_visitor_without_a_key_gets_free_builds_on_vyskars_key(client):
         "enabled": True,
         "builds_left": 2,
         "paused": False,
+        "needs_storage": False,
         "own_keys": True,
         "bonus_available": True,
         "bonus_builds": 2,
@@ -296,3 +297,25 @@ def test_no_bonus_offer_without_a_visitor_id(client, monkeypatch):
     )
     assert reply.status_code == 200
     assert reply.json()["bonus_builds"] == 0
+
+
+def test_a_browser_that_saves_no_visitor_id_is_told_why_not_used_up(client):
+    # Private browsing or blocked cookies: no visitor id, so free builds
+    # can't be counted. The app and the API say so, not "used your free builds".
+    no_id = {"X-Vyskar-Visitor": ""}
+    status = client.get("/api/trial", headers=no_id).json()
+    assert status["builds_left"] == 0
+    assert status["needs_storage"] is True
+    assert client.get("/api/trial").json()["needs_storage"] is True
+    response = build(client, visitor="")
+    assert response.status_code == 400
+    assert response.json()["detail"] == routes.TRIAL_NEEDS_STORAGE
+    assert client.started == []
+    # A browser with an id is not affected.
+    assert trial_status(client)["needs_storage"] is False
+
+
+def test_needs_storage_is_off_when_free_builds_are(client, monkeypatch):
+    monkeypatch.setenv("FREE_TRIAL_BUILDS", "0")
+    assert trial_status(client, visitor="")["needs_storage"] is False
+    assert build(client, visitor="").json()["detail"] == routes.NO_KEY

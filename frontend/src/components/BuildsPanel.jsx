@@ -21,6 +21,24 @@ export default function BuildsPanel({ trial, credits, bonusBuilds, onBonus, paid
     }
   }
 
+  // The browser saves no site data (private browsing, blocked cookies), so
+  // free and bought builds can't be counted here. Saying "used up" to someone
+  // who never built would be wrong, and feedback or buying couldn't help.
+  if (left <= 0 && trial.needs_storage) {
+    return (
+      <section aria-labelledby="builds-title" className="rounded-2xl border border-line bg-card p-6">
+        <h2 id="builds-title" className="font-display text-lg font-bold">
+          Free builds need this browser to save site data
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          This browser isn't saving it, often because of private browsing or blocked cookies, so
+          Vyskar can't count free builds here. Allow site data for Vyskar or open it in a normal
+          window, then reload.{ownKeys && ' Or add your own AI key below to build now.'}
+        </p>
+      </section>
+    )
+  }
+
   if (left > 0 && trial.paused) {
     return (
       <section aria-labelledby="builds-title" className="rounded-2xl border border-line bg-card p-6">
