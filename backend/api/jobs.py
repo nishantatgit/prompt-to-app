@@ -113,9 +113,21 @@ def create_job(
 
 
 def get_job(job_id: str) -> dict | None:
+    """A copy of the job, safe to read without the lock.
+
+    The build thread changes a job's timings in place (a new stage, a step
+    finishing). With only the outer dict copied, the page asking for the job
+    could be going through timings while a new stage is added, and Python
+    stops that with "dictionary changed size during iteration": a 500 on
+    GET /api/jobs/{id}. So timings are copied too. Activity and state are
+    always replaced, never changed in place, so they need no copy."""
     with _lock:
         job = _jobs.get(job_id)
-        return dict(job) if job else None
+        if not job:
+            return None
+        copy = dict(job)
+        copy["timings"] = {stage: dict(t) for stage, t in job["timings"].items()}
+        return copy
 
 
 def _update(job_id: str, **fields) -> None:
