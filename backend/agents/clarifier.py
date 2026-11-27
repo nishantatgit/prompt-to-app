@@ -35,13 +35,41 @@ class Questions(BaseModel):
     questions: list[Question] = Field(description="0 to 2 questions; usually none.")
 
 
+# Answers that mean the same as the "I'm not sure" button the app adds itself.
+# Compared after _key(), so case, curly apostrophes and a trailing dot or
+# question mark do not matter.
+_NOT_SURE_LIKE = {"i'm not sure", "im not sure", "not sure", "unsure", "i don't know", "don't know"}
+
+
+def _key(text: str) -> str:
+    """The text as a person reads it: same words, any case or apostrophe."""
+    text = text.replace("’", "'").replace("‘", "'")
+    return " ".join(text.casefold().split()).rstrip(".?!")
+
+
 def _clean(questions: list[Question]) -> list[dict]:
     out = []
-    for q in questions[:MAX_QUESTIONS]:
-        text = q.question.strip()
-        options = [o.strip() for o in q.options if o.strip() and o.strip() != NOT_SURE][:4]
-        if text and len(options) >= 2:
-            out.append({"question": text[:200], "options": [o[:60] for o in options]})
+    seen_questions = set()
+    for q in questions:
+        if len(out) == MAX_QUESTIONS:
+            break
+        text = q.question.strip()[:200]
+        if not text or _key(text) in seen_questions:
+            continue
+        # Each answer once, and never a second "not sure": the app shows its
+        # own, and two buttons with the same words would both light up.
+        options, seen = [], set()
+        for option in q.options:
+            option = option.strip()[:60].strip()
+            key = _key(option)
+            if not key or key in seen or key in _NOT_SURE_LIKE:
+                continue
+            seen.add(key)
+            options.append(option)
+        options = options[:4]
+        if len(options) >= 2:
+            seen_questions.add(_key(text))
+            out.append({"question": text, "options": options})
     return out
 
 
