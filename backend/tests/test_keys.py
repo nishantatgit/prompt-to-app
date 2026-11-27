@@ -5,7 +5,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from agents import keys
-from agents.keys import KeyRejected, check_key, user_error_reason as rejected_reason
+from agents.keys import KeyRejected, check_key
+from agents.keys import user_error_reason as rejected_reason
 
 REQUEST = httpx.Request("GET", "https://api.example.com/v1/models")
 

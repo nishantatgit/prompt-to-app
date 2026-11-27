@@ -40,10 +40,11 @@ def parse_results(raw: dict) -> list[dict]:
 
 
 def short_error(error: str) -> str:
-    lines = [l.strip() for l in error.splitlines() if l.strip()]
+    lines = [line.strip() for line in error.splitlines() if line.strip()]
     if not lines:
         return "no error message"
-    keep = [lines[0]] + [l for l in lines if l.startswith(("Locator:", "Expected:", "Received:"))]
+    details = ("Locator:", "Expected:", "Received:")
+    keep = [lines[0]] + [line for line in lines if line.startswith(details)]
     return " | ".join(keep)
 
 

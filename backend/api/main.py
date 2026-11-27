@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+
 from config import ENV_FILE
 
 loaded = load_dotenv(ENV_FILE)
@@ -13,11 +14,11 @@ print(
 
 from fastapi import FastAPI  # noqa: E402
 
-from api.routes import router  # noqa: E402
-from api.voice import router as voice_router  # noqa: E402
 from api.credits import router as credits_router  # noqa: E402
 from api.feedback import router as feedback_router  # noqa: E402
 from api.push import router as push_router  # noqa: E402
+from api.routes import router  # noqa: E402
+from api.voice import router as voice_router  # noqa: E402
 
 app = FastAPI()
 app.include_router(router)

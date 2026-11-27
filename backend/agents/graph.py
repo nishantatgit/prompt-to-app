@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Literal
 
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph import END, START, StateGraph

@@ -1,6 +1,8 @@
-from agents.state import JobState
-from langgraph.graph import END
 from typing import Literal
+
+from langgraph.graph import END
+
+from agents.state import JobState
 
 
 def make_after_build_check(max_attempts: int):

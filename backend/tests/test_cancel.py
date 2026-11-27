@@ -17,7 +17,7 @@ class FakeGraph:
         self.during = during
         self.config = None
 
-    def stream(self, state, config, stream_mode):
+    def stream(self, initial, config, stream_mode):
         self.config = config
         for i, chunk in enumerate(self.chunks):
             yield chunk
@@ -85,12 +85,12 @@ class LoopState(TypedDict, total=False):
     loop_turns: int
 
 
-def run_loop_in_graph(state, model, build, cancelled):
+def run_loop_in_graph(initial, model, build, cancelled):
     graph = StateGraph(LoopState)
     graph.add_node("builder", make_build_loop(model, build=build))
     graph.add_edge(START, "builder")
     graph.add_edge("builder", END)
-    return graph.compile().invoke(state, {"configurable": {"cancelled": cancelled}})
+    return graph.compile().invoke(initial, {"configurable": {"cancelled": cancelled}})
 
 
 def test_the_build_loop_stops_before_its_next_model_call(state):  # noqa: F811
