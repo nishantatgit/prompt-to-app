@@ -7,6 +7,11 @@ let audio
 function tone(from, to, ms) {
   try {
     audio = audio || new AudioContext()
+    // A context made outside a tap (such as after waiting for the mic) starts
+    // suspended on iPhone, and one is suspended again when the phone goes to
+    // the background or takes a call. Without this the cues stay silent from
+    // then on; resuming here, on the next tap, brings them back.
+    if (audio.state !== 'running') audio.resume?.().catch(() => {})
     const osc = audio.createOscillator()
     const gain = audio.createGain()
     const t = audio.currentTime
