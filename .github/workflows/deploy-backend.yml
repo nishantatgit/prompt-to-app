@@ -1,5 +1,9 @@
 name: Deploy backend
 
+# Deploys api.vyskar.com to Fly on every push to main that touches the
+# backend. The backend tests run first, in this workflow, and the deploy only
+# starts when they pass: a merge that breaks the tests never reaches Fly. The
+# tests use stubs and mocks only, so the test job needs no secrets.
 on:
   push:
     branches: [main]
@@ -13,7 +17,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: uv python install 3.14
+      - run: uv sync --frozen
+      - run: uv run --frozen pytest -q
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     defaults:
       run:
