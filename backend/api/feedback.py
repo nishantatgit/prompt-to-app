@@ -5,7 +5,9 @@
   can be traced to the exact build. A real message, from someone on free
   builds, earns FEEDBACK_BONUS_BUILDS more, once.
 - POST /api/waitlist: an email, from someone who wants paid builds.
-- GET /api/admin/feedback: everything, newest first, with ADMIN_TOKEN.
+- GET /api/admin/feedback: the newest ADMIN_LIMIT entries, with ADMIN_TOKEN,
+  and how many of each kind are stored, so the page can say when older ones
+  are not shown.
 
 Stored in SQLite on Fly's volume (DATA_DIR).
 """
@@ -32,6 +34,7 @@ from config import Settings, get_settings
 router = APIRouter(prefix="/api")
 
 MIN_MESSAGE_FOR_BONUS = 20
+ADMIN_LIMIT = 500
 PER_DAY = 20
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -81,13 +84,21 @@ class FeedbackStore:
     def all(self, limit: int = 500) -> list[dict]:
         with self._lock:
             cursor = self._db.execute(
-                "select * from feedback order by created desc limit ?", (limit,)
+                "select * from feedback order by created desc, id desc limit ?", (limit,)
             )
             names = [d[0] for d in cursor.description]
             rows = [dict(zip(names, row, strict=True)) for row in cursor.fetchall()]
         for row in rows:
             row["build"] = json.loads(row["build"]) if row["build"] else None
         return rows
+
+    def totals(self) -> dict[str, int]:
+        """How many of each kind are stored, including any past all()'s limit."""
+        with self._lock:
+            found = dict(
+                self._db.execute("select kind, count(*) from feedback group by kind").fetchall()
+            )
+        return {"feedback": found.get("feedback", 0), "waitlist": found.get("waitlist", 0)}
 
 
 _store: FeedbackStore | None = None
@@ -202,4 +213,5 @@ def read_feedback(
     # turn a mistyped or pasted token into a 500 instead of a 401.
     if not token or not hmac.compare_digest(given.encode(), token.encode()):
         raise HTTPException(status_code=401, detail="Not allowed.")
-    return {"feedback": feedback_store(settings).all()}
+    store = feedback_store(settings)
+    return {"feedback": store.all(ADMIN_LIMIT), "totals": store.totals()}

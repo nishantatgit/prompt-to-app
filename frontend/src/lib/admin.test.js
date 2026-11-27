@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { UNREACHABLE } from './errors'
-import { NotAllowed, formatConfidence, formatCost, getFeedback, loadToken, saveToken } from './admin'
+import { NotAllowed, formatConfidence, formatCost, getFeedback, loadToken, saveToken, totalFor } from './admin'
 
 beforeEach(() => sessionStorage.clear())
 afterEach(() => vi.restoreAllMocks())
@@ -48,9 +48,38 @@ describe('getFeedback', () => {
 
   it('sorts entries newest first', async () => {
     reply(200, { feedback: [{ id: 1, created: 10 }, { id: 2, created: 30 }, { id: 3, created: 20 }] })
-    const rows = await getFeedback('t')
+    const { rows } = await getFeedback('t')
     expect(rows.map((r) => r.id)).toEqual([2, 3, 1])
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer t')
+  })
+
+  it('puts the later of two entries from the same moment first', async () => {
+    reply(200, { feedback: [{ id: 1, created: 10 }, { id: 2, created: 10 }] })
+    const { rows } = await getFeedback('t')
+    expect(rows.map((r) => r.id)).toEqual([2, 1])
+  })
+
+  it('passes on how many entries are stored in all', async () => {
+    reply(200, {
+      feedback: [{ id: 1, kind: 'waitlist', created: 1 }],
+      totals: { feedback: 700, waitlist: 120 },
+    })
+    const { totals } = await getFeedback('t')
+    expect(totals).toEqual({ feedback: 700, waitlist: 120 })
+    expect(totalFor(totals, 'all')).toBe(820)
+    expect(totalFor(totals, 'waitlist')).toBe(120)
+  })
+
+  it('counts the rows when the API sends no totals', async () => {
+    reply(200, {
+      feedback: [
+        { id: 1, kind: 'waitlist', created: 1 },
+        { id: 2, kind: 'feedback', created: 2 },
+        { id: 3, kind: 'feedback', created: 3 },
+      ],
+    })
+    const { totals } = await getFeedback('t')
+    expect(totals).toEqual({ feedback: 2, waitlist: 1 })
   })
 
   it('throws NotAllowed for a rejected token', async () => {

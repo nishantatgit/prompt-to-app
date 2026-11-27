@@ -146,6 +146,18 @@ def test_the_waitlist_keeps_emails(client):
     assert (row["kind"], row["email"]) == ("waitlist", "asha@example.com")
 
 
+def test_admin_gets_totals_past_the_newest_entries(client, monkeypatch):
+    monkeypatch.setattr(feedback, "ADMIN_LIMIT", 2)
+    for i in range(3):
+        assert client.post("/api/waitlist", json={"email": f"p{i}@example.com"}).status_code == 200
+    assert client.post("/api/feedback", json={"rating": "up"}).status_code == 200
+    body = admin(client).json()
+    # Only the newest two come back, but the counts cover everything stored.
+    assert [row["kind"] for row in body["feedback"]] == ["feedback", "waitlist"]
+    assert body["feedback"][1]["email"] == "p2@example.com"
+    assert body["totals"] == {"feedback": 1, "waitlist": 3}
+
+
 def test_only_the_admin_reads_feedback(client, monkeypatch):
     assert client.get("/api/admin/feedback").status_code == 401
     assert (

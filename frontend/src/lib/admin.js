@@ -32,7 +32,29 @@ export function isAdminPage() {
 
 export class NotAllowed extends Error {}
 
-// Feedback and waitlist entries, newest first.
+const KINDS = ['feedback', 'waitlist']
+
+// How many of each kind are stored. The API sends this because it returns
+// only the newest entries; an older API without it is counted from the rows.
+function readTotals(totals, rows) {
+  const counted = Object.fromEntries(KINDS.map((kind) => [kind, rows.filter((r) => r.kind === kind).length]))
+  if (!totals || typeof totals !== 'object') return counted
+  return Object.fromEntries(
+    KINDS.map((kind) => {
+      const n = totals[kind]
+      return [kind, Number.isInteger(n) && n >= counted[kind] ? n : counted[kind]]
+    }),
+  )
+}
+
+// The total for a filter: 'all', 'feedback' or 'waitlist'.
+export function totalFor(totals, filter) {
+  if (filter === 'all') return KINDS.reduce((sum, kind) => sum + (totals?.[kind] || 0), 0)
+  return totals?.[filter] || 0
+}
+
+// The newest feedback and waitlist entries, newest first, with how many of
+// each kind are stored in all: { rows, totals }.
 export async function getFeedback(token) {
   let res
   try {
@@ -47,7 +69,8 @@ export async function getFeedback(token) {
   if (res.status === 401) throw new NotAllowed('That token was not accepted.')
   if (!res.ok) throw new Error(errorMessage(body, res.status))
   const rows = Array.isArray(body.feedback) ? body.feedback : []
-  return [...rows].sort((a, b) => (b.created || 0) - (a.created || 0))
+  const sorted = [...rows].sort((a, b) => (b.created || 0) - (a.created || 0) || (b.id || 0) - (a.id || 0))
+  return { rows: sorted, totals: readTotals(body.totals, sorted) }
 }
 
 export function formatCost(usd) {
