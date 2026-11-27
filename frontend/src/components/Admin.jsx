@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { NotAllowed, formatConfidence, formatCost, formatWhen, getFeedback, loadToken, saveToken } from '../lib/admin.js'
+import { NotAllowed, formatConfidence, formatCost, formatWhen, getFeedback, loadToken, saveToken, totalFor } from '../lib/admin.js'
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -96,6 +96,7 @@ function Entry({ row }) {
 export default function Admin() {
   const [token, setToken] = useState(loadToken)
   const [rows, setRows] = useState(null)
+  const [totals, setTotals] = useState(null)
   const [error, setError] = useState('')
   // A token saved earlier in this tab loads straight away.
   const [loading, setLoading] = useState(() => Boolean(loadToken()))
@@ -104,7 +105,10 @@ export default function Admin() {
   const fetchRows = useCallback(
     (given) =>
       getFeedback(given)
-        .then(setRows)
+        .then((reply) => {
+          setRows(reply.rows)
+          setTotals(reply.totals)
+        })
         .catch((e) => {
           if (e instanceof NotAllowed) {
             saveToken('')
@@ -142,8 +146,10 @@ export default function Admin() {
     setError('')
   }
 
-  const count = (kind) => (rows || []).filter((r) => kind === 'all' || r.kind === kind).length
   const shown = (rows || []).filter((r) => filter === 'all' || r.kind === filter)
+  // The API sends only the newest entries. The buttons count everything
+  // stored, and the page says when older entries are not in the list.
+  const total = totalFor(totals, filter)
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 px-4 py-8">
@@ -191,10 +197,15 @@ export default function Admin() {
                   filter === f.id ? 'border-accent bg-accent text-on-accent' : 'border-wall text-muted hover:text-fg'
                 }`}
               >
-                {f.label} ({count(f.id)})
+                {f.label} ({totalFor(totals, f.id)})
               </button>
             ))}
           </div>
+          {total > shown.length && (
+            <p className="text-sm text-muted">
+              Showing the newest {shown.length} of {total}. Older entries are kept on the server.
+            </p>
+          )}
           {shown.length ? (
             <ul className="flex flex-col divide-y divide-line rounded-2xl border border-line bg-card">
               {shown.map((row) => (
