@@ -24,13 +24,13 @@ class LoopState(TypedDict, total=False):
     loop_turns: int
 
 
-def stream_activity(state, model, build):
+def stream_activity(initial, model, build):
     """Run the loop as a graph node and collect what it reports."""
     graph = StateGraph(LoopState)
     graph.add_node("builder", make_build_loop(model, build=build))
     graph.add_edge(START, "builder")
     graph.add_edge("builder", END)
-    events = graph.compile().stream(state, stream_mode="custom")
+    events = graph.compile().stream(initial, stream_mode="custom")
     return [event["activity"] for event in events]
 
 
@@ -64,7 +64,7 @@ class FakeGraph:
     def __init__(self, chunks):
         self.chunks = chunks
 
-    def stream(self, state, config, stream_mode):
+    def stream(self, initial, config, stream_mode):
         assert stream_mode == ["updates", "custom", "tasks"]
         yield from self.chunks
 
