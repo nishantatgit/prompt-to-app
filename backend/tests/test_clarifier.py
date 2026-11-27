@@ -1,3 +1,4 @@
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -52,6 +53,46 @@ def test_questions_are_capped_and_cleaned():
     assert [q["question"] for q in questions] == ["Who will use it?", "Keep data online?"]
     # "I'm not sure" is added by the app, not taken from the model
     assert questions[0]["options"] == ["Just me", "My whole team"]
+
+
+def test_repeated_answers_and_not_sure_look_alikes_are_dropped():
+    reply = (
+        '{"questions": [{"question": "Who will use it?", "options": '
+        '["Just me", "just me", "  Just  me ", "My team", "I’m not sure", "Not sure.", "unsure"]}]}'
+    )
+    questions = clarifier.ask(Canned(reply=reply), "A task board")
+    # The app adds its own "I'm not sure", and every answer shows once, so no
+    # two buttons share words and light up together
+    assert questions == [{"question": "Who will use it?", "options": ["Just me", "My team"]}]
+
+
+def test_answers_that_match_once_cut_short_count_once():
+    long = "a" * 70
+    options = json.dumps([long, long + "b", "Other"])
+    reply = f'{{"questions": [{{"question": "Pick one", "options": {options}}}]}}'
+    questions = clarifier.ask(Canned(reply=reply), "x")
+    assert questions[0]["options"] == ["a" * 60, "Other"]
+
+
+def test_a_repeated_question_is_asked_once():
+    reply = (
+        '{"questions": ['
+        '{"question": "Who will use it?", "options": ["Me", "Team"]},'
+        '{"question": "who will use it", "options": ["Me", "Everyone"]}]}'
+    )
+    questions = clarifier.ask(Canned(reply=reply), "x")
+    assert [q["question"] for q in questions] == ["Who will use it?"]
+
+
+def test_an_unusable_question_does_not_push_out_a_good_one():
+    reply = (
+        '{"questions": ['
+        '{"question": "Anything else?", "options": ["Not sure"]},'
+        '{"question": "Who will use it?", "options": ["Me", "Team"]},'
+        '{"question": "Keep data online?", "options": ["Yes", "No"]}]}'
+    )
+    questions = clarifier.ask(Canned(reply=reply), "x")
+    assert [q["question"] for q in questions] == ["Who will use it?", "Keep data online?"]
 
 
 def test_a_clear_request_gets_no_questions():
