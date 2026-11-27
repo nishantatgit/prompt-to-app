@@ -32,6 +32,13 @@ DEFAULT_PACKS = [
     {"id": "maker", "builds": 15, "price_inr": 1299},
 ]
 VISITOR_HEADER = "x-vyskar-visitor"
+# Without a visitor id the browser won't save site data (private browsing,
+# blocked cookies), so bought builds would have nowhere to go. Reloading
+# alone doesn't help, so this says what does.
+NEEDS_STORAGE = (
+    "Buying builds needs this browser to save site data, and it isn't. "
+    "Allow site data for Vyskar or leave private browsing, then reload."
+)
 
 
 def _whole(value) -> int | None:
@@ -155,7 +162,7 @@ def create_order(req: OrderRequest, request: Request, settings: Settings = Depen
     config = _config_or_503()
     visitor = visitor_of(request)
     if not visitor:
-        raise HTTPException(status_code=400, detail="Reload the page and try again.")
+        raise HTTPException(status_code=400, detail=NEEDS_STORAGE)
     pack = config.pack(req.pack)
     if pack is None:
         raise HTTPException(status_code=400, detail="Unknown pack.")
@@ -260,7 +267,7 @@ def restore_builds(
         raise HTTPException(status_code=429, detail="Too many tries. Try again in an hour.")
     visitor = visitor_of(request)
     if not visitor:
-        raise HTTPException(status_code=400, detail="Reload the page and try again.")
+        raise HTTPException(status_code=400, detail=NEEDS_STORAGE)
     balance = credit_store(settings).restore(req.payment_id.strip(), visitor)
     if balance is None:
         raise HTTPException(

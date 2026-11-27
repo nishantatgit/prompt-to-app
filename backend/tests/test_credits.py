@@ -407,3 +407,15 @@ def test_bad_packs_are_dropped_and_good_ones_kept(client, monkeypatch, fresh_rep
 def test_blank_packs_mean_the_defaults(client, monkeypatch, raw):
     monkeypatch.setenv("CREDIT_PACKS", raw)
     assert [p["id"] for p in client.get("/api/credits").json()["packs"]] == ["starter", "maker"]
+
+
+def test_buying_without_a_visitor_id_says_what_to_do(client):
+    # The browser saves no site data, so bought builds would have nowhere to
+    # go. Reloading alone wouldn't help, so the message says what does.
+    no_id = {"X-Vyskar-Visitor": ""}
+    order = client.post("/api/credits/order", json={"pack": "starter"}, headers=no_id)
+    assert order.status_code == 400
+    assert order.json()["detail"] == credits.NEEDS_STORAGE
+    restore = client.post("/api/credits/restore", json={"payment_id": "pay_1"}, headers=no_id)
+    assert restore.status_code == 400
+    assert restore.json()["detail"] == credits.NEEDS_STORAGE

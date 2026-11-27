@@ -126,6 +126,13 @@ VISITOR_HEADER = "x-vyskar-visitor"
 NO_KEY = "An API key is required."
 TRIAL_USED_UP = "You have used your free builds. Add your own AI key to keep building."
 TRIAL_PAUSED = "Free builds are paused right now. Add your own AI key to build."
+# The browser sent no visitor id because it won't save site data (private
+# browsing, blocked cookies), so free builds can't be counted for it. Saying
+# "used your free builds" to someone who never built would be wrong.
+TRIAL_NEEDS_STORAGE = (
+    "Free builds need this browser to save site data, and it isn't. "
+    "Allow site data for Vyskar or leave private browsing, then reload."
+)
 OWN_KEYS_OFF = "Vyskar builds on its own AI now, no key needed."
 
 
@@ -266,6 +273,8 @@ def build(
         config = TrialConfig.from_env()
         if not config.enabled:
             raise HTTPException(status_code=400, detail=NO_KEY)
+        if not visitor_id(request):
+            raise HTTPException(status_code=400, detail=TRIAL_NEEDS_STORAGE)
         ledger = trial_ledger(settings)
         if ledger.builds_left(config, visitor_id(request), client_ip(request)) <= 0:
             raise HTTPException(status_code=400, detail=TRIAL_USED_UP)
@@ -361,6 +370,9 @@ def trial_status(request: Request, settings: Settings = Depends(get_settings)):
         # Free builds are on but Vyskar's own key doesn't work: the app says
         # so before Build is tapped, instead of offering a build it would refuse.
         "paused": paused,
+        # Free builds are on but this browser sent no visitor id, so none can
+        # be counted for it: the app says why instead of "used up".
+        "needs_storage": config.enabled and not visitor,
         "own_keys": own_keys_allowed(),
         # Feedback earns more builds once; the app offers it when none are left.
         # FEEDBACK_BONUS_BUILDS=0 turns the offer off. Without a visitor id
