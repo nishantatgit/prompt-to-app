@@ -91,14 +91,18 @@ class FeedbackStore:
 
 
 _store: FeedbackStore | None = None
+_store_lock = threading.Lock()
 
 
 def feedback_store(settings: Settings) -> FeedbackStore:
+    """One store per process, created under a lock so requests arriving
+    together after a restart share it."""
     global _store
-    if _store is None:
-        folder = os.getenv("DATA_DIR") or settings.workspaces_dir
-        _store = FeedbackStore(Path(folder) / "feedback.db")
-    return _store
+    with _store_lock:
+        if _store is None:
+            folder = os.getenv("DATA_DIR") or settings.workspaces_dir
+            _store = FeedbackStore(Path(folder) / "feedback.db")
+        return _store
 
 
 def _visitor(request: Request) -> str:
