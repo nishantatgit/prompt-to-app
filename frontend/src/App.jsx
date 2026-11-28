@@ -17,6 +17,7 @@ import { loadApps, rememberApp } from './lib/myApps.js'
 import { MAX_PROMPT_CHARS } from './lib/prompt.js'
 import { pausedNote } from './lib/trial.js'
 import { useInputMode, useIsPhone } from './lib/inputMode.js'
+import { scrollBehavior } from './lib/motion.js'
 
 const CHANGE_EXAMPLES = [
   'add a dark mode',
@@ -193,7 +194,7 @@ export default function App() {
     setPrompt('')
     setJobId(null)
     setError('')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: scrollBehavior() })
     if (!voice) requestAnimationFrame(() => promptBox.current?.focus())
   }
 

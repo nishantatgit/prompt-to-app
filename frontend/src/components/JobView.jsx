@@ -201,7 +201,7 @@ export default function JobView({ jobId, onDone, onChange, feedbackBonus = 0, on
                   <span
                     aria-hidden="true"
                     className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                      done ? 'bg-accent' : current ? 'animate-pulse bg-accent' : 'bg-pending'
+                      done ? 'bg-accent' : current ? 'bg-accent motion-safe:animate-pulse' : 'bg-pending'
                     }`}
                   />
                   <span className={`min-w-0 flex-1 ${done || current ? 'text-fg' : 'text-dim'}`}>{stage}</span>

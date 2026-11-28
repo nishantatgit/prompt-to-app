@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { scrollBehavior } from '../lib/motion.js'
 
 export const NOT_SURE = "I'm not sure"
 
@@ -10,8 +11,7 @@ export default function Questions({ questions, onDone, onSkip, running }) {
 
   // Bring the questions into view, and to screen readers, as they appear.
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    heading.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' })
+    heading.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'center' })
     heading.current?.focus({ preventScroll: true })
   }, [])
   const answered = questions.every((_, i) => answers[i])

@@ -209,4 +209,6 @@ a:hover {
 @media (prefers-reduced-motion: reduce) {
   .dev *, .dev { animation: none !important; transition: none !important; }
   .dev-grain { display: none; }
+  /* The dots also follow "Reading your idea", outside the photo: held still and fully shown. */
+  .ba-dots i { animation: none; opacity: 1; }
 }
