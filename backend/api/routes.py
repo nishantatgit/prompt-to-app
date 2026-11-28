@@ -151,20 +151,27 @@ def log_paused(kind: str, reason: str, error: Exception | None = None) -> None:
 
 
 _ledger: TrialLedger | None = None
+_ledger_lock = threading.Lock()
 
 
 def trial_ledger(settings: Settings) -> TrialLedger:
     """One ledger per process, on Fly's volume (DATA_DIR) so a deploy keeps
     the counts, else next to the workspaces. On first use it also starts
-    recording the databases of finished trial apps."""
+    recording the databases of finished trial apps.
+
+    Created under a lock: requests run on several threads, and the first few
+    after a restart can arrive together. Two ledgers would each keep their
+    own copy of the counts and save over each other's file, losing free
+    builds already counted."""
     global _ledger
-    if _ledger is None:
-        folder = os.getenv("DATA_DIR") or settings.workspaces_dir
-        _ledger = TrialLedger(Path(folder) / "trial-usage.json")
-        TRIAL_FINISHED_HOOKS.append(
-            lambda job: _ledger.record_database(job.get("state", {}).get("database_name", ""))
-        )
-    return _ledger
+    with _ledger_lock:
+        if _ledger is None:
+            folder = os.getenv("DATA_DIR") or settings.workspaces_dir
+            _ledger = TrialLedger(Path(folder) / "trial-usage.json")
+            TRIAL_FINISHED_HOOKS.append(
+                lambda job: _ledger.record_database(job.get("state", {}).get("database_name", ""))
+            )
+        return _ledger
 
 
 def screenshots_dir(settings: Settings) -> Path | None:

@@ -13,6 +13,7 @@ while bought builds can still be spent and restored.
 
 import json
 import os
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -106,16 +107,20 @@ class CreditConfig:
 
 
 _store: CreditStore | None = None
+_store_lock = threading.Lock()
 
 
 def credit_store(settings: Settings) -> CreditStore:
     """One store per process. DATA_DIR is Fly's volume; without it, next to
-    the workspaces (fine for tests, lost on deploy)."""
+    the workspaces (fine for tests, lost on deploy). Created under a lock:
+    requests run on several threads, and two stores would each have their
+    own lock, so their writes would no longer wait for each other."""
     global _store
-    if _store is None:
-        folder = os.getenv("DATA_DIR") or settings.workspaces_dir
-        _store = CreditStore(Path(folder) / "credits.db")
-    return _store
+    with _store_lock:
+        if _store is None:
+            folder = os.getenv("DATA_DIR") or settings.workspaces_dir
+            _store = CreditStore(Path(folder) / "credits.db")
+        return _store
 
 
 def open_store() -> CreditStore | None:
