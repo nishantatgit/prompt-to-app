@@ -1,0 +1,30 @@
+name: Benchmark scripts
+
+# Unit tests for the benchmark's scorer on pull requests and pushes to main
+# that touch its scripts. Plain node:test: no install, no browser, no builds,
+# no secrets.
+on:
+  pull_request:
+    paths:
+      - "benchmark/scripts/**"
+      - "benchmark/package.json"
+      - ".github/workflows/benchmark-scripts.yml"
+  push:
+    branches: [main]
+    paths:
+      - "benchmark/scripts/**"
+      - "benchmark/package.json"
+      - ".github/workflows/benchmark-scripts.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: benchmark
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test 'scripts/*.test.mjs'
