@@ -61,3 +61,9 @@ yarn report                  # open the HTML report
 ```
 
 Apps without a URL are skipped.
+
+The scorer (`scripts/score.mjs`) has unit tests that need no browser, builds or keys:
+
+```bash
+yarn test:scripts
+```

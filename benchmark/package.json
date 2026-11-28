@@ -5,7 +5,8 @@
     "test": "playwright test",
     "test:common": "playwright test tests/common",
     "test:apps": "playwright test tests/apps",
-    "report": "playwright show-report results/latest/report"
+    "report": "playwright show-report results/latest/report",
+    "test:scripts": "node --test 'scripts/*.test.mjs'"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

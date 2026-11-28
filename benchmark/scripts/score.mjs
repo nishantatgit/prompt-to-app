@@ -61,7 +61,11 @@ export function score(results, builds, apps) {
     const own = tests.filter((t) => t.appId === id)
     const ran = own.filter((t) => t.status !== 'skipped')
     const failed = own.filter((t) => t.status === 'unexpected' || t.status === 'flaky')
-    const deployed = (build.deploy_url ?? 'unknown') !== '' && !own.every((t) => t.notDeployed)
+    // A deployed app with no tests in the run (Playwright crashed, or the
+    // grep missed it) is "no tests ran", not "not built": every() is true
+    // for an empty list, so only tests that skipped as not deployed count.
+    const deployed =
+      (build.deploy_url ?? 'unknown') !== '' && !(own.length && own.every((t) => t.notDeployed))
 
     let result = 'pass'
     if (!deployed) result = 'not built'
