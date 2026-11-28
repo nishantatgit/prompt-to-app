@@ -78,6 +78,16 @@ class FeedbackStore:
                 (since, visitor, ip),
             ).fetchone()[0]
 
+    def on_waitlist(self, email: str) -> bool:
+        """Whether this email is already on the waitlist, ignoring case."""
+        with self._lock:
+            row = self._db.execute(
+                "select 1 from feedback where kind = 'waitlist' and lower(email) = lower(?) "
+                "limit 1",
+                (email,),
+            ).fetchone()
+        return row is not None
+
     def all(self, limit: int = 500) -> list[dict]:
         with self._lock:
             cursor = self._db.execute(
@@ -188,7 +198,10 @@ def join_waitlist(
     store = feedback_store(settings)
     visitor, ip = _visitor(request), client_ip(request)
     _check_limit(store, visitor, ip)
-    store.add("waitlist", visitor=visitor, ip=ip, email=email)
+    # Joining twice (a second tap, a later visit) is still a yes, but the
+    # email is kept once, so the admin list has one row per person.
+    if not store.on_waitlist(email):
+        store.add("waitlist", visitor=visitor, ip=ip, email=email)
     return {"ok": True}
 
 
